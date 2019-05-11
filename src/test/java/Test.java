@@ -20,6 +20,6 @@ public class Test {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        System.out.println(new SimpleDateFormat("测试1yyyy/MM/dd HH:mm:ss").format(calendar.getTime()));
+        System.out.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(calendar.getTime()));
     }
 }
