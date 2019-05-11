@@ -9,18 +9,12 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 
 public class CustomSkullItemBuilder extends ItemBuilder {
-    private String owner;
     private String texture = null;
 
     public CustomSkullItemBuilder() {}
 
     public CustomSkullItemBuilder(ItemStack itemStack) {
         super(itemStack);
-    }
-
-    public CustomSkullItemBuilder owner(String owner) {
-        this.owner = owner;
-        return this;
     }
 
     /**
@@ -41,8 +35,6 @@ public class CustomSkullItemBuilder extends ItemBuilder {
         if (itemStack.getDurability() != 3) {
             throw new RuntimeException("durability 必须为 3.");
         }
-
-        skullMeta.setOwner(owner);
 
         if (texture != null) {
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
@@ -65,4 +57,6 @@ public class CustomSkullItemBuilder extends ItemBuilder {
         itemStack.setItemMeta(skullMeta);
         return itemStack;
     }
+
+
 }

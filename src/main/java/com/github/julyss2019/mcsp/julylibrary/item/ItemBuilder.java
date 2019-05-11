@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +20,8 @@ public class ItemBuilder {
     private Map<Enchantment, Integer> enchantmentMap = new HashMap<>();
     private List<String> lores = new ArrayList<>();
     private int loreCounter = 0;
-    private boolean isColored;
+    private boolean colored;
+    private String owner;
 
     public ItemBuilder() {}
 
@@ -36,6 +38,15 @@ public class ItemBuilder {
         if (itemStack.getEnchantments() != null) {
             enchantmentMap.putAll(itemStack.getEnchantments());
         }
+    }
+
+    public ItemBuilder owner() {
+        if (durability != 3) {
+            throw new IllegalArgumentException("durability必须为3.");
+        }
+
+        this.owner = owner;
+        return this;
     }
 
     /**
@@ -67,7 +78,7 @@ public class ItemBuilder {
         Material tmp = Material.getMaterial(id);
 
         if (tmp == null) {
-            throw new IllegalArgumentException("id 不合法.");
+            throw new IllegalArgumentException("material不合法.");
         }
 
         this.material = tmp;
@@ -191,6 +202,11 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder enchant(@NotNull Enchantment enchantment, int level) {
+        if (level < 0)
+        {
+            throw new IllegalArgumentException("level必须>=0.");
+        }
+
         this.enchantmentMap.put(enchantment, level);
         return this;
     }
@@ -201,6 +217,10 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder amount(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount必须>0.");
+        }
+
         this.amount = amount;
         return this;
     }
@@ -210,7 +230,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder colored(boolean colored) {
-        this.isColored = colored;
+        this.colored = colored;
         return this;
     }
 
@@ -220,19 +240,22 @@ public class ItemBuilder {
      */
     public ItemStack build() {
         if (material == null) {
-            throw new RuntimeException("material 属性未设置.");
+            throw new RuntimeException("material未设置.");
         }
 
+        ItemStack itemStack = new ItemStack(this.material);
+        ItemMeta itemMeta = itemStack.getItemMeta();
 
-        ItemStack itemStack = new ItemStack(material);
-        ItemMeta meta = itemStack.getItemMeta();
+        if (this.durability == 3 && this.owner != null) {
+            ((SkullMeta) itemMeta).setOwner(this.owner);
+        }
 
-        itemStack.setAmount(amount);
-        itemStack.setDurability(durability);
-        meta.setLore(isColored ? MessageUtil.translateColorCode(lores) : lores);
-        meta.setDisplayName(isColored ? MessageUtil.translateColorCode(displayName) : displayName);
+        itemStack.setAmount(this.amount);
+        itemStack.setDurability(this.durability);
+        itemMeta.setLore(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores);
+        itemMeta.setDisplayName(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName);
 
-        for (Map.Entry<Enchantment, Integer> entry : enchantmentMap.entrySet()) {
+        for (Map.Entry<Enchantment, Integer> entry : this.enchantmentMap.entrySet()) {
             Enchantment enchantment = entry.getKey();
             int lv = entry.getValue();
 
@@ -241,10 +264,10 @@ public class ItemBuilder {
                 continue;
             }
 
-            meta.addEnchant(enchantment, lv, true);
+            itemMeta.addEnchant(enchantment, lv, true);
         }
 
-        itemStack.setItemMeta(meta);
+        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 }
