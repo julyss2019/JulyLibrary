@@ -1,5 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.config;
 
+import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.lang.reflect.Field;
@@ -29,17 +31,26 @@ public class JulyConfig {
                 // 如果yml有目标项
                 if (section.contains(configPath)) {
                     Object value;
+                    Class<?> fieldType = field.getType();
 
-                    if (field.getType() == short.class) {
+                    if (fieldType == short.class) {
                         value = (short) section.getInt(configAnnotation.path());
+                    }  else if (fieldType == Sound.class) { // 对 Sound 类的支持
+                        try {
+                            value = Sound.valueOf(section.getString(configPath));
+                        } catch (Exception e) {
+                            value = null;
+                        }
                     } else {
-                        value = section.get(configAnnotation.path());
+                        value = section.get(configPath);
                     }
 
                     // 设置允许访问
                     field.setAccessible(true);
                     field.set(obj, value);
                     field.setAccessible(false);
+                } else {
+                    JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中路径 " + configPath + " 不存在.");
                 }
             }
         }

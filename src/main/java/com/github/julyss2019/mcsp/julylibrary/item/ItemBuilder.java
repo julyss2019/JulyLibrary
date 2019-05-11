@@ -40,7 +40,7 @@ public class ItemBuilder {
         }
     }
 
-    public ItemBuilder owner() {
+    public ItemBuilder owner(String owner) {
         if (durability != 3) {
             throw new IllegalArgumentException("durability必须为3.");
         }
@@ -246,10 +246,6 @@ public class ItemBuilder {
         ItemStack itemStack = new ItemStack(this.material);
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        if (this.durability == 3 && this.owner != null) {
-            ((SkullMeta) itemMeta).setOwner(this.owner);
-        }
-
         itemStack.setAmount(this.amount);
         itemStack.setDurability(this.durability);
         itemMeta.setLore(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores);
@@ -268,6 +264,14 @@ public class ItemBuilder {
         }
 
         itemStack.setItemMeta(itemMeta);
+
+        if (this.durability == 3 && this.owner != null) {
+            SkullMeta skullMeta = ((SkullMeta) itemMeta);
+
+            skullMeta.setOwner(owner);
+            itemStack.setItemMeta(skullMeta);
+        }
+
         return itemStack;
     }
 }
