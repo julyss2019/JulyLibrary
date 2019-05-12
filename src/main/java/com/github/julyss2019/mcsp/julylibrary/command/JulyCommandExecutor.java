@@ -34,7 +34,8 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
         if (args.length >= 1) {
             String firstArg = args[0].toLowerCase();
 
-            if (firstArg.equalsIgnoreCase("help")) {
+            // 如果没有 help 命令，则按下面的实现进行
+            if (firstArg.equalsIgnoreCase("help") && !commands.containsKey("help")) {
                 for (Command command : commands.values()) {
                     String per = command.getPermission();
 

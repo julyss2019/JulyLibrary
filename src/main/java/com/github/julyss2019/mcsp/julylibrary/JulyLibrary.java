@@ -1,7 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
 import com.github.julyss2019.mcsp.julylibrary.command.tab.JulyTabCompleter;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryListener;
 import com.github.julyss2019.mcsp.julylibrary.logger.FileLogger;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
 import com.github.julyss2019.mcsp.julylibrary.test.TestCommand;

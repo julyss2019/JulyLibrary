@@ -18,12 +18,13 @@ public class InventoryBuilder {
     private int row;
     private String title;
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
-    private Map<Integer, ClickedCallback> itemCallbackMap = new HashMap<>(); // 物品点击回调表
-    private static InventoryListener inventoryListener = new InventoryListener();
+    private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
+    private static BukkitInventoryListener bukkitInventoryListener = new BukkitInventoryListener();
     private boolean isColored;
+    private InventoryListener inventoryListener;
 
     static {
-        Bukkit.getPluginManager().registerEvents(inventoryListener, plugin);
+        Bukkit.getPluginManager().registerEvents(bukkitInventoryListener, plugin);
     }
 
     public InventoryBuilder(Inventory inventory) {
@@ -79,12 +80,12 @@ public class InventoryBuilder {
      * @param row
      * @param column
      * @param item
-     * @param clickedCallback 点击回调
+     * @param itemListener 物品监听器
      * @return
      */
-    public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @NotNull ClickedCallback clickedCallback) {
+    public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
         item(row, column, item);
-        itemCallbackMap.put(row * 9 + column, clickedCallback);
+        itemListenerMap.put(row * 9 + column, itemListener);
         return this;
     }
 
@@ -95,6 +96,12 @@ public class InventoryBuilder {
 
     public InventoryBuilder colored(boolean b) {
         this.isColored = b;
+        return this;
+    }
+
+    public InventoryBuilder listener(InventoryListener inventoryListener) {
+        this.inventoryListener = inventoryListener;
+
         return this;
     }
 
@@ -111,13 +118,18 @@ public class InventoryBuilder {
             this.inventory.setItem(entry.getKey(), entry.getValue());
         }
 
-        List<ClickableItem> clickableItems = new ArrayList<>();
+        List<ListenerItem> clickableItems = new ArrayList<>();
 
-        for (Map.Entry<Integer, ClickedCallback> entry : this.itemCallbackMap.entrySet()) {
-            clickableItems.add(new ClickableItem(entry.getKey(), entry.getValue()));
+        for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
+            clickableItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
         }
 
-        inventoryListener.registerItems(this.inventory, clickableItems);
-        return inventory;
+        bukkitInventoryListener.registerListenerItems(this.inventory, clickableItems);
+
+        if (this.inventoryListener != null) {
+            bukkitInventoryListener.registerInventoryListeners(this.inventory, this.inventoryListener);
+        }
+
+        return this.inventory;
     }
 }

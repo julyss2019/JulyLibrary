@@ -40,6 +40,7 @@ public class JulyConfig {
                             value = Sound.valueOf(section.getString(configPath));
                         } catch (Exception e) {
                             value = null;
+                            JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 Sound " + configPath + " 不合法.");
                         }
                     } else {
                         value = section.get(configPath);
@@ -50,7 +51,7 @@ public class JulyConfig {
                     field.set(obj, value);
                     field.setAccessible(false);
                 } else {
-                    JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中路径 " + configPath + " 不存在.");
+                    JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 路径 " + configPath + " 不存在.");
                 }
             }
         }
