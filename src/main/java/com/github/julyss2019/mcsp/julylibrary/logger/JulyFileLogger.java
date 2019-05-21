@@ -31,7 +31,7 @@ public class JulyFileLogger {
      * @param saveInterval 保存间隔，单位为秒
      * @return
      */
-    public static FileLogger getLogger(@NotNull File loggerFolder, @Nullable String fileName, int saveInterval) {
+    public static FileLogger getFileLogger(@NotNull File loggerFolder, @Nullable String fileName, int saveInterval) {
         if (saveInterval < 0)
         {
             throw new IllegalArgumentException("保存间隔必须大于等于0");

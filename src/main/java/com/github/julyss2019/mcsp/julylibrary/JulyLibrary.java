@@ -24,16 +24,6 @@ public class JulyLibrary extends JavaPlugin {
     }
 
     private void test() {
-        getDataFolder().mkdirs();
-        FileLogger fileLogger = JulyFileLogger.getLogger(getDataFolder(), "test", 2);
-
-        fileLogger.log(FileLogger.LoggerLevel.DEBUG, "test");
-        TestCommand command = new TestCommand();
-        JulyTabCompleter tabCompleter = new JulyTabCompleter();
-
-        getCommand("jl").setExecutor(command);
-        getCommand("jl").setTabCompleter(tabCompleter);
-        tabCompleter.register(command);
     }
 
     public static JulyLibrary getInstance() {

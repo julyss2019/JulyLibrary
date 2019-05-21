@@ -51,10 +51,10 @@ public class InventoryBuilder {
      * 设置物品
      * @param row 行，从0开始
      * @param column 列，从0开始
-     * @param itemStack
+     * @param item
      * @return
      */
-    public InventoryBuilder item(int row, int column, @NotNull ItemStack itemStack) {
+    public InventoryBuilder item(int row, int column, @NotNull ItemStack item) {
         if (row < 0) {
             throw new IllegalArgumentException("row 必须 >= 0.");
         }
@@ -71,12 +71,12 @@ public class InventoryBuilder {
             throw new IllegalArgumentException("column 必须 < 9.");
         }
 
-        itemIndexMap.put(row * 9 + column, itemStack);
+        itemIndexMap.put(row * 9 + column, item);
         return this;
     }
 
     /**
-     *
+     * 设置物品
      * @param row
      * @param column
      * @param item
@@ -86,6 +86,27 @@ public class InventoryBuilder {
     public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
         item(row, column, item);
         itemListenerMap.put(row * 9 + column, itemListener);
+        return this;
+    }
+
+    // 1 3 3 9
+
+    /**
+     *
+     * @param row1
+     * @param column1
+     * @param row2
+     * @param column2
+     * @param itemStack
+     * @return
+     */
+    public InventoryBuilder item(int row1, int column1, int row2, int column2, @NotNull ItemStack itemStack) {
+        for (int row = row1; row < row2; row++) {
+            for (int column = column1; column < column2; column++) {
+                item(row, column, itemStack);
+            }
+        }
+
         return this;
     }
 
@@ -99,6 +120,11 @@ public class InventoryBuilder {
         return this;
     }
 
+    /**
+     * 背包监听器
+     * @param inventoryListener
+     * @return
+     */
     public InventoryBuilder listener(InventoryListener inventoryListener) {
         this.inventoryListener = inventoryListener;
 
@@ -118,13 +144,13 @@ public class InventoryBuilder {
             this.inventory.setItem(entry.getKey(), entry.getValue());
         }
 
-        List<ListenerItem> clickableItems = new ArrayList<>();
+        List<ListenerItem> listenerItems = new ArrayList<>();
 
         for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
-            clickableItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
+            listenerItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
         }
 
-        bukkitInventoryListener.registerListenerItems(this.inventory, clickableItems);
+        bukkitInventoryListener.registerListenerItems(this.inventory, listenerItems);
 
         if (this.inventoryListener != null) {
             bukkitInventoryListener.registerInventoryListeners(this.inventory, this.inventoryListener);
