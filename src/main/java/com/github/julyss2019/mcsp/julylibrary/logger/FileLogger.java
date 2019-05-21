@@ -11,7 +11,7 @@ import java.util.Calendar;
 
 public class FileLogger {
     private static SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
-    private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
     private File loggerFolder;
     private String fileNameFormat;
     private int saveInterval;
@@ -35,7 +35,7 @@ public class FileLogger {
         checkNextDay();
     }
 
-    protected void update() {
+    void update() {
         if (saveInterval != 0) {
             checkNextDay();
 
@@ -99,7 +99,7 @@ public class FileLogger {
         log(LoggerLevel.INFO, s);
     }
 
-    public void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
+    private void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
         String log = "[" + loggerLevel.name() + "] " + "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
 
         write(log);
@@ -126,7 +126,7 @@ public class FileLogger {
         return true;
     }
 
-    protected boolean close() {
+    boolean close() {
         try {
             // 保存旧的
             if (loggerBufferedWriter != null) {
@@ -139,5 +139,29 @@ public class FileLogger {
         }
 
         return true;
+    }
+
+    public File getLoggerFolder() {
+        return loggerFolder;
+    }
+
+    public String getFileNameFormat() {
+        return fileNameFormat;
+    }
+
+    public int getSaveInterval() {
+        return saveInterval;
+    }
+
+    public FileWriter getLoggerWriter() {
+        return loggerWriter;
+    }
+
+    public BufferedWriter getLoggerBufferedWriter() {
+        return loggerBufferedWriter;
+    }
+
+    public long getNextDayMillis() {
+        return nextDayMillis;
     }
 }

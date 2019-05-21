@@ -11,13 +11,20 @@ import java.util.List;
 
 public class JulyFileLogger {
     private static List<@NotNull FileLogger> loggers = new ArrayList<>();
+    private static int counter = 0;
 
     static {
         new BukkitRunnable() {
             @Override
             public void run() {
+                counter++;
+
                 for (FileLogger fileLogger : loggers) {
-                    fileLogger.update();
+                    int interval = fileLogger.getSaveInterval();
+
+                    if (interval == 0 || counter % interval == 0) {
+                        fileLogger.update();
+                    }
                 }
             }
         }.runTaskTimer(JulyLibrary.getInstance(), 0L, 20L);
