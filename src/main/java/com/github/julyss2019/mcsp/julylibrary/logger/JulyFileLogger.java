@@ -1,7 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
 import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,21 +25,30 @@ public class JulyFileLogger {
 
     /**
      * 创建一个 Logger
-     * @param loggerFolder 文件夹，变量：%DATE% 日期
-     * @param fileName 文件名，为空则为 %DATE%
+     * @param loggerFolder 文件夹
+     * @param fileNameFormat 文件名格式，变量：%DATE%，为空则为 %DATE%
      * @param saveInterval 保存间隔，单位为秒
      * @return
      */
-    public static FileLogger getFileLogger(@NotNull File loggerFolder, @Nullable String fileName, int saveInterval) {
+    public static FileLogger getLogger(@NotNull File loggerFolder, @Nullable String fileNameFormat, int saveInterval) {
         if (saveInterval < 0)
         {
             throw new IllegalArgumentException("保存间隔必须大于等于0");
         }
 
-        FileLogger instance = new FileLogger(loggerFolder, fileName, saveInterval);
+        FileLogger instance = new FileLogger(loggerFolder, fileNameFormat, saveInterval);
 
         loggers.add(instance);
         return instance;
+    }
+
+    /**
+     * 关闭 Logger
+     * @param fileLogger
+     */
+    public static void closeLogger(FileLogger fileLogger) {
+        fileLogger.close();
+        loggers.remove(fileLogger);
     }
 
     /**

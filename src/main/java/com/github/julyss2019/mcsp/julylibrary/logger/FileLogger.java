@@ -1,8 +1,5 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
-import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -15,21 +12,19 @@ import java.util.Calendar;
 public class FileLogger {
     private static SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
     private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("yyyy-MM-dd");
-    private JulyLibrary plugin = JulyLibrary.getInstance();
     private File loggerFolder;
-    private String fileName;
+    private String fileNameFormat;
     private int saveInterval;
 
     private FileWriter loggerWriter;
     private BufferedWriter loggerBufferedWriter;
     private long nextDayMillis;
-    private BukkitTask bukkitTask;
 
     public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
 
-    FileLogger(File loggerFolder, String fileName, int saveInterval) {
+    FileLogger(File loggerFolder, String fileNameFormat, int saveInterval) {
         this.loggerFolder = loggerFolder;
-        this.fileName = fileName;
+        this.fileNameFormat = fileNameFormat;
         this.saveInterval = saveInterval;
 
         if (!loggerFolder.exists()) {
@@ -76,8 +71,8 @@ public class FileLogger {
             calendar.set(Calendar.MILLISECOND, 0);
 
             this.nextDayMillis = calendar.getTimeInMillis();
-            File loggerFile = new File(loggerFolder, (fileName == null ? "%DATE%" : fileName)
-                    .replace("%DATE%", DATE_SDF.format(System.currentTimeMillis()) + ".log"));
+            File loggerFile = new File(loggerFolder, (fileNameFormat == null ? "%DATE%" : fileNameFormat)
+                    .replace("%DATE%", DATE_SDF.format(System.currentTimeMillis())));
 
             try {
                 this.loggerWriter = new FileWriter(loggerFile, true);
@@ -88,19 +83,19 @@ public class FileLogger {
         }
     }
 
-    public void debug(String s) {
+    public void d(String s) {
         log(LoggerLevel.DEBUG, s);
     }
 
-    public void error(String s) {
+    public void e(String s) {
         log(LoggerLevel.ERROR, s);
     }
 
-    public void warning(String s) {
+    public void w(String s) {
         log(LoggerLevel.WARNING, s);
     }
 
-    public void info(String s) {
+    public void i(String s) {
         log(LoggerLevel.INFO, s);
     }
 
@@ -131,9 +126,7 @@ public class FileLogger {
         return true;
     }
 
-    public boolean close() {
-        bukkitTask.cancel();
-
+    protected boolean close() {
         try {
             // 保存旧的
             if (loggerBufferedWriter != null) {
