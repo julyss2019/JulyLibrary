@@ -15,11 +15,16 @@ public class JulyConfig {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public static JulyConfig loadConfig(ConfigurationSection section, Class<?> clazz) throws IllegalAccessException, InstantiationException {
+    public static JulyConfig loadConfig(ConfigurationSection section, Class<?> clazz) {
         /*
             clazz只是个能被实例化而未被实例化的Class
          */
-        JulyConfig obj = (JulyConfig) clazz.newInstance(); // 新的对象
+        JulyConfig obj = null; // 新的对象
+        try {
+            obj = (JulyConfig) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         // 反射获得所有变量
         for (Field field : clazz.getDeclaredFields()) {
@@ -48,7 +53,13 @@ public class JulyConfig {
 
                     // 设置允许访问
                     field.setAccessible(true);
-                    field.set(obj, value);
+
+                    try {
+                        field.set(obj, value);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
                     field.setAccessible(false);
                 } else {
                     JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 路径 " + configPath + " 不存在.");
