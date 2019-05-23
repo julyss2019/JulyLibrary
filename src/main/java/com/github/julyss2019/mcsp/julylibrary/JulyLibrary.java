@@ -1,10 +1,9 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
-import com.github.julyss2019.mcsp.julylibrary.command.tab.JulyTabCompleter;
-import com.github.julyss2019.mcsp.julylibrary.logger.FileLogger;
+import com.github.julyss2019.mcsp.julylibrary.item.SkullItemBuilder;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
-import com.github.julyss2019.mcsp.julylibrary.test.TestCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class JulyLibrary extends JavaPlugin {
@@ -15,15 +14,17 @@ public class JulyLibrary extends JavaPlugin {
         instance = this;
 
         getLogger().info("插件初始化完毕!");
-        test();
+        onTest();
+    }
+
+    public void onTest() {
+        // System.out.println(new SkullItemBuilder().owner("July_ss").material(Material.SADDLE).durability((short) 3).build());
     }
 
     @Override
     public void onDisable() {
+        JulyFileLogger.closeLoggers();
         Bukkit.getScheduler().cancelTasks(this);
-    }
-
-    private void test() {
     }
 
     public static JulyLibrary getInstance() {

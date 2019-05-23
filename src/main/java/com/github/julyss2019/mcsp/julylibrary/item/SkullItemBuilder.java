@@ -2,19 +2,35 @@ package com.github.julyss2019.mcsp.julylibrary.item;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
 
-public class CustomSkullItemBuilder extends ItemBuilder {
-    private String texture = null;
+public class SkullItemBuilder extends ItemBuilder {
+    private String texture;
+    private String owner;
 
-    public CustomSkullItemBuilder() {}
-
-    public CustomSkullItemBuilder(ItemStack itemStack) {
+    public SkullItemBuilder(ItemStack itemStack) {
         super(itemStack);
+    }
+
+    public SkullItemBuilder() {
+        super.material(Material.SKULL_ITEM);
+        super.durability((short) 3);
+    }
+
+    /**
+     * 设置主人
+     * @param owner
+     * @return
+     */
+    public SkullItemBuilder owner(String owner) {
+        this.owner = owner;
+        return this;
     }
 
     /**
@@ -22,27 +38,28 @@ public class CustomSkullItemBuilder extends ItemBuilder {
      * @param texture
      * @return
      */
-    public CustomSkullItemBuilder texture(String texture) {
+    public SkullItemBuilder texture(String texture) {
         this.texture = texture;
         return this;
     }
 
-    @Override
     public ItemStack build() {
         ItemStack itemStack = super.build();
-        SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
+        ItemMeta itemMeta = itemStack.getItemMeta();
 
-        if (itemStack.getDurability() != 3) {
-            throw new RuntimeException("durability 必须为 3.");
+        if (!(itemMeta instanceof SkullMeta)) {
+            throw new SkullItemBuilderExpcetion("物品必须为头颅!");
         }
 
-        if (texture != null) {
+        SkullMeta skullMeta = (SkullMeta) itemMeta;
+
+        skullMeta.setOwner(this.owner);
+
+        if (this.texture != null) {
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
             Field profileField;
 
-            if (texture != null) {
-                profile.getProperties().put("textures", new Property("textures", texture));
-            }
+            profile.getProperties().put("textures", new Property("textures", this.texture));
 
             try {
                 profileField = skullMeta.getClass().getDeclaredField("profile");
@@ -57,6 +74,4 @@ public class CustomSkullItemBuilder extends ItemBuilder {
         itemStack.setItemMeta(skullMeta);
         return itemStack;
     }
-
-
 }

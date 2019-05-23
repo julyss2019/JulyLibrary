@@ -12,8 +12,6 @@ public class JulyConfig {
      * @param section 节点
      * @param clazz 配置类（不需要实例化）
      * @return
-     * @throws IllegalAccessException
-     * @throws InstantiationException
      */
     public static JulyConfig loadConfig(ConfigurationSection section, Class<?> clazz) {
         /*
@@ -35,7 +33,7 @@ public class JulyConfig {
 
                 // 如果yml有目标项
                 if (section.contains(configPath)) {
-                    Object value;
+                    Object value = null;
                     Class<?> fieldType = field.getType();
 
                     if (fieldType == short.class) {
@@ -44,7 +42,6 @@ public class JulyConfig {
                         try {
                             value = Sound.valueOf(section.getString(configPath));
                         } catch (Exception e) {
-                            value = null;
                             JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 Sound " + configPath + " 不合法.");
                         }
                     } else {

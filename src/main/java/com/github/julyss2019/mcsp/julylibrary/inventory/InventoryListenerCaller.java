@@ -1,11 +1,11 @@
 package com.github.julyss2019.mcsp.julylibrary.inventory;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BukkitInventoryListener implements Listener {
+/**
+ * 用于唤醒各种定义的事件
+ */
+public class InventoryListenerCaller implements Listener {
     private Map<Inventory, List<ListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
 
@@ -36,6 +39,19 @@ public class BukkitInventoryListener implements Listener {
     }
 
     /**
+     * 用于触发背包监听器的 onOpen()
+     * @param event
+     */
+    @EventHandler
+    public void onInventoryOpenEvent(InventoryOpenEvent event) {
+        Inventory inventory = event.getInventory();
+
+        if (inventoryListenerMap.containsKey(inventory)) {
+            inventoryListenerMap.get(inventory).onOpen(event);
+        }
+    }
+
+    /**
      * 用于触发背包监听器的 onClose()
      * @param event
      */
@@ -50,11 +66,11 @@ public class BukkitInventoryListener implements Listener {
         itemListenerMap.remove(inventory); // 释放空间
     }
 
-    protected void registerListenerItems(@NotNull Inventory inventory, @NotNull List<ListenerItem> listenerItems) {
+    void registerListenerItems(@NotNull Inventory inventory, @NotNull List<ListenerItem> listenerItems) {
         itemListenerMap.put(inventory, listenerItems);
     }
 
-    protected void registerInventoryListeners(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
+    void registerInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
     }
 }

@@ -1,5 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
+/**
+ * 可通过 TitleBuilder 构造出本类
+ */
 public class Title {
     private TitleType titleType;
     private String text;

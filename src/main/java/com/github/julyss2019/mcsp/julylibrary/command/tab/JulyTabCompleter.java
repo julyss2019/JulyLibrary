@@ -10,17 +10,15 @@ import java.util.*;
 
 
 public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
-    private HashMap<String, TabCompleter> treeMap = new HashMap<>();
-
-    public JulyTabCompleter() {}
+    private Map<String, TabEntry> treeMap = new HashMap<>();
 
     /**
-     * 注册自动完成器
-     * @param tabCommand
+     * 注册自
+     * @param julyTabCommand
      */
-    public void register(TabCommand tabCommand) {
-        for (Map.Entry<String, String[]> entry : tabCommand.getTabCompleterMap().entrySet()) {
-            setSubArgs(tabCommand, entry.getKey(), entry.getValue());
+    public void register(JulyTabCommand julyTabCommand) {
+        for (Map.Entry<String, String[]> entry : julyTabCommand.getTabCompleterMap().entrySet()) {
+            setSubArgs(julyTabCommand, entry.getKey(), entry.getValue());
         }
     }
 
@@ -36,11 +34,11 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
         // 返回根
         if (args.length == 0 || (args.length == 1 && args[0].equals(""))) {
             // 返回所有根
-            for (Map.Entry<String, TabCompleter> entry : treeMap.entrySet()) {
-                TabCommand tabCommand = entry.getValue().getTabCommand();
+            for (Map.Entry<String, TabEntry> entry : treeMap.entrySet()) {
+                JulyTabCommand julyTabCommand = entry.getValue().getJulyTabCommand();
 
                 // 权限判断
-                if (cs.hasPermission(tabCommand.getPermission())) {
+                if (cs.hasPermission(julyTabCommand.getPermission())) {
                     subArgs.add(entry.getKey());
                 }
             }
@@ -52,15 +50,15 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
             return subArgs;
         }
 
-        TabCompleter tabCompleter = treeMap.get(args[0]);
-        TabCommand tabCommand = tabCompleter.getTabCommand();
+        TabEntry tabEntry = treeMap.get(args[0]);
+        JulyTabCommand julyTabCommand = tabEntry.getJulyTabCommand();
 
         // 权限判断
-        if (!cs.hasPermission(tabCommand.getPermission())) {
+        if (!cs.hasPermission(julyTabCommand.getPermission())) {
             return subArgs;
         }
 
-        TreeNode<String> lastTreeNode = tabCompleter.getNode();
+        TreeNode<String> lastTreeNode = tabEntry.getNode();
 
         /*
           遍历得到最小的 Node
@@ -87,11 +85,11 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
     /**
      * 设置节点
-     * @param tabCommand
+     * @param julyTabCommand
      * @param parentArgPath
      * @param subArgs
      */
-    private void setSubArgs(TabCommand tabCommand, String parentArgPath, String... subArgs) {
+    private void setSubArgs(JulyTabCommand julyTabCommand, String parentArgPath, String... subArgs) {
         String[] pathArray = parentArgPath.split("\\.");
 
         if (pathArray.length < 1) {
@@ -108,7 +106,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
             if (i == 0) {
                 if (!treeMap.containsKey(pathArray[0])) {
                     // 创建根节点
-                    treeMap.put(pathArray[0], new TabCompleter(tabCommand, new ArrayMultiTreeNode<>(pathArray[0])));
+                    treeMap.put(pathArray[0], new TabEntry(julyTabCommand, new ArrayMultiTreeNode<>(pathArray[0])));
                 }
 
                 lastTreeNode = treeMap.get(pathArray[0]).getNode();

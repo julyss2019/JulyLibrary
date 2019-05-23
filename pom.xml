@@ -6,7 +6,11 @@
 
     <groupId>com.github.julyss2019.mcsp</groupId>
     <artifactId>JulyLibrary</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
+
+    <properties>
+        <api_folder>/Users/user/Desktop/july_ss/code/java_api</api_folder>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -25,7 +29,7 @@
             <artifactId>spigot</artifactId>
             <version>1.12.2</version>
             <scope>system</scope>
-            <systemPath>/Users/user/Desktop/july_ss/code/java_api/minecraft/paper/Paper-1.12.2-b1613.jar</systemPath>
+            <systemPath>${api_folder}/minecraft/paper/Paper-1.12.2-b1613.jar</systemPath>
         </dependency>
 
     </dependencies>

@@ -19,8 +19,11 @@ public class JulyMessage {
     private static Class<?> packetPlayOutTitleClass = null;
     private static Class<?> titleActionClass = null;
     private static Class<?> packetPlayOutChatClass = null;
-    private static HashMap<String, String> prefixMap = new HashMap<>();
+    private static HashMap<String, String> prefixMap = new HashMap<>(); // 前缀表
 
+    /*
+    初始化 Title 需要的类
+     */
     static {
         try {
             chatBaseComponentClass = NMSUtil.getNMSClass("IChatBaseComponent");
@@ -35,12 +38,17 @@ public class JulyMessage {
         }
     }
 
+    /**
+     * 得到前缀
+     * @param plugin Java插件
+     * @return
+     */
     public static String getPrefix(Plugin plugin) {
         return prefixMap.get(plugin.getClass().getPackage().getName());
     }
 
     /**
-     *
+     * 广播 Raw 消息
      * @param json
      * @return
      */
@@ -54,6 +62,12 @@ public class JulyMessage {
         return true;
     }
 
+    /**
+     * 发送 Raw 消息
+     * @param player
+     * @param json
+     * @return
+     */
     public static boolean sendRawMessage(Player player, String json) {
         if (NMSUtil.SERVER_VERSION.equals("v1_7_R4")) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + MessageUtil.translateColorCode(json));
@@ -75,10 +89,18 @@ public class JulyMessage {
         return true;
     }
 
+    /**
+     * 发送一条空行
+     * @param cs
+     */
     public static void sendBlankLine(CommandSender cs) {
         cs.sendMessage("");
     }
 
+    /**
+     * 广播带颜色的消息
+     * @param msg
+     */
     public static void broadcastColoredMessage(String msg) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendColoredMessage(player, msg);
@@ -86,17 +108,34 @@ public class JulyMessage {
     }
 
     /**
-     * 以某个插件的前缀发送信息
+     * 以某个插件的前缀发送消息
+     * @param plugin 插件
+     * @param cs
+     * @param msg
+     * @param withPrefix 是否带前缀
+     */
+    public static void sendColoredMessage(Plugin plugin, CommandSender cs, String msg, boolean withPrefix) {
+        String prefix = getPrefix(plugin);
+
+        sendColoredMessage(cs, prefix + msg, withPrefix);
+    }
+
+    /**
+     * 以某个插件的前缀发送消息（带前缀）
      * @param plugin 插件
      * @param cs
      * @param msg
      */
     public static void sendColoredMessage(Plugin plugin, CommandSender cs, String msg) {
-        String prefix = getPrefix(plugin);
-
-        sendColoredMessage(cs, prefix + msg, false);
+        sendColoredMessage(plugin, cs, msg, true);
     }
 
+    /**
+     * 发送带颜色的消息
+     * @param cs
+     * @param msg
+     * @param withPrefix 是否带前缀
+     */
     public static void sendColoredMessage(CommandSender cs, String msg, boolean withPrefix) {
         if (!withPrefix) {
             cs.sendMessage(MessageUtil.translateColorCode(msg));
@@ -118,51 +157,62 @@ public class JulyMessage {
         cs.sendMessage(prefix + MessageUtil.translateColorCode(msg));
     }
 
+    /**
+     * 发送带颜色的消息（带前缀）
+     * @param cs
+     * @param msg
+     */
     public static void sendColoredMessage(CommandSender cs, String msg) {
         sendColoredMessage(cs, msg, true);
     }
 
-    public static boolean broadcastTitle(Title title) {
-        if (!canUseTitle()) {
-            throw new IllegalStateException("当前服务器版本不支持Title");
-        }
-
+    /**
+     * 广播 Title
+     * @param title
+     * @return
+     */
+    public static void broadcastTitle(Title title) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!sendTitle(player, title)) {
-                return false;
-            }
+            sendTitle(player, title);
         }
-
-        return true;
     }
 
-    public static boolean sendTitle(Player player, Title title) {
+    /**
+     * 发送 Title
+     * @param player
+     * @param title
+     * @return
+     */
+    public static void sendTitle(Player player, Title title) {
         if (!canUseTitle()) {
-            throw new IllegalStateException("当前服务器版本不支持Title");
+            throw new TitleException("当前服务器版本不支持Title");
         }
 
         try {
-            Object titleAction = titleActionClass.getField(title.getTitleType().name()).get(null); // 因为是 Enum 类，所以对象用 null
+            Object titleAction = titleActionClass.getField(title.getTitleType().name()).get(null); // 因为是 Enum 类，所以 Object 用 null
             Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title.getText() + "\"}"); // 不需要对象，所以用 null
-            // 调用构造方法，生成新的实例
             Object packet = packetPlayOutTitleClass.getDeclaredConstructor(titleActionClass, chatBaseComponentClass, int.class, int.class, int.class)
                     .newInstance(titleAction, chatBaseComponent, title.getFadeIn(), title.getStay(), title.getFadeOut());
 
-            if (!PlayerUtil.sendPacket(player, packet)) {
-                return false;
-            }
+            PlayerUtil.sendPacket(player, packet);
         } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
-            return false;
         }
-
-        return true;
     }
 
+    /**
+     * 是否可以使用 Title
+     * @return
+     */
     public static boolean canUseTitle() {
         return packetPlayOutTitleClass != null;
     }
 
+    /**
+     * 设置前缀
+     * @param plugin
+     * @param prefix
+     */
     public static void setPrefix(JavaPlugin plugin, String prefix) {
         prefixMap.put(plugin.getClass().getPackage().getName(), prefix);
     }

@@ -3,6 +3,9 @@ package com.github.julyss2019.mcsp.julylibrary.message;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Title 构造类
+ */
 public class TitleBuilder {
     private TitleType titleType;
     private String text;
@@ -19,6 +22,7 @@ public class TitleBuilder {
         this.text = text;
         return this;
     }
+
 
     public TitleBuilder fadeIn(int fadeIn) {
         this.fadeIn = fadeIn;

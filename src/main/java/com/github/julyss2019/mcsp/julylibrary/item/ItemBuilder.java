@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +20,6 @@ public class ItemBuilder {
     private List<String> lores = new ArrayList<>();
     private int loreCounter = 0;
     private boolean colored;
-    private String owner;
 
     public ItemBuilder() {}
 
@@ -38,15 +36,6 @@ public class ItemBuilder {
         if (itemStack.getEnchantments() != null) {
             enchantmentMap.putAll(itemStack.getEnchantments());
         }
-    }
-
-    public ItemBuilder owner(String owner) {
-        if (durability != 3) {
-            throw new IllegalArgumentException("durability必须为3.");
-        }
-
-        this.owner = owner;
-        return this;
     }
 
     /**
@@ -75,13 +64,7 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder material(int id) {
-        Material tmp = Material.getMaterial(id);
-
-        if (tmp == null) {
-            throw new IllegalArgumentException("material不合法.");
-        }
-
-        this.material = tmp;
+        this.material = Material.getMaterial(id);
         return this;
     }
 
@@ -202,11 +185,6 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder enchant(@NotNull Enchantment enchantment, int level) {
-        if (level < 0)
-        {
-            throw new IllegalArgumentException("level必须>=0.");
-        }
-
         this.enchantmentMap.put(enchantment, level);
         return this;
     }
@@ -217,10 +195,6 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder amount(int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("amount必须>0.");
-        }
-
         this.amount = amount;
         return this;
     }
@@ -239,8 +213,8 @@ public class ItemBuilder {
      * @return
      */
     public ItemStack build() {
-        if (material == null) {
-            throw new RuntimeException("material未设置.");
+        if (this.material == null || this.material == Material.AIR) {
+            throw new ItemBuilderException("物品不能为空");
         }
 
         ItemStack itemStack = new ItemStack(this.material);
@@ -264,14 +238,6 @@ public class ItemBuilder {
         }
 
         itemStack.setItemMeta(itemMeta);
-
-        if (this.durability == 3 && this.owner != null) {
-            SkullMeta skullMeta = ((SkullMeta) itemMeta);
-
-            skullMeta.setOwner(owner);
-            itemStack.setItemMeta(skullMeta);
-        }
-
         return itemStack;
     }
 }

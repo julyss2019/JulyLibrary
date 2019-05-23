@@ -16,9 +16,11 @@ public class FileLogger {
     private String fileNameFormat;
     private int saveInterval;
 
+    private File loggerFile;
     private FileWriter loggerWriter;
     private BufferedWriter loggerBufferedWriter;
     private long nextDayMillis;
+    private boolean isDateFormat;
 
     public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
 
@@ -26,29 +28,37 @@ public class FileLogger {
         this.loggerFolder = loggerFolder;
         this.fileNameFormat = fileNameFormat;
         this.saveInterval = saveInterval;
+        this.isDateFormat = fileNameFormat.contains("%DATE%");
 
+        // 创建文件
         if (!loggerFolder.exists()) {
             loggerFolder.mkdirs();
         }
 
-        // 刷新
-        checkNextDay();
+        // 初始化
+        checkDay();
     }
 
-    void update() {
-        if (saveInterval != 0) {
-            checkNextDay();
+    /**
+     * 刷新，写入内容到文件中
+     */
+    void flush() {
+        if (!loggerFile.exists()) {
+            throw new LogException("文件不存在!");
+        }
 
-            // 写入
-            try {
-                loggerBufferedWriter.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        // 写入
+        try {
+            loggerBufferedWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private void checkNextDay() {
+    /**
+     * 检查是否到了下一天
+     */
+    private void checkDay() {
         if (System.currentTimeMillis() >= nextDayMillis) {
             try {
                 // 保存旧的
@@ -64,37 +74,55 @@ public class FileLogger {
             // 得到下一天的时间
             Calendar calendar = Calendar.getInstance();
 
-            calendar.add(Calendar.DATE, 1);
-            calendar.set(Calendar.HOUR, 0);
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
+            calendar.add(Calendar.DATE, 1);
 
-            this.nextDayMillis = calendar.getTimeInMillis();
-            File loggerFile = new File(loggerFolder, (fileNameFormat == null ? "%DATE%" : fileNameFormat)
+            // 重新定义新的文件
+            this.loggerFile = new File(this.loggerFolder, (this.fileNameFormat == null ? "%DATE%" : this.fileNameFormat)
                     .replace("%DATE%", DATE_SDF.format(System.currentTimeMillis())));
+            this.nextDayMillis = calendar.getTimeInMillis();
 
             try {
-                this.loggerWriter = new FileWriter(loggerFile, true);
-                this.loggerBufferedWriter = new BufferedWriter(loggerWriter);
+                this.loggerWriter = new FileWriter(this.loggerFile, true);
+                this.loggerBufferedWriter = new BufferedWriter(this.loggerWriter);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    /**
+     * DEBUG
+     * @param s
+     */
     public void d(String s) {
         log(LoggerLevel.DEBUG, s);
     }
 
+    /**
+     * ERROR
+     * @param s
+     */
     public void e(String s) {
         log(LoggerLevel.ERROR, s);
     }
 
+    /**
+     * WARNING
+     * @param s
+     */
     public void w(String s) {
         log(LoggerLevel.WARNING, s);
     }
 
+    /**
+     * INFO
+     * @param s
+     */
     public void i(String s) {
         log(LoggerLevel.INFO, s);
     }
@@ -105,40 +133,37 @@ public class FileLogger {
         write(log);
     }
 
+    /**
+     * 写入内容到缓存中
+     * @param s
+     * @return
+     */
     private boolean write(String s) {
-        checkNextDay();
+        if (isDateFormat) {
+            checkDay();
+        }
 
         try {
-            if (saveInterval != 0) {
-                loggerBufferedWriter.append(s);
-                loggerBufferedWriter.newLine();
-            } else {
-                loggerBufferedWriter.write(s);
-                loggerBufferedWriter.newLine();
-                loggerBufferedWriter.flush();
-            }
-
+            this.loggerBufferedWriter.write(s);
+            this.loggerBufferedWriter.newLine(); // 换行
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
         return true;
     }
 
-    boolean close() {
+    /**
+     * 关闭
+     */
+    void close() {
         try {
-            // 保存旧的
-            if (loggerBufferedWriter != null) {
-                loggerBufferedWriter.close();
-                loggerWriter.close();
-            }
+            this.loggerBufferedWriter.flush();
+            this.loggerBufferedWriter.close();
+            this.loggerWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
-
-        return true;
     }
 
     public File getLoggerFolder() {
@@ -163,5 +188,9 @@ public class FileLogger {
 
     public long getNextDayMillis() {
         return nextDayMillis;
+    }
+
+    public File getLoggerFile() {
+        return loggerFile;
     }
 }

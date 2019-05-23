@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
-    private Map<String, Command> commands = new HashMap<>();
+    private Map<String, JulyCommand> commands = new HashMap<>();
     private Plugin plugin;
 
     public JulyCommandExecutor(Plugin plugin) {
@@ -23,7 +23,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
      * 注册指令
      * @param command
      */
-    public void register(Command command) {
+    public void register(JulyCommand command) {
         commands.put(command.getFirstArg().toLowerCase(), command);
     }
 
@@ -36,7 +36,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
             // 如果没有 help 命令，则按下面的实现进行
             if (firstArg.equalsIgnoreCase("help") && !commands.containsKey("help")) {
-                for (Command command : commands.values()) {
+                for (JulyCommand command : commands.values()) {
                     String per = command.getPermission();
 
                     if (per == null || cs.hasPermission(per)) {
@@ -53,7 +53,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
             }
 
             if (commands.containsKey(firstArg)) {
-                Command command = commands.get(firstArg);
+                JulyCommand command = commands.get(firstArg);
 
                 if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
                     JulyMessage.sendColoredMessage(plugin, cs, "&c命令执行者必须是玩家!");

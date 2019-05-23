@@ -14,17 +14,17 @@ import java.util.Map;
 
 public class InventoryBuilder {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
+    private static InventoryListenerCaller inventoryListenerCaller = new InventoryListenerCaller();
     private Inventory inventory;
     private int row;
     private String title;
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
-    private static BukkitInventoryListener bukkitInventoryListener = new BukkitInventoryListener();
     private boolean isColored;
     private InventoryListener inventoryListener;
 
     static {
-        Bukkit.getPluginManager().registerEvents(bukkitInventoryListener, plugin);
+        Bukkit.getPluginManager().registerEvents(inventoryListenerCaller, plugin); // 注册监听器
     }
 
     public InventoryBuilder(Inventory inventory) {
@@ -33,6 +33,11 @@ public class InventoryBuilder {
 
     public InventoryBuilder() {}
 
+    /**
+     * 限定行数
+     * @param row
+     * @return
+     */
     public InventoryBuilder row(int row) {
         if (row < 0 || row > 5) {
             throw new IllegalArgumentException("行数不合法.");
@@ -42,6 +47,11 @@ public class InventoryBuilder {
         return this;
     }
 
+    /**
+     * 设置被她
+     * @param title
+     * @return
+     */
     public InventoryBuilder title(String title) {
         this.title = title;
         return this;
@@ -71,7 +81,7 @@ public class InventoryBuilder {
             throw new IllegalArgumentException("column 必须 < 9.");
         }
 
-        itemIndexMap.put(row * 9 + column, item);
+        this.itemIndexMap.put(row * 9 + column, item);
         return this;
     }
 
@@ -85,12 +95,11 @@ public class InventoryBuilder {
      */
     public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
         item(row, column, item);
-        itemListenerMap.put(row * 9 + column, itemListener);
+        this.itemListenerMap.put(row * 9 + column, itemListener);
         return this;
     }
 
     // 1 3 3 9
-
     /**
      *
      * @param row1
@@ -101,8 +110,8 @@ public class InventoryBuilder {
      * @return
      */
     public InventoryBuilder item(int row1, int column1, int row2, int column2, @NotNull ItemStack itemStack) {
-        for (int row = row1; row < row2; row++) {
-            for (int column = column1; column < column2; column++) {
+        for (int row = row1; row <= row2; row++) {
+            for (int column = column1; column <= column2; column++) {
                 item(row, column, itemStack);
             }
         }
@@ -110,11 +119,20 @@ public class InventoryBuilder {
         return this;
     }
 
+    /**
+     * 有色的
+     * @return
+     */
     public InventoryBuilder colored() {
         this.isColored = true;
         return this;
     }
 
+    /**
+     * 是否有色
+     * @param b
+     * @return
+     */
     public InventoryBuilder colored(boolean b) {
         this.isColored = b;
         return this;
@@ -132,7 +150,7 @@ public class InventoryBuilder {
     }
 
     public Inventory build() {
-        if (inventory == null) {
+        if (this.inventory == null) {
             if (row == 0) {
                 throw new IllegalArgumentException("row 未设置.");
             }
@@ -140,20 +158,24 @@ public class InventoryBuilder {
             this.inventory = Bukkit.createInventory(null, row * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
         }
 
+        // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : this.itemIndexMap.entrySet()) {
             this.inventory.setItem(entry.getKey(), entry.getValue());
         }
 
         List<ListenerItem> listenerItems = new ArrayList<>();
 
+        // 构造监听物品
         for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
             listenerItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
         }
 
-        bukkitInventoryListener.registerListenerItems(this.inventory, listenerItems);
+        // 注册监听物品
+        inventoryListenerCaller.registerListenerItems(this.inventory, listenerItems);
 
         if (this.inventoryListener != null) {
-            bukkitInventoryListener.registerInventoryListeners(this.inventory, this.inventoryListener);
+            // 注册监听背包
+            inventoryListenerCaller.registerInventoryListener(this.inventory, this.inventoryListener);
         }
 
         return this.inventory;

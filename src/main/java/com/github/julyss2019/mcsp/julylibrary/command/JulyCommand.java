@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 
-public interface Command {
+public interface JulyCommand {
     boolean onCommand(CommandSender cs, String[] args);
 
     String getFirstArg();
