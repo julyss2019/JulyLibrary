@@ -1,8 +1,9 @@
 package com.github.julyss2019.mcsp.julylibrary.config;
 
-import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 
@@ -13,13 +14,14 @@ public class JulyConfig {
      * @param clazz 配置类（不需要实例化）
      * @return
      */
-    public static JulyConfig loadConfig(ConfigurationSection section, Class<?> clazz) {
+    public static Object loadConfig(Plugin plugin, ConfigurationSection section, Class<?> clazz) {
         /*
             clazz只是个能被实例化而未被实例化的Class
          */
-        JulyConfig obj = null; // 新的对象
+        Object obj = null; // 新的对象
+
         try {
-            obj = (JulyConfig) clazz.newInstance();
+            obj = clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -39,13 +41,20 @@ public class JulyConfig {
                     if (fieldType == short.class) {
                         value = (short) section.getInt(configAnnotation.path());
                     }  else if (fieldType == Sound.class) { // 对 Sound 类的支持
+                        String soundName = section.getString(configPath);
+
                         try {
-                            value = Sound.valueOf(section.getString(configPath));
+                            value = Sound.valueOf(soundName);
                         } catch (Exception e) {
-                            JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 Sound " + configPath + " 不合法.");
+                            plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " = " + soundName + " 不合法.");
                         }
                     } else {
                         value = section.get(configPath);
+                    }
+
+                    // 没值的情况
+                    if (value == null || value instanceof MemorySection) {
+                        continue;
                     }
 
                     // 设置允许访问
@@ -59,7 +68,7 @@ public class JulyConfig {
 
                     field.setAccessible(false);
                 } else {
-                    JulyLibrary.getInstance().getLogger().warning(clazz.getName() + " 中 路径 " + configPath + " 不存在.");
+                    plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " 不存在.");
                 }
             }
         }

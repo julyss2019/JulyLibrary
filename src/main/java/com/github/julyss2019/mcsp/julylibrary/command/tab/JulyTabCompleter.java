@@ -140,17 +140,17 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
         List<String> parentTabList = getSubArgs(cs, ArrayUtil.removeElementFromStrArray(args, args.length - 1)); // 删除最后一个元素
         List<String> resultTabList = new ArrayList<>();
 
-        // 进行匹配
         for (String parentTab : parentTabList) {
+            // 如果前缀匹配了则添加到列表
             if (parentTab.startsWith(args[args.length - 1])) {
                 resultTabList.add(parentTab);
             }
         }
 
         if (resultTabList.size() == 0) {
-            return null; // 返回null则使用默认的tab规则（一般返回玩家列表）
+            resultTabList.addAll(parentTabList);
         }
 
-        return resultTabList;
+        return resultTabList.size() == 0 ? null : resultTabList;
     }
 }

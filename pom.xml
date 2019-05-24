@@ -6,7 +6,7 @@
 
     <groupId>com.github.julyss2019.mcsp</groupId>
     <artifactId>JulyLibrary</artifactId>
-    <version>1.0.0</version>
+    <version>RELEASE</version>
 
     <properties>
         <api_folder>/Users/user/Desktop/july_ss/code/java_api</api_folder>

@@ -7,15 +7,13 @@ import org.jetbrains.annotations.NotNull;
  * Title 构造类
  */
 public class TitleBuilder {
-    private TitleType titleType;
+    private TitleType titleType = TitleType.TITLE;
     private String text;
     private int fadeIn;
     private int stay;
     private int fadeOut;
 
-    public TitleBuilder(@NotNull TitleType titleType, @NotNull String text) {
-        this.titleType = titleType;
-        this.text = text;
+    public TitleBuilder() {
     }
 
     public TitleBuilder text(@NotNull String text) {
@@ -23,6 +21,10 @@ public class TitleBuilder {
         return this;
     }
 
+    public TitleBuilder type(TitleType titleType) {
+        this.titleType = titleType;
+        return this;
+    }
 
     public TitleBuilder fadeIn(int fadeIn) {
         this.fadeIn = fadeIn;

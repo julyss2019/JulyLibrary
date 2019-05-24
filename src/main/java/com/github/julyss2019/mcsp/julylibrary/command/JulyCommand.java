@@ -18,7 +18,9 @@ public interface JulyCommand {
         return "";
     }
 
-    default List<String> getDescriptions() {
+    default List<String> getSubDescriptions() {
         return Collections.emptyList();
     }
+
+    default String getDescription() { return null; }
 }

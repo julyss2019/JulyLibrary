@@ -29,56 +29,52 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender cs, org.bukkit.command.Command bukkitCommand, String label, String[] args) {
-        String bukkitCommandName = bukkitCommand.getName();
-
-        if (args.length >= 1) {
+        if (args.length > 0) {
             String firstArg = args[0].toLowerCase();
 
-            // 如果没有 help 命令，则按下面的实现进行
-            if (firstArg.equalsIgnoreCase("help") && !commands.containsKey("help")) {
-                for (JulyCommand command : commands.values()) {
-                    String per = command.getPermission();
-
-                    if (per == null || cs.hasPermission(per)) {
-                        for (String desc : command.getDescriptions()) {
-                            JulyMessage.sendColoredMessage(plugin, cs, "/" + bukkitCommandName + " " + command.getFirstArg() + " " + desc);
-                        }
-                    }
-
-/*                    JulyMessage.sendColoredMessage(plugin, cs, "&c无权限!");
-                    return true;*/
-                }
-
-                return true;
-            }
-
+            // 如果存在命令
             if (commands.containsKey(firstArg)) {
                 JulyCommand command = commands.get(firstArg);
 
                 if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
-                    JulyMessage.sendColoredMessage(plugin, cs, "&c命令执行者必须是玩家!");
+                    sendMessage(plugin, cs, "&c命令执行者必须是玩家!");
                     return true;
                 }
 
                 if (command.getPermission() != null && !cs.hasPermission(command.getPermission())) {
-                    JulyMessage.sendColoredMessage(plugin, cs, "&c无权限!");
+                    sendMessage(plugin, cs, "&c无权限!");
                     return true;
                 }
 
+                // 没有执行成功
                 if (!command.onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0))) {
                     boolean messageSent = false;
 
                     // 匹配前缀
-                    for (String desc : command.getDescriptions()) {
+                    for (String desc : command.getSubDescriptions()) {
                         if (startsWithArgs(args[0] + " " + desc, args)) {
-                            JulyMessage.sendColoredMessage(plugin, cs, "/" + bukkitCommandName + " " + command.getFirstArg() + " " + desc);
+                            sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " " + desc);
                             messageSent = true;
                         }
                     }
 
                     // 如果没有直接匹配到，逐次从尾删除参数直到匹配到为止
-                    if (!messageSent && args.length > 1) {
+                    if (!messageSent) {
                         onCommand(cs, bukkitCommand, label, ArrayUtil.removeElementFromStrArray(args, args.length - 1));
+                    }
+                }
+
+                return true;
+            }
+
+            // 如果没有 help 命令，则按下面的实现进行
+            if (firstArg.equalsIgnoreCase("help")) {
+                for (JulyCommand command : commands.values()) {
+                    String per = command.getPermission();
+                    String desc = command.getDescription();
+
+                    if (cs.hasPermission(per) && desc != null) {
+                        sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
                     }
                 }
 
@@ -86,7 +82,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        Bukkit.dispatchCommand(cs, bukkitCommandName + " help");
+        Bukkit.dispatchCommand(cs, label + " help");
         return true;
     }
 
@@ -108,5 +104,17 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
         }
 
         return s.startsWith(sb.toString());
+    }
+
+    /**
+     * 以某个插件的前缀发送消息（带前缀）
+     * @param plugin 插件
+     * @param cs
+     * @param msg
+     */
+    private void sendMessage(Plugin plugin, CommandSender cs, String msg) {
+        String tmp = JulyMessage.getPrefix(plugin);
+
+        JulyMessage.sendColoredMessage(cs, (tmp == null ? "" : tmp) + msg, false);
     }
 }

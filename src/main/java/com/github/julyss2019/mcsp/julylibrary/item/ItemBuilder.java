@@ -21,6 +21,11 @@ public class ItemBuilder {
     private int loreCounter = 0;
     private boolean colored;
 
+    public ItemBuilder(ItemBuilder itemBuilder) {
+        this.material = itemBuilder.material;
+        this.durability = itemBuilder.durability;
+    }
+
     public ItemBuilder() {}
 
     public ItemBuilder(ItemStack itemStack) {

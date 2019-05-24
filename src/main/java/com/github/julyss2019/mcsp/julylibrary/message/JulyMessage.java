@@ -108,29 +108,6 @@ public class JulyMessage {
     }
 
     /**
-     * 以某个插件的前缀发送消息
-     * @param plugin 插件
-     * @param cs
-     * @param msg
-     * @param withPrefix 是否带前缀
-     */
-    public static void sendColoredMessage(Plugin plugin, CommandSender cs, String msg, boolean withPrefix) {
-        String prefix = getPrefix(plugin);
-
-        sendColoredMessage(cs, prefix + msg, withPrefix);
-    }
-
-    /**
-     * 以某个插件的前缀发送消息（带前缀）
-     * @param plugin 插件
-     * @param cs
-     * @param msg
-     */
-    public static void sendColoredMessage(Plugin plugin, CommandSender cs, String msg) {
-        sendColoredMessage(plugin, cs, msg, true);
-    }
-
-    /**
      * 发送带颜色的消息
      * @param cs
      * @param msg
@@ -190,7 +167,7 @@ public class JulyMessage {
 
         try {
             Object titleAction = titleActionClass.getField(title.getTitleType().name()).get(null); // 因为是 Enum 类，所以 Object 用 null
-            Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title.getText() + "\"}"); // 不需要对象，所以用 null
+            Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title.getText() + "\"}"); // 是静态方法，所以用 null
             Object packet = packetPlayOutTitleClass.getDeclaredConstructor(titleActionClass, chatBaseComponentClass, int.class, int.class, int.class)
                     .newInstance(titleAction, chatBaseComponent, title.getFadeIn(), title.getStay(), title.getFadeOut());
 
