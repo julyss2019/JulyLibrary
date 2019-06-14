@@ -16,7 +16,7 @@ public class InventoryBuilder {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
     private static InventoryListenerCaller inventoryListenerCaller = new InventoryListenerCaller();
     private Inventory inventory;
-    private int row;
+    private int rowCount = -1;
     private String title;
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
@@ -34,16 +34,16 @@ public class InventoryBuilder {
     public InventoryBuilder() {}
 
     /**
-     * 限定行数
+     * GUI行数
      * @param row
      * @return
      */
     public InventoryBuilder row(int row) {
-        if (row < 0 || row > 5) {
+        if (row <= 0 || row > 6) {
             throw new IllegalArgumentException("行数不合法.");
         }
 
-        this.row = row;
+        this.rowCount = row;
         return this;
     }
 
@@ -66,11 +66,11 @@ public class InventoryBuilder {
      */
     public InventoryBuilder item(int row, int column, @NotNull ItemStack item) {
         if (row < 0) {
-            throw new IllegalArgumentException("row 必须 >= 0.");
+            throw new IllegalArgumentException("rowCount 必须 >= 0.");
         }
 
-        if (row >= this.row) {
-            throw new IllegalArgumentException("row 超过了限定的行数.");
+        if (row >= this.rowCount) {
+            throw new IllegalArgumentException("rowCount 超过了限定的行数.");
         }
 
         if (column < 0) {
@@ -151,16 +151,13 @@ public class InventoryBuilder {
 
     public Inventory build() {
         if (this.inventory == null) {
-            if (row == 0) {
-                throw new IllegalArgumentException("row 未设置.");
-            }
-
-            this.inventory = Bukkit.createInventory(null, row * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
+            this.inventory = Bukkit.createInventory(null, rowCount * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
         }
 
         // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : this.itemIndexMap.entrySet()) {
             this.inventory.setItem(entry.getKey(), entry.getValue());
+
         }
 
         List<ListenerItem> listenerItems = new ArrayList<>();
