@@ -1,6 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
 
+import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,8 +14,20 @@ public class TitleBuilder {
     private int fadeIn;
     private int stay;
     private int fadeOut;
+    private boolean colored = false;
+
 
     public TitleBuilder() {
+    }
+
+    public TitleBuilder colored() {
+        colored(true);
+        return this;
+    }
+
+    public TitleBuilder colored(boolean b) {
+        this.colored = b;
+        return this;
     }
 
     public TitleBuilder text(@NotNull String text) {
@@ -42,6 +56,6 @@ public class TitleBuilder {
     }
 
     public Title build() {
-        return new Title(titleType, text, fadeIn, stay, fadeOut);
+        return new Title(titleType, colored ? ChatColor.translateAlternateColorCodes('&', text) : text, fadeIn, stay, fadeOut);
     }
 }

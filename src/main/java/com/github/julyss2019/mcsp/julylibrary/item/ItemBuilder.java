@@ -4,6 +4,7 @@ package com.github.julyss2019.mcsp.julylibrary.item;
 import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ public class ItemBuilder {
     private List<String> lores = new ArrayList<>();
     private int loreCounter = 0;
     private boolean colored;
+    private List<ItemFlag> itemFlags = new ArrayList<>();
 
     public ItemBuilder(ItemBuilder itemBuilder) {
         this.material = itemBuilder.material;
@@ -41,6 +43,11 @@ public class ItemBuilder {
         if (itemStack.getEnchantments() != null) {
             enchantmentMap.putAll(itemStack.getEnchantments());
         }
+    }
+
+    public ItemBuilder addItemFlag(@NotNull ItemFlag itemFlag) {
+        itemFlags.add(itemFlag);
+        return this;
     }
 
     /**
@@ -229,6 +236,10 @@ public class ItemBuilder {
         itemStack.setDurability(this.durability);
         itemMeta.setLore(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores);
         itemMeta.setDisplayName(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName);
+
+        for (ItemFlag itemFlag : itemFlags) {
+            itemMeta.addItemFlags(itemFlag);
+        }
 
         for (Map.Entry<Enchantment, Integer> entry : this.enchantmentMap.entrySet()) {
             Enchantment enchantment = entry.getKey();

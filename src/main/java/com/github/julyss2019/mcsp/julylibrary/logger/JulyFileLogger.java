@@ -13,7 +13,7 @@ public class JulyFileLogger {
     private static List<FileLogger> loggers = new ArrayList<>();
     private static int counter = 0; // 滴答计数器
 
-    static {
+    public static void init() {
         // 定时 flush 任务
         new BukkitRunnable() {
             @Override

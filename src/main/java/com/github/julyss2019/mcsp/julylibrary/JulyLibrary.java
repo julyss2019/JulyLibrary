@@ -1,9 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
-import com.github.julyss2019.mcsp.julylibrary.item.SkullItemBuilder;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class JulyLibrary extends JavaPlugin {
@@ -13,6 +11,7 @@ public class JulyLibrary extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        JulyFileLogger.init();
         getLogger().info("插件初始化完毕!");
         onTest();
     }

@@ -9,7 +9,9 @@
     <version>RELEASE</version>
 
     <properties>
-        <api_folder>/Users/user/Desktop/july_ss/code/java_api</api_folder>
+        <mac>/Users/user/Desktop/july_ss/code/java_api</mac>
+        <win>G:\july_ss\code\java_api</win>
+        <api_folder>${win}</api_folder>
     </properties>
 
     <dependencies>

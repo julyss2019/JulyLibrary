@@ -10,7 +10,7 @@ public class Title {
     private int stay;
     private int fadeOut;
 
-    public Title(TitleType titleType, String text, int fadeIn, int stay, int fadeOut) {
+    protected Title(TitleType titleType, String text, int fadeIn, int stay, int fadeOut) {
         this.titleType = titleType;
         this.text = text;
         this.fadeIn = fadeIn;
