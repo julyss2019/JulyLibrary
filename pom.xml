@@ -11,7 +11,7 @@
     <properties>
         <mac>/Users/user/Desktop/july_ss/code/java_api</mac>
         <win>G:\july_ss\code\java_api</win>
-        <api_folder>${win}</api_folder>
+        <api_folder>${mac}</api_folder>
     </properties>
 
     <dependencies>

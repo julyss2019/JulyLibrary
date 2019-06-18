@@ -114,6 +114,10 @@ public class JulyMessage {
      * @param withPrefix 是否带前缀
      */
     public static void sendColoredMessage(CommandSender cs, String msg, boolean withPrefix) {
+        if ((cs instanceof Player) && !((Player) cs).isOnline()) {
+            return;
+        }
+
         if (!withPrefix) {
             cs.sendMessage(MessageUtil.translateColorCode(msg));
             return;

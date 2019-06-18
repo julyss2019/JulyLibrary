@@ -8,8 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
     private Map<String, JulyCommand> commands = new HashMap<>();
@@ -49,19 +48,20 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                 // 没有执行成功
                 if (!command.onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0))) {
                     boolean messageSent = false;
+                    String[] arr = args;
 
-                    // 匹配前缀
-                    for (String desc : command.getSubDescriptions()) {
-                        if (startsWithArgs(args[0] + " " + desc, args)) {
-                            sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " " + desc);
-                            messageSent = true;
+                    while (!messageSent && arr.length > 0) {
+                        arr = ArrayUtil.removeElementFromStrArray(arr, arr.length - 1);
+
+                        // 匹配前缀
+                        for (String desc : command.getSubDescriptions()) {
+                            if (startsWithArgs(args[0] + " " + desc, arr)) {
+                                sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " " + desc);
+                                messageSent = true;
+                            }
                         }
                     }
 
-                    // 如果没有直接匹配到，逐次从尾删除参数直到匹配到为止
-                    if (!messageSent) {
-                        onCommand(cs, bukkitCommand, label, ArrayUtil.removeElementFromStrArray(args, args.length - 1));
-                    }
                 }
 
                 return true;

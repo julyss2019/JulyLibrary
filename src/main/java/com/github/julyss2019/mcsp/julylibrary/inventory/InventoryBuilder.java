@@ -57,6 +57,25 @@ public class InventoryBuilder {
         return this;
     }
 
+    public InventoryBuilder item(int index, @NotNull ItemStack item) {
+        if (index < 0 || index > 53) {
+            throw new IllegalArgumentException("索引不合法!");
+        }
+
+        itemIndexMap.put(index, item);
+        return this;
+    }
+
+    public InventoryBuilder item(int index, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
+        if (index < 0 || index > 53) {
+            throw new IllegalArgumentException("索引不合法!");
+        }
+
+        itemIndexMap.put(index, item);
+        itemListenerMap.put(index, itemListener);
+        return this;
+    }
+
     /**
      * 设置物品
      * @param row 行，从0开始

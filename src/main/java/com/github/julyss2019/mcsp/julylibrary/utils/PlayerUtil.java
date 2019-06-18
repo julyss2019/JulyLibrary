@@ -2,6 +2,7 @@ package com.github.julyss2019.mcsp.julylibrary.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -58,5 +59,9 @@ public class PlayerUtil {
             }
         }
         return total;
+    }
+
+    public static void playSound(Player player, Sound sound) {
+        player.playSound(player.getLocation(), sound, 1f,1f);
     }
 }

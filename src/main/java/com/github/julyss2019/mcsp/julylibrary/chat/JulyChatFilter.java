@@ -12,7 +12,7 @@ public class JulyChatFilter {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
     private static HashMap<@NotNull String, @NotNull ChatFilter> chatFilterMap = new HashMap<>();
 
-    static {
+    public static void init() {
         Bukkit.getPluginManager().registerEvents(new ChatListenerCaller(), plugin);
     }
 
@@ -63,16 +63,14 @@ public class JulyChatFilter {
      * @param chatListener 拦截回调
      * @return
      */
-    public static ChatFilter registerChatFilter(Player player, @NotNull ChatListener chatListener) {
+    public static boolean registerChatFilter(Player player, @NotNull ChatListener chatListener) {
         String playerName = player.getName();
 
         if (chatFilterMap.containsKey(playerName)) {
-            throw new IllegalArgumentException("该玩家已有一个聊天拦截器");
+            return false;
         }
 
-        ChatFilter instance = new ChatFilter(player, chatListener);
-
-        chatFilterMap.put(player.getName(), instance);
-        return instance;
+        chatFilterMap.put(player.getName(), new ChatFilter(player, chatListener));
+        return true;
     }
 }
