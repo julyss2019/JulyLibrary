@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class JulyMessage {
      * @param cs
      */
     public static void sendBlankLine(CommandSender cs) {
-        cs.sendMessage("");
+        sendColoredMessage(cs, "", false);
     }
 
     /**
@@ -114,10 +115,6 @@ public class JulyMessage {
      * @param withPrefix 是否带前缀
      */
     public static void sendColoredMessage(CommandSender cs, String msg, boolean withPrefix) {
-        if ((cs instanceof Player) && !((Player) cs).isOnline()) {
-            return;
-        }
-
         if (!withPrefix) {
             cs.sendMessage(MessageUtil.translateColorCode(msg));
             return;
