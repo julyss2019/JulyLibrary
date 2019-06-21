@@ -20,7 +20,7 @@ public class JulyMessage {
     private static Class<?> packetPlayOutTitleClass = null;
     private static Class<?> titleActionClass = null;
     private static Class<?> packetPlayOutChatClass = null;
-    private static HashMap<String, String> prefixMap = new HashMap<>(); // 前缀表
+    private static Map<String, String> prefixMap = new HashMap<>(); // 前缀表
 
     /*
     初始化 Title 需要的类

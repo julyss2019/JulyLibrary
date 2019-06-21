@@ -13,7 +13,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
     private Map<String, TabEntry> treeMap = new HashMap<>();
 
     /**
-     * 注册自
+     * 注册
      * @param julyTabCommand
      */
     public void register(JulyTabCommand julyTabCommand) {
