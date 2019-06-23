@@ -127,7 +127,7 @@ public class FileLogger {
         log(LoggerLevel.INFO, s);
     }
 
-    private void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
+    public void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
         String log = "[" + loggerLevel.name() + "] " + "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
 
         write(log);
