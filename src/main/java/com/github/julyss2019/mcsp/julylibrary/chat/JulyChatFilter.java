@@ -12,6 +12,10 @@ public class JulyChatFilter {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
     private static HashMap<@NotNull String, @NotNull ChatFilter> chatFilterMap = new HashMap<>();
 
+    private JulyChatFilter() {
+
+    }
+
     public static void init() {
         Bukkit.getPluginManager().registerEvents(new ChatListenerCaller(), plugin);
     }
@@ -58,9 +62,9 @@ public class JulyChatFilter {
     }
 
     /**
-     * 创建一个聊天过滤器
-     * @param player 玩家
-     * @param chatListener 拦截回调
+     * 注册一个聊天过滤器
+     * @param player
+     * @param chatListener
      * @return
      */
     public static boolean registerChatFilter(Player player, @NotNull ChatListener chatListener) {
@@ -70,7 +74,29 @@ public class JulyChatFilter {
             return false;
         }
 
-        chatFilterMap.put(player.getName(), new ChatFilter(player, chatListener));
+        chatFilterMap.put(player.getName(), new ChatFilter(player, chatListener, -1));
+        return true;
+    }
+
+    /**
+     * 创建一个聊天过滤器
+     * @param player 玩家
+     * @param chatListener 拦截回调
+     * @param timeout 超时秒数
+     * @return
+     */
+    public static boolean registerChatFilter(Player player, @NotNull ChatListener chatListener, int timeout) {
+        if (timeout <= 0) {
+            throw new IllegalArgumentException("超时时间必须大于0");
+        }
+
+        String playerName = player.getName();
+
+        if (chatFilterMap.containsKey(playerName)) {
+            return false;
+        }
+
+        chatFilterMap.put(player.getName(), new ChatFilter(player, chatListener, timeout));
         return true;
     }
 }

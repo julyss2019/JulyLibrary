@@ -4,4 +4,5 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public interface ChatListener {
     default void onChat(AsyncPlayerChatEvent event) {}
+    default void onTimeout() {}
 }

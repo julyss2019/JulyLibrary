@@ -23,7 +23,11 @@ public class InventoryBuilder {
     private boolean isColored;
     private InventoryListener inventoryListener;
 
-    static {
+    public static InventoryListenerCaller getInventoryListenerCaller() {
+        return inventoryListenerCaller;
+    }
+
+    public static void init() {
         Bukkit.getPluginManager().registerEvents(inventoryListenerCaller, plugin); // 注册监听器
     }
 
@@ -168,9 +172,17 @@ public class InventoryBuilder {
         return this;
     }
 
+    public Map<Integer, ItemStack> getItemIndexMap() {
+        return itemIndexMap;
+    }
+
     public Inventory build() {
         if (this.inventory == null) {
             this.inventory = Bukkit.createInventory(null, rowCount * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
+        }
+
+        if (rowCount == -1) {
+            throw new IllegalArgumentException("行数未设置!");
         }
 
         // 设置物品

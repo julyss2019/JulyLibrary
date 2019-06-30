@@ -1,7 +1,12 @@
-import com.github.julyss2019.mcsp.julylibrary.item.SkullItemBuilder;
+import com.github.julyss2019.mcsp.julylibrary.skull.CacheSkullManager;
 
 public class Test {
-    public static void main(String[] args) {
+    private static CacheSkullManager cacheSkullManager = new CacheSkullManager();
 
+    public static void main(String[] args) {
+        for (int i = 1000; i < 2000; i++) {
+            cacheSkullManager.loadTexture("" + i);
+        }
+        System.out.println("t");
     }
 }

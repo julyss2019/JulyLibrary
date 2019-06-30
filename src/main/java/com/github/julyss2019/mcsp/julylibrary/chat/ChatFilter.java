@@ -5,10 +5,18 @@ import org.bukkit.entity.Player;
 public class ChatFilter {
     private ChatListener chatListener;
     private Player player;
+    private int timeout;
+    private long creationTime;
 
-    public ChatFilter(Player player, ChatListener chatListener) {
+    protected ChatFilter(Player player, ChatListener chatListener, int timeout) {
         this.player = player;
         this.chatListener = chatListener;
+        this.timeout = timeout;
+        this.creationTime = System.currentTimeMillis();
+    }
+
+    public boolean isTimeout() {
+        return timeout != -1 && ((System.currentTimeMillis() - creationTime) / 1000L > timeout);
     }
 
     public ChatListener getChatListener() {

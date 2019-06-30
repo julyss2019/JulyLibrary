@@ -11,9 +11,16 @@ public class ChatListenerCaller implements Listener {
         Player player = event.getPlayer();
 
         if (JulyChatFilter.hasChatFilter(player)) {
-            ChatListener chatListener = JulyChatFilter.getChatFilter(player).getChatListener();
+            ChatFilter chatFilter = JulyChatFilter.getChatFilter(player);
+            ChatListener chatListener = chatFilter.getChatListener();
 
-            chatListener.onChat(event);
+            if (!chatFilter.isTimeout()) {
+                chatListener.onChat(event);
+            } else {
+                chatListener.onTimeout();
+                event.setCancelled(true);
+                JulyChatFilter.unregisterChatFilter(player);
+            }
         }
     }
 }

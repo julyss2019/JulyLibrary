@@ -34,6 +34,11 @@
             <systemPath>${api_folder}/minecraft/paper/Paper-1.12.2-b1613.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

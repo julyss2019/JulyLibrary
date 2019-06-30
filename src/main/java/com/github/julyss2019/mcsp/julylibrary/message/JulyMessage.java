@@ -4,6 +4,7 @@ import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.PlayerUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JulyMessage {
@@ -90,6 +92,10 @@ public class JulyMessage {
         return true;
     }
 
+    public static String toColoredMessage(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s);
+    }
+
     /**
      * 发送一条空行
      * @param cs
@@ -105,6 +111,18 @@ public class JulyMessage {
     public static void broadcastColoredMessage(String msg) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendColoredMessage(player, msg);
+        }
+    }
+
+    public static void sendColoredMessages(CommandSender cs, String... messages) {
+        for (String msg : messages) {
+            sendColoredMessage(cs, msg);
+        }
+    }
+
+    public static void sendColoredMessages(CommandSender cs, List<String> messages) {
+        for (String msg : messages) {
+            sendColoredMessage(cs, msg);
         }
     }
 

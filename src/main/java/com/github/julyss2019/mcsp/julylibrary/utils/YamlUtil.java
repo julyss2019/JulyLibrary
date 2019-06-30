@@ -6,14 +6,17 @@ import java.io.File;
 import java.io.IOException;
 
 public class YamlUtil {
-    public static boolean saveYaml(YamlConfiguration yml, File file) {
+    private static class YamlException extends RuntimeException {
+        public YamlException() {
+        }
+    }
+
+    public static void saveYaml(YamlConfiguration yml, File file) {
         try {
             yml.save(file);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            throw new YamlException();
         }
-
-        return true;
     }
 }

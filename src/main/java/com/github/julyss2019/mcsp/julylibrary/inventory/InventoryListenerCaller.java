@@ -24,6 +24,13 @@ public class InventoryListenerCaller implements Listener {
     public void onInventoryClickEvent(InventoryClickEvent event) {
         Inventory clickedInventory = event.getClickedInventory();
 
+        if (inventoryListenerMap.containsKey(clickedInventory)) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
+
+            inventoryListenerMap.get(clickedInventory).onClicked(event);
+        }
+
         if (itemListenerMap.containsKey(clickedInventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
@@ -64,6 +71,7 @@ public class InventoryListenerCaller implements Listener {
         }
 
         itemListenerMap.remove(inventory); // 释放空间
+        inventoryListenerMap.remove(inventory);
     }
 
     void registerListenerItems(@NotNull Inventory inventory, @NotNull List<ListenerItem> listenerItems) {
@@ -72,5 +80,13 @@ public class InventoryListenerCaller implements Listener {
 
     void registerInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
+    }
+
+    public Map<Inventory, List<ListenerItem>> getItemListenerMap() {
+        return itemListenerMap;
+    }
+
+    public Map<Inventory, InventoryListener> getInventoryListenerMap() {
+        return inventoryListenerMap;
     }
 }
