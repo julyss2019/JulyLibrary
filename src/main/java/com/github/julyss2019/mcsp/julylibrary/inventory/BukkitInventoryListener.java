@@ -5,10 +5,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,24 +18,25 @@ import java.util.Map;
 /**
  * 用于唤醒各种定义的事件
  */
-public class InventoryListenerCaller implements Listener {
+public class BukkitInventoryListener implements Listener {
     private Map<Inventory, List<ListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
+    private List<Inventory> cancelClickInventories = new ArrayList<>();
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
         Inventory clickedInventory = event.getClickedInventory();
 
-        if (inventoryListenerMap.containsKey(clickedInventory)) {
+        if (cancelClickInventories.contains(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory) || itemListenerMap.containsKey(clickedInventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
+        }
 
+        if (inventoryListenerMap.containsKey(clickedInventory)) {
             inventoryListenerMap.get(clickedInventory).onClicked(event);
         }
 
         if (itemListenerMap.containsKey(clickedInventory)) {
-            event.setCancelled(true);
-            event.setResult(Event.Result.DENY);
 
             for (ListenerItem listenerItem : itemListenerMap.get(clickedInventory)) {
                 if (event.getSlot() == listenerItem.getIndex()) {
@@ -42,6 +45,16 @@ public class InventoryListenerCaller implements Listener {
                     itemListener.onClicked(event); // 调用事件
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClickEvent(InventoryDragEvent event) {
+        Inventory clickedInventory = event.getInventory();
+
+        if (cancelClickInventories.contains(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory) || itemListenerMap.containsKey(clickedInventory)) {
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
         }
     }
 
@@ -70,8 +83,10 @@ public class InventoryListenerCaller implements Listener {
             inventoryListenerMap.get(inventory).onClose(event);
         }
 
-        itemListenerMap.remove(inventory); // 释放空间
+        // 释放空间
+        itemListenerMap.remove(inventory);
         inventoryListenerMap.remove(inventory);
+        cancelClickInventories.remove(inventory);
     }
 
     void registerListenerItems(@NotNull Inventory inventory, @NotNull List<ListenerItem> listenerItems) {
@@ -80,6 +95,10 @@ public class InventoryListenerCaller implements Listener {
 
     void registerInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
+    }
+
+    void registerCancelClickInventory(@NotNull Inventory inventory) {
+        cancelClickInventories.add(inventory);
     }
 
     public Map<Inventory, List<ListenerItem>> getItemListenerMap() {

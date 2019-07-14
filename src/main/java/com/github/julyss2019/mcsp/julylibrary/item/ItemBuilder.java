@@ -2,6 +2,7 @@ package com.github.julyss2019.mcsp.julylibrary.item;
 
 
 import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
+import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -12,16 +13,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ItemBuilder {
+public class ItemBuilder implements Cloneable {
     private Material material;
     private short durability;
     private int amount = 1;
     private String displayName;
-    private Map<Enchantment, Integer> enchantmentMap = new HashMap<>();
-    private List<String> lores = new ArrayList<>();
+    private HashMap<Enchantment, Integer> enchantmentMap = new HashMap<>();
+    private ArrayList<String> lores = new ArrayList<>();
     private int loreCounter = 0;
     private boolean colored;
-    private List<ItemFlag> itemFlags = new ArrayList<>();
+    private ArrayList<ItemFlag> itemFlags = new ArrayList<>();
+    private HashMap<String, String> placeholderMap = new HashMap<>();
 
     public ItemBuilder(ItemBuilder itemBuilder) {
         this.material = itemBuilder.material;
@@ -43,6 +45,11 @@ public class ItemBuilder {
         if (itemStack.getEnchantments() != null) {
             enchantmentMap.putAll(itemStack.getEnchantments());
         }
+    }
+
+    public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
+        this.itemFlags.addAll(Arrays.asList(itemFlags));
+        return this;
     }
 
     public ItemBuilder addItemFlag(@NotNull ItemFlag itemFlag) {
@@ -165,8 +172,11 @@ public class ItemBuilder {
      * @param lores
      * @return
      */
-    public ItemBuilder addLores(@NotNull String... lores) {
-        this.lores.addAll(Arrays.asList(lores));
+    public ItemBuilder addLores(@Nullable String... lores) {
+        if (lores != null) {
+            this.lores.addAll(Arrays.asList(lores));
+        }
+
         return this;
     }
 
@@ -175,8 +185,11 @@ public class ItemBuilder {
      * @param lores
      * @return
      */
-    public ItemBuilder addLores(@NotNull List<String> lores) {
-        this.lores.addAll(lores);
+    public ItemBuilder addLores(@Nullable List<String> lores) {
+        if (lores != null) {
+            this.lores.addAll(lores);
+        }
+
         return this;
     }
 
@@ -220,6 +233,21 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder addPlaceholder(String placeholder, String value) {
+        placeholderMap.put(placeholder, value);
+        return this;
+    }
+
+    private String replacePlaceholder(String s) {
+        String tmp = s;
+
+        for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
+            tmp = tmp.replace(entry.getKey(), entry.getValue());
+        }
+
+        return tmp;
+    }
+
     /**
      * 构造
      * @return
@@ -234,8 +262,8 @@ public class ItemBuilder {
 
         itemStack.setAmount(this.amount);
         itemStack.setDurability(this.durability);
-        itemMeta.setLore(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores);
-        itemMeta.setDisplayName(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName);
+        itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores, placeholderMap));
+        itemMeta.setDisplayName(replacePlaceholder(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName));
 
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);
@@ -255,5 +283,22 @@ public class ItemBuilder {
 
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    @Override
+    public ItemBuilder clone() {
+        try {
+            ItemBuilder itemBuilder = (ItemBuilder) super.clone();
+
+            itemBuilder.enchantmentMap = (HashMap<Enchantment, Integer>) enchantmentMap.clone();
+            itemBuilder.lores = (ArrayList<String>) lores.clone();
+            itemBuilder.itemFlags = (ArrayList<ItemFlag>) itemFlags.clone();
+            itemBuilder.placeholderMap = (HashMap<String, String>) placeholderMap.clone();
+            return itemBuilder;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

@@ -19,4 +19,10 @@ public class FileUtil {
 
         return sb;
     }
+
+    public static String getFileName(File file) {
+        String tmp = file.getName();
+
+        return tmp.substring(0, tmp.lastIndexOf("."));
+    }
 }

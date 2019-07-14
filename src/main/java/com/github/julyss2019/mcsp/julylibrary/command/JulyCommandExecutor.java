@@ -36,12 +36,14 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                 JulyCommand command = commands.get(firstArg);
 
                 if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
-                    sendMessage(plugin, cs, "&c命令执行者必须是玩家!");
+                    sendMessage(cs, "&c命令执行者必须是玩家!");
                     return true;
                 }
 
-                if (command.getPermission() != null && !cs.hasPermission(command.getPermission())) {
-                    sendMessage(plugin, cs, "&c无权限!");
+                String per = command.getPermission();
+
+                if (per != null && !per.equalsIgnoreCase("") && !cs.hasPermission(command.getPermission())) {
+                    sendMessage(cs, "&c无权限!");
                     return true;
                 }
 
@@ -56,7 +58,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                         // 匹配前缀
                         for (String desc : command.getSubDescriptions()) {
                             if (startsWithArgs(args[0] + " " + desc, arr)) {
-                                sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " " + desc);
+                                sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
                                 messageSent = true;
                             }
                         }
@@ -73,8 +75,8 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                     String per = command.getPermission();
                     String desc = command.getDescription();
 
-                    if (cs.hasPermission(per) && desc != null) {
-                        sendMessage(plugin, cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
+                    if ((per == null || per.equals("") || cs.hasPermission(per)) && desc != null) {
+                        sendMessage(cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
                     }
                 }
 
@@ -108,13 +110,12 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
     /**
      * 以某个插件的前缀发送消息（带前缀）
-     * @param plugin 插件
      * @param cs
      * @param msg
      */
-    private void sendMessage(Plugin plugin, CommandSender cs, String msg) {
-        String tmp = JulyMessage.getPrefix(plugin);
+    private void sendMessage(CommandSender cs, String msg) {
+        String prefix = JulyMessage.getPrefix(plugin);
 
-        JulyMessage.sendColoredMessage(cs, (tmp == null ? "" : tmp) + msg, false);
+        JulyMessage.sendColoredMessage(cs, (prefix == null ? "" : prefix) + msg, false);
     }
 }

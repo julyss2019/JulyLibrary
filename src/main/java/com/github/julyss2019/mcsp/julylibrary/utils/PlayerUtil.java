@@ -17,6 +17,11 @@ public class PlayerUtil {
         packetClass = NMSUtil.getNMSClass("Packet");
     }
 
+    public interface ItemFilter {
+        boolean filter(ItemStack itemStack);
+    }
+
+
     public static boolean sendPacket(Player player, @NotNull Object packet) {
         try
         {
@@ -63,5 +68,49 @@ public class PlayerUtil {
 
     public static void playSound(Player player, Sound sound) {
         player.playSound(player.getLocation(), sound, 1f,1f);
+    }
+
+    public static boolean hasItem(Player player, ItemFilter itemFilter, int amount) {
+        int totalAmount = 0;
+        ItemStack[] items = player.getInventory().getContents();
+
+        for (int i = 0; i < items.length && totalAmount < amount; i++) {
+            ItemStack itemStack = items[i];
+
+            if (itemFilter.filter(itemStack)) {
+                totalAmount += itemStack.getAmount();
+            }
+        }
+
+        return totalAmount >= amount;
+    }
+
+    public static boolean takeItems(Player player, ItemFilter itemFilter, int takeAmount) {
+        PlayerInventory playerInventory = player.getInventory();
+        int tookAmount = 0;
+
+        for (int i = 0; i < 36 && tookAmount < takeAmount; i++) {
+            ItemStack itemStack = playerInventory.getItem(i);
+
+            if (itemFilter.filter(itemStack)) {
+                int itemAmount = itemStack.getAmount();
+
+                // 如果物品的数量超过剩下需要的数量
+                if (itemAmount > (takeAmount - tookAmount)) {
+                    int take = takeAmount - tookAmount;
+
+                    itemStack.setAmount(itemAmount - take);
+                    tookAmount += take;
+                } else {
+                    // 小于等于需要的数量
+                    tookAmount += itemAmount;
+                    itemStack.setType(Material.AIR);
+                }
+
+                playerInventory.setItem(i, itemStack);
+            }
+        }
+
+        return tookAmount >= takeAmount;
     }
 }

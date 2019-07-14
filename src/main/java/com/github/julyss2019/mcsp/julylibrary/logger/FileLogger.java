@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
+import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -12,6 +13,8 @@ import java.util.Calendar;
 public class FileLogger {
     private static SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
     private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
+    private static Gson gson = new Gson();
+
     private File loggerFolder;
     private String fileNameFormat;
     private int saveInterval;
@@ -93,6 +96,10 @@ public class FileLogger {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void writeJson(Object object) {
+        write(gson.toJson(object));
     }
 
     /**

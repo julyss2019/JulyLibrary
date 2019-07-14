@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class InventoryBuilder {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
-    private static InventoryListenerCaller inventoryListenerCaller = new InventoryListenerCaller();
+    private static BukkitInventoryListener bukkitInventoryListener = new BukkitInventoryListener();
     private Inventory inventory;
     private int rowCount = -1;
     private String title;
@@ -22,13 +23,14 @@ public class InventoryBuilder {
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private boolean isColored;
     private InventoryListener inventoryListener;
-
-    public static InventoryListenerCaller getInventoryListenerCaller() {
-        return inventoryListenerCaller;
-    }
+    private boolean cancelClick = true; // 取消点击事件
 
     public static void init() {
-        Bukkit.getPluginManager().registerEvents(inventoryListenerCaller, plugin); // 注册监听器
+        Bukkit.getPluginManager().registerEvents(bukkitInventoryListener, plugin); // 注册监听器
+    }
+
+    public static BukkitInventoryListener getBukkitInventoryListener() {
+        return bukkitInventoryListener;
     }
 
     public InventoryBuilder(Inventory inventory) {
@@ -36,6 +38,23 @@ public class InventoryBuilder {
     }
 
     public InventoryBuilder() {}
+
+    public InventoryBuilder cancelClick(boolean b) {
+        this.cancelClick = b;
+        return this;
+    }
+
+    public InventoryBuilder fillAll(@NotNull ItemStack itemStack) {
+        if (rowCount == -1) {
+            throw new IllegalArgumentException("行数未设置!");
+        }
+
+        for (int i = 0; i < rowCount * 9; i++) {
+            item(i, itemStack);
+        }
+
+        return this;
+    }
 
     /**
      * GUI行数
@@ -62,21 +81,24 @@ public class InventoryBuilder {
     }
 
     public InventoryBuilder item(int index, @NotNull ItemStack item) {
-        if (index < 0 || index > 53) {
-            throw new IllegalArgumentException("索引不合法!");
-        }
-
-        itemIndexMap.put(index, item);
-        return this;
+        return item(index, item, null);
     }
 
-    public InventoryBuilder item(int index, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
-        if (index < 0 || index > 53) {
+    public InventoryBuilder item(int index, @NotNull ItemStack item, @Nullable ItemListener itemListener) {
+        if (rowCount == -1) {
+            throw new IllegalArgumentException("行数未设置!");
+        }
+
+        if (index < 0 || index > rowCount * 9) {
             throw new IllegalArgumentException("索引不合法!");
         }
 
         itemIndexMap.put(index, item);
-        itemListenerMap.put(index, itemListener);
+
+        if (itemListener != null) {
+            itemListenerMap.put(index, itemListener);
+        }
+
         return this;
     }
 
@@ -88,12 +110,16 @@ public class InventoryBuilder {
      * @return
      */
     public InventoryBuilder item(int row, int column, @NotNull ItemStack item) {
+        if (rowCount == -1) {
+            throw new IllegalArgumentException("行数未设置!");
+        }
+
         if (row < 0) {
-            throw new IllegalArgumentException("rowCount 必须 >= 0.");
+            throw new IllegalArgumentException("row 必须 >= 0.");
         }
 
         if (row >= this.rowCount) {
-            throw new IllegalArgumentException("rowCount 超过了限定的行数.");
+            throw new IllegalArgumentException("row 超过了限定的行数.");
         }
 
         if (column < 0) {
@@ -116,9 +142,8 @@ public class InventoryBuilder {
      * @param itemListener 物品监听器
      * @return
      */
-    public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @NotNull ItemListener itemListener) {
-        item(row, column, item);
-        this.itemListenerMap.put(row * 9 + column, itemListener);
+    public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @Nullable ItemListener itemListener) {
+        item(row * 9 + column, item, itemListener);
         return this;
     }
 
@@ -177,35 +202,45 @@ public class InventoryBuilder {
     }
 
     public Inventory build() {
-        if (this.inventory == null) {
-            this.inventory = Bukkit.createInventory(null, rowCount * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
-        }
-
         if (rowCount == -1) {
             throw new IllegalArgumentException("行数未设置!");
         }
 
+        if (inventory == null) {
+            this.inventory = Bukkit.createInventory(null, rowCount * 9, this.isColored ? MessageUtil.translateColorCode(title) : title);
+        }
+
         // 设置物品
-        for (Map.Entry<Integer, ItemStack> entry : this.itemIndexMap.entrySet()) {
+        for (Map.Entry<Integer, ItemStack> entry : itemIndexMap.entrySet()) {
             this.inventory.setItem(entry.getKey(), entry.getValue());
 
         }
 
-        List<ListenerItem> listenerItems = new ArrayList<>();
-
-        // 构造监听物品
-        for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
-            listenerItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
+        if (!cancelClick && (itemListenerMap.size() > 0 || inventoryListener != null)) {
+            throw new IllegalArgumentException("用监听物品或背包 cancelClick 必须为 true.");
         }
 
-        // 注册监听物品
-        inventoryListenerCaller.registerListenerItems(this.inventory, listenerItems);
+        // 注册监听的物品
+        if (itemListenerMap.size() > 0) {
+            List<ListenerItem> listenerItems = new ArrayList<>();
 
-        if (this.inventoryListener != null) {
-            // 注册监听背包
-            inventoryListenerCaller.registerInventoryListener(this.inventory, this.inventoryListener);
+            for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : itemListenerMap.entrySet()) {
+                listenerItems.add(new ListenerItem(entry.getKey(), entry.getValue()));
+            }
+
+            bukkitInventoryListener.registerListenerItems(inventory, listenerItems);
         }
 
-        return this.inventory;
+        // 注册监听的背包
+        if (inventoryListener != null) {
+            bukkitInventoryListener.registerInventoryListener(inventory, inventoryListener);
+        }
+
+        // 注册取消点击的背包
+        if (cancelClick) {
+            bukkitInventoryListener.registerCancelClickInventory(inventory);
+        }
+
+        return inventory;
     }
 }

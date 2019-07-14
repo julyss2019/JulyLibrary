@@ -2,8 +2,6 @@ package com.github.julyss2019.mcsp.julylibrary;
 
 import com.github.julyss2019.mcsp.julylibrary.chat.JulyChatFilter;
 import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryBuilder;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryListenerCaller;
-import com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener;
 import com.github.julyss2019.mcsp.julylibrary.inventory.ListenerItem;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
 import org.bukkit.Bukkit;
@@ -28,12 +26,12 @@ public class JulyLibrary extends JavaPlugin {
             if (args.length == 1 && args[0].equalsIgnoreCase("inv")) {
                 int itemTotal = 0;
 
-                for (List<ListenerItem> listenerItems : InventoryBuilder.getInventoryListenerCaller().getItemListenerMap().values()) {
+                for (List<ListenerItem> listenerItems : InventoryBuilder.getBukkitInventoryListener().getItemListenerMap().values()) {
                     itemTotal += listenerItems.size();
                 }
 
                 cs.sendMessage("item_listener: " + itemTotal);
-                cs.sendMessage("inventory_listener: " + InventoryBuilder.getInventoryListenerCaller().getInventoryListenerMap().size());
+                cs.sendMessage("inventory_listener: " + InventoryBuilder.getBukkitInventoryListener().getInventoryListenerMap().size());
                 return true;
             }
 

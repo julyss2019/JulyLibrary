@@ -41,12 +41,11 @@ public class JulyFileLogger {
      * @return
      */
     public static FileLogger getLogger(@NotNull File loggerFolder, @Nullable String fileNameFormat, int saveInterval) {
-        if (saveInterval < 0)
-        {
+        if (saveInterval < 0) {
             throw new IllegalArgumentException("保存间隔必须大于等于0");
         }
 
-        FileLogger instance = new FileLogger(loggerFolder, fileNameFormat == null ? "%DATE%" : fileNameFormat, saveInterval);
+        FileLogger instance = new FileLogger(loggerFolder, fileNameFormat == null ? "%DATE%.log" : fileNameFormat, saveInterval);
 
         loggers.add(instance);
         return instance;

@@ -15,7 +15,7 @@ public interface JulyCommand {
     }
 
     default String getPermission() {
-        return "";
+        return null;
     }
 
     default List<String> getSubDescriptions() {
