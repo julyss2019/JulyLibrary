@@ -32,7 +32,7 @@ public class YamlUtil {
         section.set("x", location.getX());
         section.set("y", location.getY());
         section.set("z", location.getZ());
-        section.set("yaw", location.getY());
+        section.set("yaw", location.getYaw());
         section.set("pitch", location.getPitch());
     }
 }

@@ -13,9 +13,18 @@ import java.util.*;
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
     private Map<String, JulyCommand> commands = new HashMap<>();
     private Plugin plugin;
+    private String prefix = "";
 
     public JulyCommandExecutor(Plugin plugin) {
         this.plugin = plugin;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
     /**
@@ -114,8 +123,6 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
      * @param msg
      */
     private void sendMessage(CommandSender cs, String msg) {
-        String prefix = JulyMessage.getPrefix(plugin);
-
-        JulyMessage.sendColoredMessage(cs, (prefix == null ? "" : prefix) + msg, false);
+        JulyMessage.sendColoredMessage(cs, (prefix == null ? "" : prefix) + msg);
     }
 }

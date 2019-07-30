@@ -7,20 +7,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class JulyMessage {
     private static Class<?> chatBaseComponentClass = null;
     private static Class<?> packetPlayOutTitleClass = null;
     private static Class<?> titleActionClass = null;
     private static Class<?> packetPlayOutChatClass = null;
-    private static Map<String, String> prefixMap = new HashMap<>(); // 前缀表
 
     /*
     初始化 Title 需要的类
@@ -37,15 +32,6 @@ public class JulyMessage {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 得到前缀
-     * @param plugin Java插件
-     * @return
-     */
-    public static String getPrefix(Plugin plugin) {
-        return prefixMap.get(plugin.getClass().getPackage().getName() + ".");
     }
 
     /**
@@ -99,7 +85,7 @@ public class JulyMessage {
      * @param cs
      */
     public static void sendBlankLine(CommandSender cs) {
-        sendColoredMessage(cs, "", false);
+        sendColoredMessage(cs, "");
     }
 
     /**
@@ -110,10 +96,6 @@ public class JulyMessage {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendColoredMessage(player, msg);
         }
-    }
-
-    public static void sendColoredConsoleMessage(String message) {
-        sendColoredMessage(Bukkit.getConsoleSender(), message, true);
     }
 
     public static void sendColoredMessages(CommandSender cs, String... messages) {
@@ -129,39 +111,12 @@ public class JulyMessage {
     }
 
     /**
-     * 发送带颜色的消息
-     * @param cs
-     * @param msg
-     * @param withPrefix 是否带前缀
-     */
-    public static void sendColoredMessage(CommandSender cs, String msg, boolean withPrefix) {
-        if (!withPrefix) {
-            cs.sendMessage(MessageUtil.translateColorCode(msg));
-            return;
-        }
-
-        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-        String prefix = "";
-
-        for (Map.Entry<String, String> entry : prefixMap.entrySet()) {
-            for (StackTraceElement stackTraceElement : stackTraceElements) {
-                if (stackTraceElement.getClassName().contains(entry.getKey())) {
-                    prefix = entry.getValue();
-                    break;
-                }
-            }
-        }
-
-        cs.sendMessage(prefix + MessageUtil.translateColorCode(msg));
-    }
-
-    /**
      * 发送带颜色的消息（带前缀）
      * @param cs
      * @param msg
      */
     public static void sendColoredMessage(CommandSender cs, String msg) {
-        sendColoredMessage(cs, msg, true);
+        cs.sendMessage(toColoredMessage(msg));
     }
 
     /**
@@ -204,15 +159,6 @@ public class JulyMessage {
      */
     public static boolean canUseTitle() {
         return packetPlayOutTitleClass != null;
-    }
-
-    /**
-     * 设置前缀
-     * @param plugin
-     * @param prefix
-     */
-    public static void setPrefix(JavaPlugin plugin, String prefix) {
-        prefixMap.put(plugin.getClass().getPackage().getName() + ".", prefix);
     }
 
     public static void sendColoredTitle(Player player, String text) {

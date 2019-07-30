@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class MessageUtil {
     /**
      * 翻译颜色代码
