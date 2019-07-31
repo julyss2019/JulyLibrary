@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,7 +30,7 @@ public class ItemUtil {
 
         List<String> lores = itemStack.getItemMeta().getLore();
 
-        return lores != null && lores.contains(lore);
+        return lores != null && lores.contains(JulyMessage.toColoredMessage(lore));
     }
 
     /**
