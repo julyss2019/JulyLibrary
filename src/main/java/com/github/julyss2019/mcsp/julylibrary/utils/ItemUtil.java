@@ -8,6 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemUtil {
+    public static ItemStack getItemByID(String idStr) {
+        String[] aId = idStr.split(":");
+
+        for (String id : aId) {
+            if (id.matches("[0-9]+")) {
+                throw new RuntimeException("非法的ID");
+            }
+        }
+
+        return new ItemStack(Integer.parseInt(aId[0]), 1, aId.length == 1 ? 0 : Short.parseShort(aId[1]));
+    }
+
     /**
      * 判断物品是否有效（不为null且meta不为null）
      * @param itemStack

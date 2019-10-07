@@ -2,6 +2,7 @@ package com.github.julyss2019.mcsp.julylibrary.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ListUtil {
     public static List<String> toLowercaseList(List<String> list) {
@@ -12,5 +13,21 @@ public class ListUtil {
         }
 
         return newList;
+    }
+
+    public static List<String> replacePlaceholders(List<String> strList, Map<String, String> placeholderMap) {
+        List<String> result = new ArrayList<>();
+
+        for (String str : strList) {
+            String tmp = str;
+
+            for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
+                tmp = tmp.replace(entry.getKey(), entry.getValue());
+            }
+
+            result.add(tmp);
+        }
+
+        return result;
     }
 }

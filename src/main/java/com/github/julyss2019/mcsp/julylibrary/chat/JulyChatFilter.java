@@ -17,7 +17,7 @@ public class JulyChatFilter {
     }
 
     public static void init() {
-        Bukkit.getPluginManager().registerEvents(new ChatListenerCaller(), plugin);
+        Bukkit.getPluginManager().registerEvents(new BukkitChatListener(), plugin);
     }
 
     /**

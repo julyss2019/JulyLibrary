@@ -22,6 +22,7 @@ public class StrUtil {
         return 0;
     }
 
+    @Deprecated
     public static List<String> replacePlaceholders(List<String> strList, Map<String, String> placeholderMap) {
         List<String> result = new ArrayList<>();
 

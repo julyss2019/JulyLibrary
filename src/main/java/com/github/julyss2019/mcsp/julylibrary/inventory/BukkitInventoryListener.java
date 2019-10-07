@@ -3,10 +3,7 @@ package com.github.julyss2019.mcsp.julylibrary.inventory;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,11 +22,13 @@ public class BukkitInventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
+        Inventory inventory = event.getInventory();
         Inventory clickedInventory = event.getClickedInventory();
 
-        if (cancelClickInventories.contains(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory) || itemListenerMap.containsKey(clickedInventory)) {
+        if (cancelClickInventories.contains(clickedInventory) || itemListenerMap.containsKey(clickedInventory) || cancelClickInventories.contains(inventory) || itemListenerMap.containsKey(inventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
+
         }
 
         if (inventoryListenerMap.containsKey(clickedInventory)) {
@@ -50,9 +49,9 @@ public class BukkitInventoryListener implements Listener {
 
     @EventHandler
     public void onInventoryClickEvent(InventoryDragEvent event) {
-        Inventory clickedInventory = event.getInventory();
+        Inventory inventory = event.getInventory();
 
-        if (cancelClickInventories.contains(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory) || itemListenerMap.containsKey(clickedInventory)) {
+        if (cancelClickInventories.contains(inventory) || itemListenerMap.containsKey(inventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
         }

@@ -4,8 +4,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-public class ChatListenerCaller implements Listener {
+public class BukkitChatListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -22,5 +23,10 @@ public class ChatListenerCaller implements Listener {
                 JulyChatFilter.unregisterChatFilter(player);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuitEvent(PlayerQuitEvent event) {
+        JulyChatFilter.unregisterChatFilter(event.getPlayer());
     }
 }
