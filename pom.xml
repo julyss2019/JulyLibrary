@@ -8,12 +8,6 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
-    <properties>
-        <mac>/Users/user/Desktop/july_ss/code/java_api</mac>
-        <win>G:\july_ss\code\java_api</win>
-        <api_folder>${win}</api_folder>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -33,11 +27,9 @@
         </dependency>
 
         <dependency>
-            <groupId>paper</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.12.2</version>
-            <scope>system</scope>
-            <systemPath>${api_folder}/minecraft/paper/Paper-1.12.2-b1613.jar</systemPath>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
