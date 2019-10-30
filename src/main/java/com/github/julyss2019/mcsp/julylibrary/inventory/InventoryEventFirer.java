@@ -7,39 +7,39 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 用于唤醒各种定义的事件
  */
-public class BukkitInventoryListener implements Listener {
-    private Map<Inventory, List<ListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
+public class InventoryEventFirer implements Listener {
+    private Map<Inventory, List<IndexListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
     private List<Inventory> cancelClickInventories = new ArrayList<>();
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        Inventory inventory = event.getInventory();
         Inventory clickedInventory = event.getClickedInventory();
 
-        if (cancelClickInventories.contains(clickedInventory) || itemListenerMap.containsKey(clickedInventory) || cancelClickInventories.contains(inventory) || itemListenerMap.containsKey(inventory)) {
+        System.out.println(clickedInventory);
+
+        // 背包监听器或背包物品监听器
+        if (cancelClickInventories.contains(clickedInventory) || itemListenerMap.containsKey(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
-
         }
 
+        // 背包监听器
         if (inventoryListenerMap.containsKey(clickedInventory)) {
+            inventoryListenerMap.get(clickedInventory).onClick(event);
             inventoryListenerMap.get(clickedInventory).onClicked(event);
         }
 
+        // 背包物品监听器
         if (itemListenerMap.containsKey(clickedInventory)) {
-
-            for (ListenerItem listenerItem : itemListenerMap.get(clickedInventory)) {
-                if (event.getSlot() == listenerItem.getIndex()) {
-                    ItemListener itemListener = listenerItem.getItemListener();
+            for (IndexListenerItem indexListenerItem : itemListenerMap.get(clickedInventory)) {
+                if (event.getSlot() == indexListenerItem.getIndex()) {
+                    ItemListener itemListener = indexListenerItem.getItemListener();
 
                     itemListener.onClicked(event); // 调用事件
                 }
@@ -82,29 +82,46 @@ public class BukkitInventoryListener implements Listener {
             inventoryListenerMap.get(inventory).onClose(event);
         }
 
-        // 释放空间
+        // 从 map 删除
         itemListenerMap.remove(inventory);
         inventoryListenerMap.remove(inventory);
         cancelClickInventories.remove(inventory);
     }
 
-    void registerListenerItems(@NotNull Inventory inventory, @NotNull List<ListenerItem> listenerItems) {
-        itemListenerMap.put(inventory, listenerItems);
+    /**
+     * 监听物品
+     * @param inventory
+     * @param indexListenerItems
+     */
+    void listenItems(@NotNull Inventory inventory, @NotNull List<IndexListenerItem> indexListenerItems) {
+        itemListenerMap.put(inventory, indexListenerItems);
     }
 
-    void registerInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
+    /**
+     * 监听背包
+     * @param inventory
+     * @param inventoryListener
+     */
+    void listenInventory(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
     }
 
-    void registerCancelClickInventory(@NotNull Inventory inventory) {
-        cancelClickInventories.add(inventory);
+    /**
+     * 得到被监听的物品
+     * @return
+     */
+    public List<IndexListenerItem> getItemListeners() {
+        List<IndexListenerItem> resultList = new ArrayList<>();
+
+        for (List<IndexListenerItem> indexListenerItems : itemListenerMap.values()) {
+            resultList.addAll(indexListenerItems);
+
+        }
+
+        return resultList;
     }
 
-    public Map<Inventory, List<ListenerItem>> getItemListenerMap() {
-        return itemListenerMap;
-    }
-
-    public Map<Inventory, InventoryListener> getInventoryListenerMap() {
-        return inventoryListenerMap;
+    public Collection<InventoryListener> getInventoryListeners() {
+        return inventoryListenerMap.values();
     }
 }

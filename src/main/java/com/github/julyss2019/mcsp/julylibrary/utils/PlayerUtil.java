@@ -70,7 +70,38 @@ public class PlayerUtil {
         player.playSound(player.getLocation(), sound, 1f,1f);
     }
 
+    /**
+     * 得到玩家背包物品数量
+     * @param player
+     * @param itemFilter
+     * @return
+     */
+    public static int getItemAmount(Player player, ItemFilter itemFilter) {
+        int totalAmount = 0;
+        ItemStack[] items = player.getInventory().getContents();
+
+        for (ItemStack itemStack : items) {
+            if (itemFilter.filter(itemStack)) {
+                totalAmount += itemStack.getAmount();
+            }
+        }
+
+        return totalAmount;
+    }
+
+    @Deprecated
     public static boolean hasItem(Player player, ItemFilter itemFilter, int amount) {
+        return hasEnoughItem(player, itemFilter, amount);
+    }
+
+    /**
+     * 是否有足够的物品
+     * @param player
+     * @param itemFilter
+     * @param amount
+     * @return
+     */
+    public static boolean hasEnoughItem(Player player, ItemFilter itemFilter, int amount) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
 

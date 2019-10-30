@@ -9,14 +9,40 @@ import org.bukkit.plugin.Plugin;
 import java.lang.reflect.Field;
 
 public class JulyConfig {
-    /**
-     * 载入配置
-     * @param plugin
-     * @param section
-     * @param obj 被实例化的类
-     */
+    @Deprecated
     public static void reloadConfig(Plugin plugin, ConfigurationSection section, Object obj) {
         setFields(plugin, section, obj);
+    }
+
+    /**
+     * 载入配置
+     * @param plugin 插件实例
+     * @param section 节点
+     * @param obj 对象实例
+     */
+    public static void loadConfig(Plugin plugin, ConfigurationSection section, Object obj) {
+        setFields(plugin, section, obj);
+    }
+
+    /**
+     * 载入配置
+     * @param plugin 插件实例
+     * @param section 节点
+     * @param clazz 配置类（不需要实例化）
+     * @return
+     */
+    public static Object loadConfig(Plugin plugin, ConfigurationSection section, Class<?> clazz) {
+        Object obj = null;
+
+        try {
+            obj = clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        assert obj != null;
+        setFields(plugin, section, obj);
+        return obj;
     }
 
     private static void setFields(Plugin plugin, ConfigurationSection section, Object obj) {
@@ -53,7 +79,11 @@ public class JulyConfig {
                             plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " = " + materialName + " 不合法.");
                         }
                     } else {
-                        value = section.get(configPath);
+                        try {
+                            value = section.get(configPath);
+                        } catch (Exception e) {
+                            plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " 不合法.");
+                        }
                     }
 
                     // 没值的情况
@@ -76,25 +106,5 @@ public class JulyConfig {
                 }
             }
         }
-    }
-
-    /**
-     * 载入配置
-     * @param section 节点
-     * @param clazz 配置类（不需要实例化）
-     * @return
-     */
-    public static Object loadConfig(Plugin plugin, ConfigurationSection section, Class<?> clazz) {
-        Object obj = null;
-
-        try {
-            obj = clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        assert obj != null;
-        setFields(plugin, section, obj);
-        return obj;
     }
 }

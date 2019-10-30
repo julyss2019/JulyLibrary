@@ -12,10 +12,6 @@ public class JulyChatFilter {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
     private static HashMap<@NotNull String, @NotNull ChatFilter> chatFilterMap = new HashMap<>();
 
-    private JulyChatFilter() {
-
-    }
-
     public static void init() {
         Bukkit.getPluginManager().registerEvents(new BukkitChatListener(), plugin);
     }

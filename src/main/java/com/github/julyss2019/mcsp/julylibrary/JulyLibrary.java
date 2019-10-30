@@ -1,37 +1,31 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
 import com.github.julyss2019.mcsp.julylibrary.chat.JulyChatFilter;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryBuilder;
-import com.github.julyss2019.mcsp.julylibrary.inventory.ListenerItem;
+import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventFirer;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.List;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class JulyLibrary extends JavaPlugin {
     private static JulyLibrary instance;
+    private InventoryEventFirer inventoryEventFirer;
 
     @Override
     public void onEnable() {
         instance = this;
+        this.inventoryEventFirer = new InventoryEventFirer();
 
         JulyChatFilter.init();
         JulyFileLogger.init();
-        InventoryBuilder.init();
+        Bukkit.getPluginManager().registerEvents(new InventoryEventFirer(), this);
         getLogger().info("插件初始化完毕!");
-        onTest();
 
         getCommand("jl").setExecutor((cs, command, s, args) -> {
-            if (args.length == 1 && args[0].equalsIgnoreCase("inv")) {
-                int itemTotal = 0;
-
-                for (List<ListenerItem> listenerItems : InventoryBuilder.getBukkitInventoryListener().getItemListenerMap().values()) {
-                    itemTotal += listenerItems.size();
-                }
-
-                cs.sendMessage("item_listener: " + itemTotal);
-                cs.sendMessage("inventory_listener: " + InventoryBuilder.getBukkitInventoryListener().getInventoryListenerMap().size());
+            if (args.length == 1 && args[0].equalsIgnoreCase("monitor")) {
+                cs.sendMessage("item_listener: " + inventoryEventFirer.getItemListeners().size());
+                cs.sendMessage("inventory_listener: " + inventoryEventFirer.getInventoryListeners().size());
                 return true;
             }
 
@@ -39,14 +33,19 @@ public class JulyLibrary extends JavaPlugin {
         });
     }
 
-    public void onTest() {
-
-    }
-
     @Override
     public void onDisable() {
         JulyFileLogger.closeLoggers();
+        JulyChatFilter.unregisterAll();
         Bukkit.getScheduler().cancelTasks(this);
+    }
+
+    /**
+     * 得到背包事件触发器
+     * @return
+     */
+    public InventoryEventFirer getInventoryEventFirer() {
+        return inventoryEventFirer;
     }
 
     public static JulyLibrary getInstance() {

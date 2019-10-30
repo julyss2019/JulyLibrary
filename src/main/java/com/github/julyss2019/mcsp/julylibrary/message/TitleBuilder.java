@@ -17,8 +17,7 @@ public class TitleBuilder {
     private boolean colored = false;
 
 
-    public TitleBuilder() {
-    }
+    public TitleBuilder() {}
 
     public TitleBuilder colored() {
         colored(true);

@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,20 +19,17 @@ public class ItemBuilder implements Cloneable {
     private short durability;
     private int amount = 1;
     private String displayName;
-    private HashMap<Enchantment, Integer> enchantmentMap = new HashMap<>();
+    private Map<Enchantment, Integer> enchantmentMap = new HashMap<>();
     private ArrayList<String> lores = new ArrayList<>();
     private int loreCounter = 0;
     private boolean colored;
     private ArrayList<ItemFlag> itemFlags = new ArrayList<>();
-    private HashMap<String, String> placeholderMap = new HashMap<>();
-
-    public ItemBuilder(ItemBuilder itemBuilder) {
-        this.material = itemBuilder.material;
-        this.durability = itemBuilder.durability;
-    }
+    private Map<String, String> placeholderMap = new HashMap<>();
+    private String skullOwner;
 
     public ItemBuilder() {}
 
+    @Deprecated
     public ItemBuilder(ItemStack itemStack) {
         this.material = itemStack.getType();
         this.durability = itemStack.getDurability();
@@ -45,6 +43,11 @@ public class ItemBuilder implements Cloneable {
         if (itemStack.getEnchantments() != null) {
             enchantmentMap.putAll(itemStack.getEnchantments());
         }
+    }
+
+    public ItemBuilder data(short data) {
+        this.durability = data;
+        return this;
     }
 
     public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
@@ -220,21 +223,40 @@ public class ItemBuilder implements Cloneable {
      * @return
      */
     public ItemBuilder amount(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("amount must >= 0");
+        }
+
         this.amount = amount;
         return this;
     }
 
+    /**
+     * 颜色
+     * @return
+     */
     public ItemBuilder colored() {
         return colored(true);
     }
 
+    /**
+     * 颜色
+     * @param colored
+     * @return
+     */
     public ItemBuilder colored(boolean colored) {
         this.colored = colored;
         return this;
     }
 
-    public ItemBuilder addPlaceholder(String placeholder, String value) {
-        placeholderMap.put(placeholder, value);
+    /**
+     * 添加占位符
+     * @param key
+     * @param value
+     * @return
+     */
+    public ItemBuilder addPlaceholder(String key, String value) {
+        placeholderMap.put(key, value);
         return this;
     }
 
@@ -262,6 +284,17 @@ public class ItemBuilder implements Cloneable {
 
         itemStack.setAmount(this.amount);
         itemStack.setDurability(this.durability);
+
+        if (skullOwner != null) {
+            if (!(itemMeta instanceof SkullMeta)) {
+                throw new ItemBuilderException("skullOwner 被设置, 但物品类型不为 Skull");
+            }
+
+            SkullMeta skullMeta = (SkullMeta) itemMeta;
+
+            skullMeta.setOwner(skullOwner);
+        }
+
         itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores, placeholderMap));
         itemMeta.setDisplayName(replacePlaceholder(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName));
 
@@ -285,15 +318,21 @@ public class ItemBuilder implements Cloneable {
         return itemStack;
     }
 
+    public ItemBuilder skullOwner(String owner) {
+        this.skullOwner = owner;
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public ItemBuilder clone() {
         try {
             ItemBuilder itemBuilder = (ItemBuilder) super.clone();
 
-            itemBuilder.enchantmentMap = (HashMap<Enchantment, Integer>) enchantmentMap.clone();
+            itemBuilder.enchantmentMap = (HashMap<Enchantment, Integer>) ((HashMap<Enchantment, Integer>) enchantmentMap).clone();
             itemBuilder.lores = (ArrayList<String>) lores.clone();
             itemBuilder.itemFlags = (ArrayList<ItemFlag>) itemFlags.clone();
-            itemBuilder.placeholderMap = (HashMap<String, String>) placeholderMap.clone();
+            itemBuilder.placeholderMap = (HashMap<String, String>) ((HashMap<String, String>) placeholderMap).clone();
             return itemBuilder;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();

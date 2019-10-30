@@ -47,7 +47,7 @@ public class FileLogger {
      */
     void flush() {
         if (!loggerFile.exists()) {
-            throw new LogException("文件不存在!");
+            throw new RuntimeException("文件不存在");
         }
 
         // 写入
