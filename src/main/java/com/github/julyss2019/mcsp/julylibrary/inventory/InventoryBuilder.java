@@ -180,13 +180,11 @@ public class InventoryBuilder {
     }
 
     public Inventory build() {
-        if (rowCount == -1) {
+        if (this.rowCount == -1) {
             throw new IllegalArgumentException("行数未设置");
         }
 
-        if (inventory == null) {
-            this.inventory = Bukkit.createInventory(null, rowCount * 9, this.colored ? JulyMessage.toColoredMessage(title) : title);
-        }
+        this.inventory = Bukkit.createInventory(null, this.rowCount * 9, this.colored ? JulyMessage.toColoredMessage(this.title) : this.title);
 
         // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : itemIndexMap.entrySet()) {
@@ -194,21 +192,22 @@ public class InventoryBuilder {
         }
 
         // 注册监听的物品
-        if (itemListenerMap.size() > 0) {
+        if (this.itemListenerMap.size() > 0) {
             List<IndexListenerItem> indexListenerItems = new ArrayList<>();
 
-            for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : itemListenerMap.entrySet()) {
+            for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
                 indexListenerItems.add(new IndexListenerItem(entry.getKey(), entry.getValue()));
             }
 
-            inventoryEventFirer.listenItems(inventory, indexListenerItems);
+            this.inventoryEventFirer.listenInventoryItems(this.inventory, indexListenerItems);
         }
 
         // 注册监听的背包
-        if (inventoryListener != null) {
-            inventoryEventFirer.listenInventory(inventory, inventoryListener);
+        if (this.inventoryListener != null) {
+            this.inventoryEventFirer.listenInventory(this.inventory, this.inventoryListener);
         }
 
-        return inventory;
+        this.inventoryEventFirer.cancelInteractInventory(this.inventory);
+        return this.inventory;
     }
 }

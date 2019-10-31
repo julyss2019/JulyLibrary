@@ -45,7 +45,7 @@ public class FileLogger {
     /**
      * 刷新，写入内容到文件中
      */
-    void flush() {
+    public void flush() {
         if (!loggerFile.exists()) {
             throw new RuntimeException("文件不存在");
         }

@@ -20,7 +20,7 @@ public class JulyMessage {
     /*
     初始化 Title 需要的类
      */
-    static {
+    public static void init() {
         try {
             chatBaseComponentClass = NMSUtil.getNMSClass("IChatBaseComponent");
             packetPlayOutTitleClass = NMSUtil.getNMSClass("PacketPlayOutTitle");

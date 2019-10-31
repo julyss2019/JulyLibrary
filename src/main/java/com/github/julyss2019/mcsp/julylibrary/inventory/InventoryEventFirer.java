@@ -15,16 +15,14 @@ import java.util.*;
 public class InventoryEventFirer implements Listener {
     private Map<Inventory, List<IndexListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
-    private List<Inventory> cancelClickInventories = new ArrayList<>();
+    private List<Inventory> cancelInteractInventories = new ArrayList<>();
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
         Inventory clickedInventory = event.getClickedInventory();
 
-        System.out.println(clickedInventory);
-
         // 背包监听器或背包物品监听器
-        if (cancelClickInventories.contains(clickedInventory) || itemListenerMap.containsKey(clickedInventory) || inventoryListenerMap.containsKey(clickedInventory)) {
+        if (cancelInteractInventories.contains(clickedInventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
         }
@@ -51,7 +49,7 @@ public class InventoryEventFirer implements Listener {
     public void onInventoryClickEvent(InventoryDragEvent event) {
         Inventory inventory = event.getInventory();
 
-        if (cancelClickInventories.contains(inventory) || itemListenerMap.containsKey(inventory)) {
+        if (cancelInteractInventories.contains(inventory)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
         }
@@ -85,7 +83,11 @@ public class InventoryEventFirer implements Listener {
         // 从 map 删除
         itemListenerMap.remove(inventory);
         inventoryListenerMap.remove(inventory);
-        cancelClickInventories.remove(inventory);
+        cancelInteractInventories.remove(inventory);
+    }
+
+    void cancelInteractInventory(@NotNull Inventory inventory) {
+        cancelInteractInventories.add(inventory);
     }
 
     /**
@@ -93,7 +95,7 @@ public class InventoryEventFirer implements Listener {
      * @param inventory
      * @param indexListenerItems
      */
-    void listenItems(@NotNull Inventory inventory, @NotNull List<IndexListenerItem> indexListenerItems) {
+    void listenInventoryItems(@NotNull Inventory inventory, @NotNull List<IndexListenerItem> indexListenerItems) {
         itemListenerMap.put(inventory, indexListenerItems);
     }
 
