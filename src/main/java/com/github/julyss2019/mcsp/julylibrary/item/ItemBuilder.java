@@ -76,7 +76,7 @@ public class ItemBuilder implements Cloneable {
      * @return
      */
     public ItemBuilder material(@NotNull String name) {
-        this.material = Material.getMaterial(name);
+        this.material = Material.valueOf(name);
         return this;
     }
 
@@ -276,7 +276,7 @@ public class ItemBuilder implements Cloneable {
      */
     public ItemStack build() {
         if (this.material == null || this.material == Material.AIR) {
-            throw new ItemBuilderException("物品不能为空");
+            throw new RuntimeException("物品不能为空");
         }
 
         ItemStack itemStack = new ItemStack(this.material);
@@ -287,7 +287,7 @@ public class ItemBuilder implements Cloneable {
 
         if (skullOwner != null) {
             if (!(itemMeta instanceof SkullMeta)) {
-                throw new ItemBuilderException("skullOwner 被设置, 但物品类型不为 Skull");
+                throw new RuntimeException("skullOwner 被设置, 但物品类型不为 Skull");
             }
 
             SkullMeta skullMeta = (SkullMeta) itemMeta;

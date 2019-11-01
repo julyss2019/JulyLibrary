@@ -52,7 +52,7 @@ public class JulyLibrary extends JavaPlugin {
             }
         }.runTaskTimer(JulyLibrary.getInstance(), 0L, 20L);
 
-        getLogger().info("插件初始化完毕1.");
+        getLogger().info("插件初始化完毕.");
     }
 
     @Override
