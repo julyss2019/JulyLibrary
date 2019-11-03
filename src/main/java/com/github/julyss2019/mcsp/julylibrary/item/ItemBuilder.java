@@ -3,6 +3,8 @@ package com.github.julyss2019.mcsp.julylibrary.item;
 
 import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -12,6 +14,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class ItemBuilder implements Cloneable {
@@ -26,6 +29,7 @@ public class ItemBuilder implements Cloneable {
     private ArrayList<ItemFlag> itemFlags = new ArrayList<>();
     private Map<String, String> placeholderMap = new HashMap<>();
     private String skullOwner;
+    private String skullTexture;
 
     public ItemBuilder() {}
 
@@ -285,15 +289,40 @@ public class ItemBuilder implements Cloneable {
         itemStack.setAmount(this.amount);
         itemStack.setDurability(this.durability);
 
-        if (skullOwner != null) {
-            if (!(itemMeta instanceof SkullMeta)) {
-                throw new RuntimeException("skullOwner 被设置, 但物品类型不为 Skull");
-            }
-
+        if (itemMeta instanceof SkullMeta) {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
-            skullMeta.setOwner(skullOwner);
+            if (skullOwner != null) {
+                skullMeta.setOwner(skullOwner);
+            }
+
+            if (skullTexture != null) {
+                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+                Field profileField;
+
+                profile.getProperties().put("textures", new Property("textures", this.skullTexture));
+
+                try {
+                    profileField = skullMeta.getClass().getDeclaredField("profile");
+
+                    profileField.setAccessible(true);
+                    profileField.set(skullMeta, profile);
+                } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            itemMeta = skullMeta;
+        } else {
+            if (skullOwner != null) {
+                throw new RuntimeException("要设置 skullOwner, 必须使 material 为 SKULL_ITEM");
+            }
+
+            if (skullTexture != null) {
+                throw new RuntimeException("要设置 skullTexture, 必须使 material 为 SKULL_ITEM");
+            }
         }
+
 
         itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores, placeholderMap));
         itemMeta.setDisplayName(replacePlaceholder(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName));
@@ -320,6 +349,11 @@ public class ItemBuilder implements Cloneable {
 
     public ItemBuilder skullOwner(String owner) {
         this.skullOwner = owner;
+        return this;
+    }
+
+    public ItemBuilder skullTexture(String skullTexture) {
+        this.skullTexture = skullTexture;
         return this;
     }
 
