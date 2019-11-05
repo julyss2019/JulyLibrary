@@ -1,8 +1,10 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import com.github.julyss2019.mcsp.julylibrary.item.ItemBuilder;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,39 @@ public class ItemUtil {
         }
 
         return new ItemStack(Integer.parseInt(aId[0]), 1, aId.length == 1 ? 0 : Short.parseShort(aId[1]));
+    }
+
+    @Deprecated
+    public static ItemStack addLore(ItemStack itemStack, String lore) {
+        if (!isValidItem(itemStack)) {
+            return null;
+        }
+
+        ItemStack resultItem = itemStack;
+        ItemMeta resultItemMeta = resultItem.getItemMeta();
+        List<String> lores = resultItemMeta.getLore();
+
+        lores.add(lore);
+        resultItemMeta.setLore(lores);
+        resultItem.setItemMeta(resultItemMeta);
+        return resultItem;
+    }
+
+    @Deprecated
+    public static ItemBuilder toItemBuilder(ItemStack itemStack) {
+        ItemBuilder itemBuilder = new ItemBuilder();
+
+        if (!ItemUtil.isValidItem(itemStack)) {
+            return itemBuilder;
+        }
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemBuilder.material(itemStack.getType());
+        itemBuilder.data(itemStack.getDurability());
+        itemBuilder.displayName(itemMeta.getDisplayName());
+        itemBuilder.lores(itemMeta.getLore());
+        return itemBuilder;
     }
 
     /**

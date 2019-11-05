@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
-    private Map<String, JulyCommand> commands = new HashMap<>();
+    private Map<String, JulyCommand> commandMap = new HashMap<>();
     private Plugin plugin;
     private String prefix = "";
 
@@ -32,17 +32,22 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
      * @param command
      */
     public void register(JulyCommand command) {
-        commands.put(command.getFirstArg().toLowerCase(), command);
+        commandMap.put(command.getFirstArg().toLowerCase(), command);
     }
 
     @Override
     public boolean onCommand(CommandSender cs, org.bukkit.command.Command bukkitCommand, String label, String[] args) {
+        if (args.length == 0 && commandMap.containsKey("")) {
+            commandMap.get("").onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0));
+            return true;
+        }
+
         if (args.length > 0) {
             String firstArg = args[0].toLowerCase();
 
             // 如果存在命令
-            if (commands.containsKey(firstArg)) {
-                JulyCommand command = commands.get(firstArg);
+            if (commandMap.containsKey(firstArg)) {
+                JulyCommand command = commandMap.get(firstArg);
 
                 if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
                     sendMessage(cs, "&c命令执行者必须是玩家!");
@@ -80,7 +85,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
             // 如果没有 help 命令，则按下面的实现进行
             if (firstArg.equalsIgnoreCase("help")) {
-                for (JulyCommand command : commands.values()) {
+                for (JulyCommand command : commandMap.values()) {
                     String per = command.getPermission();
                     String desc = command.getDescription();
 

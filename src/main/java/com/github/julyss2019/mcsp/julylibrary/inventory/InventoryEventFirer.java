@@ -30,7 +30,11 @@ public class InventoryEventFirer implements Listener {
         // 背包监听器
         if (inventoryListenerMap.containsKey(clickedInventory)) {
             inventoryListenerMap.get(clickedInventory).onClick(event);
-            inventoryListenerMap.get(clickedInventory).onClicked(event);
+
+            // onClick 执行完时，GUI可能已经关闭了
+            if (inventoryListenerMap.get(clickedInventory) != null) {
+                inventoryListenerMap.get(clickedInventory).onClicked(event);
+            }
         }
 
         // 背包物品监听器
@@ -50,8 +54,15 @@ public class InventoryEventFirer implements Listener {
         Inventory inventory = event.getInventory();
 
         if (cancelInteractInventories.contains(inventory)) {
-            event.setCancelled(true);
-            event.setResult(Event.Result.DENY);
+            int guiSize = event.getView().getTopInventory().getSize();
+
+            for (int slot : event.getRawSlots()) {
+                if (slot > 0 && slot < guiSize) {
+                    event.setCancelled(true);
+                    event.setResult(Event.Result.DENY);
+                    return;
+                }
+            }
         }
     }
 
