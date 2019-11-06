@@ -1,13 +1,13 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
 
-import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Title 构造类
  */
+@Deprecated
 public class TitleBuilder {
     private TitleType titleType = TitleType.TITLE;
     private String text;
@@ -55,6 +55,6 @@ public class TitleBuilder {
     }
 
     public Title build() {
-        return new Title(titleType, colored ? ChatColor.translateAlternateColorCodes('&', text) : text, fadeIn, stay, fadeOut);
+        return new Title(titleType == TitleType.TITLE ? Title.Type.TITLE : Title.Type.SUBTITLE, colored ? ChatColor.translateAlternateColorCodes('&', text) : text, fadeIn, stay, fadeOut);
     }
 }

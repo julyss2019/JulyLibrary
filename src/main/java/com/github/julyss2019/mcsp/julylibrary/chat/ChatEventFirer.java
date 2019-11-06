@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class BukkitChatListener implements Listener {
+public class ChatEventFirer implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -16,6 +16,7 @@ public class BukkitChatListener implements Listener {
             ChatListener chatListener = chatFilter.getChatListener();
 
             if (!chatFilter.isTimeout()) {
+                event.setCancelled(true);
                 chatListener.onChat(event);
             } else {
                 chatListener.onTimeout();

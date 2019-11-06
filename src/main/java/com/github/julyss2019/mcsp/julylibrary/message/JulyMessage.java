@@ -138,7 +138,7 @@ public class JulyMessage {
      */
     public static void sendTitle(Player player, Title title) {
         if (!canUseTitle()) {
-            throw new TitleException("当前服务器版本不支持Title");
+            throw new RuntimeException("当前服务器版本不支持Title");
         }
 
         try {

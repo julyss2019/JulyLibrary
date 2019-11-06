@@ -12,12 +12,14 @@ import java.util.*;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
     private Map<String, JulyCommand> commandMap = new HashMap<>();
-    private Plugin plugin;
     private String prefix = "";
+    private String mustBePlayerMessage = "&c命令执行者必须是玩家!";
+    private String noPermissionMessage = "&c无权限!";
 
-    public JulyCommandExecutor(Plugin plugin) {
-        this.plugin = plugin;
-    }
+    @Deprecated
+    public JulyCommandExecutor(Plugin plugin) {}
+
+    public JulyCommandExecutor() {}
 
     public String getPrefix() {
         return prefix;
@@ -25,6 +27,14 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+    }
+
+    public String getMustBePlayerMessage() {
+        return mustBePlayerMessage;
+    }
+
+    public String getNoPermissionMessage() {
+        return noPermissionMessage;
     }
 
     /**
@@ -38,7 +48,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
     @Override
     public boolean onCommand(CommandSender cs, org.bukkit.command.Command bukkitCommand, String label, String[] args) {
         if (args.length == 0 && commandMap.containsKey("")) {
-            commandMap.get("").onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0));
+            commandMap.get("").onCommand(cs, args);
             return true;
         }
 
@@ -50,14 +60,14 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                 JulyCommand command = commandMap.get(firstArg);
 
                 if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
-                    sendMessage(cs, "&c命令执行者必须是玩家!");
+                    sendMessage(cs, mustBePlayerMessage);
                     return true;
                 }
 
                 String per = command.getPermission();
 
                 if (per != null && !per.equalsIgnoreCase("") && !cs.hasPermission(command.getPermission())) {
-                    sendMessage(cs, "&c无权限!");
+                    sendMessage(cs, noPermissionMessage);
                     return true;
                 }
 
@@ -98,7 +108,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
             }
         }
 
-        Bukkit.dispatchCommand(cs, label + " help");
+        // Bukkit.dispatchCommand(cs, label + " help");
         return true;
     }
 

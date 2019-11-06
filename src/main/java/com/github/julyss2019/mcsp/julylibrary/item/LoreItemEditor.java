@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
+import com.github.julyss2019.mcsp.julylibrary.Matcher;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import com.github.julyss2019.mcsp.julylibrary.utils.ItemUtil;
 import org.bukkit.inventory.ItemStack;
@@ -10,20 +11,42 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class LoreItemBuilder {
+public class LoreItemEditor {
     private ItemStack itemStack;
     private ItemMeta itemMeta;
     private List<String> lores;
     private boolean colored;
 
-    private LoreItemBuilder(ItemStack itemStack) {
+    private LoreItemEditor(ItemStack itemStack) {
         this.itemStack = itemStack;
         this.itemMeta = itemStack.getItemMeta();
         List<String> tmp = itemMeta.getLore();
         this.lores = tmp == null ? new ArrayList<>() : tmp;
     }
 
-    public LoreItemBuilder addLore(@Nullable String lore) {
+    /**
+     * 根据过滤器删除lore
+     * @param matcher
+     * @return
+     */
+    public LoreItemEditor remove(Matcher<String> matcher) {
+        List<String> resultList = new ArrayList<>();
+
+        if (lores == null) {
+            return this;
+        }
+
+        for (String lore : lores) {
+            if (!matcher.match(lore)) {
+                resultList.add(lore);
+            }
+        }
+
+        this.lores = resultList;
+        return this;
+    }
+
+    public LoreItemEditor addLore(@Nullable String lore) {
         if (lore != null) {
             lores.add(lore);
         }
@@ -31,7 +54,7 @@ public class LoreItemBuilder {
         return this;
     }
 
-    public LoreItemBuilder insertLore(int index, @Nullable String lore) {
+    public LoreItemEditor insertLore(int index, @Nullable String lore) {
         if (lore != null) {
             lores.add(index, lore);
         }
@@ -39,7 +62,7 @@ public class LoreItemBuilder {
         return this;
     }
 
-    public LoreItemBuilder addLore(Collection<String> lores) {
+    public LoreItemEditor addLore(Collection<String> lores) {
         for (String lore : lores) {
             addLore(lore);
         }
@@ -47,17 +70,17 @@ public class LoreItemBuilder {
         return this;
     }
 
-    public LoreItemBuilder colored() {
+    public LoreItemEditor colored() {
         this.colored = true;
         return this;
     }
 
-    public static LoreItemBuilder createNew(ItemStack itemStack) {
+    public static LoreItemEditor createNew(ItemStack itemStack) {
         if (!ItemUtil.isValidItem(itemStack)) {
             throw new RuntimeException("物品不能为空");
         }
 
-        return new LoreItemBuilder(itemStack.clone());
+        return new LoreItemEditor(itemStack.clone());
     }
 
     public ItemStack build() {

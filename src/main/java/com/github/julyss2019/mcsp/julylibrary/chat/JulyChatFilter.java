@@ -13,7 +13,7 @@ public class JulyChatFilter {
     private static HashMap<@NotNull String, @NotNull ChatFilter> chatFilterMap = new HashMap<>();
 
     public static void init() {
-        Bukkit.getPluginManager().registerEvents(new BukkitChatListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new ChatEventFirer(), plugin);
     }
 
     /**

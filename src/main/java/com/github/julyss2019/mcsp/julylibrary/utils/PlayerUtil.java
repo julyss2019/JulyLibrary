@@ -1,6 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
-import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
+import com.github.julyss2019.mcsp.julylibrary.Matcher;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -21,9 +21,6 @@ public class PlayerUtil {
     public interface ItemFilter {
         boolean filter(ItemStack itemStack);
     }
-
-
-
 
     public static boolean sendPacket(Player player, @NotNull Object packet) {
         try
@@ -92,6 +89,38 @@ public class PlayerUtil {
         return totalAmount;
     }
 
+    /**
+     * 判断玩家背包中是否有至少一件目标物品
+     * @param player 玩家
+     * @param itemStackMatcher 物品匹配器
+     * @return
+     */
+    public static boolean hasItem(Player player, Matcher<ItemStack> itemStackMatcher) {
+        return hasEnoughItem(player, itemStackMatcher, 1);
+    }
+
+    /**
+     * 判断玩家背包中是否有足够的物品
+     * @param player 玩家
+     * @param itemStackMatcher 物品匹配器
+     * @param amount 数量
+     * @return
+     */
+    public static boolean hasEnoughItem(Player player, Matcher<ItemStack> itemStackMatcher, int amount) {
+        int totalAmount = 0;
+        ItemStack[] items = player.getInventory().getContents();
+
+        for (int i = 0; i < items.length && totalAmount < amount; i++) {
+            ItemStack itemStack = items[i];
+
+            if (itemStackMatcher.match(itemStack)) {
+                totalAmount += itemStack.getAmount();
+            }
+        }
+
+        return totalAmount >= amount;
+    }
+
     @Deprecated
     public static boolean hasItem(Player player, ItemFilter itemFilter, int amount) {
         return hasEnoughItem(player, itemFilter, amount);
@@ -104,6 +133,7 @@ public class PlayerUtil {
      * @param amount
      * @return
      */
+    @Deprecated
     public static boolean hasEnoughItem(Player player, ItemFilter itemFilter, int amount) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
