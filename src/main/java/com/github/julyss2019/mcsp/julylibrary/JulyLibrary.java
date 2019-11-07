@@ -5,6 +5,7 @@ import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventFirer;
 import com.github.julyss2019.mcsp.julylibrary.logger.FileLogger;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
+import com.github.julyss2019.mcsp.julylibrary.utils.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +19,12 @@ public class JulyLibrary extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        try {
+            Class.forName(ItemUtil.class.getName(), true, getClassLoader());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         instance = this;
         this.inventoryEventFirer = new InventoryEventFirer();
 

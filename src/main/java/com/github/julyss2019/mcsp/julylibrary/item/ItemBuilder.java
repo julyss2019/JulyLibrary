@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class ItemBuilder implements Cloneable {
+public class    ItemBuilder implements Cloneable {
     private Material material;
     private short durability;
     private int amount = 1;
@@ -293,6 +293,10 @@ public class ItemBuilder implements Cloneable {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
             if (skullOwner != null) {
+                for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
+                    System.out.println(stackTraceElement.getClassName());
+                }
+
                 skullMeta.setOwner(skullOwner);
             }
 

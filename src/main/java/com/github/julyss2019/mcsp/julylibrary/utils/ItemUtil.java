@@ -28,7 +28,7 @@ public class ItemUtil {
             return null;
         }
 
-        ItemStack resultItem = itemStack;
+        ItemStack resultItem = itemStack.clone();
         ItemMeta resultItemMeta = resultItem.getItemMeta();
         List<String> lores = resultItemMeta.getLore();
 
