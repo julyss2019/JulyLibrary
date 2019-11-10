@@ -44,6 +44,10 @@ public class InventoryEventFirer implements Listener {
                     ItemListener itemListener = indexListenerItem.getItemListener();
 
                     itemListener.onClicked(event); // 调用事件
+
+                    if (itemListenerMap.containsKey(clickedInventory)) {
+                        itemListener.onClick(event); // 调用事件
+                    }
                 }
             }
         }

@@ -49,7 +49,7 @@ public class SkullItemBuilder extends ItemBuilder {
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (!(itemMeta instanceof SkullMeta)) {
-            throw new SkullItemBuilderException("物品必须为头颅!");
+            throw new RuntimeException("物品必须为头颅!");
         }
 
         SkullMeta skullMeta = (SkullMeta) itemMeta;

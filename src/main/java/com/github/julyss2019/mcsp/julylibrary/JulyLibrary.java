@@ -41,6 +41,7 @@ public class JulyLibrary extends JavaPlugin {
 
         JulyChatFilter.init();
         JulyMessage.init();
+
         // 定时 flush 任务
         new BukkitRunnable() {
             @Override

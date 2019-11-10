@@ -162,10 +162,10 @@ public class JulyMessage {
     }
 
     public static void sendColoredTitle(Player player, String text) {
-        sendTitle(player, new TitleBuilder().type(TitleType.TITLE).text(text).colored().build());
+        sendTitle(player, new Title.Builder().type(Title.Type.TITLE).text(text).colored().build());
     }
 
     public static void sendColoredSubTitle(Player player, String text) {
-        sendTitle(player, new TitleBuilder().type(TitleType.SUBTITLE).text(text).colored().build());
+        sendTitle(player, new Title.Builder().type(Title.Type.SUBTITLE).text(text).colored().build());
     }
 }
