@@ -25,7 +25,7 @@ public class LoreItemEditor {
     }
 
     /**
-     * 根据过滤器删除lore
+     * 根据匹配器删除lore
      * @param matcher
      * @return
      */
