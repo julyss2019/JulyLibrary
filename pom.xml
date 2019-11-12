@@ -8,6 +8,10 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
+    <properties>
+        <mac_output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mac_output>
+    </properties>
+
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -19,8 +23,6 @@
             <url>https://libraries.minecraft.net/</url>
         </repository>
     </repositories>
-
-
 
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
@@ -60,10 +62,41 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>LATEST</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <finalName>JulyLibrary</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <outputDirectory>${mac_output}</outputDirectory>
+                    <!-- get all project dependencies -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <!-- MainClass in mainfest make a executable jar -->
+                    <archive>
+                        <manifest>
+
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
