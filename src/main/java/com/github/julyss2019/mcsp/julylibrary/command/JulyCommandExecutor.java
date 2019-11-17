@@ -29,12 +29,12 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
         this.prefix = prefix;
     }
 
-    public String getMustBePlayerMessage() {
-        return mustBePlayerMessage;
+    public void setMustBePlayerMessage(String mustBePlayerMessage) {
+        this.mustBePlayerMessage = mustBePlayerMessage;
     }
 
-    public String getNoPermissionMessage() {
-        return noPermissionMessage;
+    public void setNoPermissionMessage(String noPermissionMessage) {
+        this.noPermissionMessage = noPermissionMessage;
     }
 
     /**

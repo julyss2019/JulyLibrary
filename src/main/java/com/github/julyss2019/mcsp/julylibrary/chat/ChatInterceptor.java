@@ -1,16 +1,21 @@
 package com.github.julyss2019.mcsp.julylibrary.chat;
 
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
-@Deprecated
-public class ChatFilter {
+/**
+ * 聊天拦截器
+ */
+public class ChatInterceptor {
     private ChatListener chatListener;
+    private JavaPlugin plugin;
     private Player player;
     private int timeout;
     private long creationTime;
 
-    protected ChatFilter(Player player, ChatListener chatListener, int timeout) {
+    protected ChatInterceptor(ChatListener chatListener, Player player, JavaPlugin plugin, int timeout) {
         this.player = player;
+        this.plugin = plugin;
         this.chatListener = chatListener;
         this.timeout = timeout;
         this.creationTime = System.currentTimeMillis();
@@ -26,6 +31,10 @@ public class ChatFilter {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public JavaPlugin getPlugin() {
+        return plugin;
     }
 
     public void unregister() {

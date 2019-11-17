@@ -10,6 +10,7 @@
 
     <properties>
         <mac_output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mac_output>
+        <win_output>G:\july_ss\mc_servers\1.12.2_paper\plugins</win_output>
     </properties>
 
     <repositories>
@@ -74,7 +75,7 @@
                 <configuration>
                     <finalName>JulyLibrary</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${mac_output}</outputDirectory>
+                    <outputDirectory>${win_output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

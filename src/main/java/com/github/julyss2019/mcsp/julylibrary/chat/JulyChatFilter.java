@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashMap;
 
+@Deprecated
 public class JulyChatFilter {
     private static JulyLibrary plugin = JulyLibrary.getInstance();
     private static HashMap<@NotNull String, @NotNull ChatFilter> chatFilterMap = new HashMap<>();

@@ -19,12 +19,6 @@ public class JulyLibrary extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        try {
-            Class.forName(ItemUtil.class.getName(), true, getClassLoader());
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
         instance = this;
         this.inventoryEventFirer = new InventoryEventFirer();
 
