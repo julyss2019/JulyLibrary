@@ -1,5 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
+import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,10 +11,26 @@ import java.util.List;
 
 public class JulyFileLogger {
     private static List<FileLogger> loggers = new ArrayList<>();
+    private static int tickCounter = 0;
 
-    @Deprecated
     public static void init() {
+        // 定时 flush 任务
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                tickCounter++;
 
+                // 遍历所有 FileLogger
+                for (FileLogger fileLogger : JulyFileLogger.getLoggers()) {
+                    int interval = fileLogger.getSaveInterval();
+
+                    // 检查间隔
+                    if (interval == 0 || tickCounter % interval == 0) {
+                        fileLogger.flush();
+                    }
+                }
+            }
+        }.runTaskTimer(JulyLibrary.getInstance(), 0L, 20L);
     }
 
     /**

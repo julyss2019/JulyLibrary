@@ -85,51 +85,52 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
     /**
      * 设置节点
-     * @param julyTabCommand
+     * @param command
      * @param parentArgPath
      * @param subArgs
      */
-    private void setSubArgs(JulyTabCommand julyTabCommand, String parentArgPath, String... subArgs) {
+    private void setSubArgs(JulyTabCommand command, String parentArgPath, String... subArgs) {
         String[] pathArray = parentArgPath.split("\\.");
 
         if (pathArray.length < 1) {
             throw new IllegalArgumentException("路径中没有根");
         }
 
+        TreeNode<String> treeNode;
 
-        TreeNode<String> lastTreeNode = null;
+        // 创建根节点
+        if (!treeMap.containsKey(pathArray[0])) {
+            treeMap.put(pathArray[0], new TabEntry(command, new ArrayMultiTreeNode<>(pathArray[0])));
+        }
+
+        treeNode = treeMap.get(pathArray[0]).getNode();
 
         /*
-         *  递归得到最小的节点
+         *  遍历得到最小的节点
          */
-        for (int i = 0; i < pathArray.length; i++) {
-            if (i == 0) {
-                if (!treeMap.containsKey(pathArray[0])) {
-                    // 创建根节点
-                    treeMap.put(pathArray[0], new TabEntry(julyTabCommand, new ArrayMultiTreeNode<>(pathArray[0])));
-                }
-
-                lastTreeNode = treeMap.get(pathArray[0]).getNode();
-                continue;
-            }
-
-            TreeNode<String> tmp = lastTreeNode.find(pathArray[i]);
+        for (String s : pathArray) {
+            TreeNode<String> tmp = treeNode.find(s);
 
             // 没有节点则创建节点
             if (tmp == null) {
-                tmp = new ArrayMultiTreeNode<>(pathArray[i]);
+                tmp = new ArrayMultiTreeNode<>(s);
 
-                lastTreeNode.add(tmp);
+                treeNode.add(tmp);
             }
 
-            lastTreeNode = tmp;
+            treeNode = tmp;
         }
+
+        // 此时 node 已经是目标的 node了
 
         if (subArgs != null) {
             for (String subArg : subArgs) {
-                // 除重
-                if (lastTreeNode.find(subArg) == null) {
-                    lastTreeNode.add(new ArrayMultiTreeNode<>(subArg));
+                if (subArg == null) {
+                    continue;
+                }
+
+                if (treeNode.find(subArg) == null) {
+                    treeNode.add(new ArrayMultiTreeNode<>(subArg));
                 }
             }
         }

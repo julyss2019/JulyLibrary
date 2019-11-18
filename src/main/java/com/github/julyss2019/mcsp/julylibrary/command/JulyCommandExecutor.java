@@ -47,68 +47,65 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender cs, org.bukkit.command.Command bukkitCommand, String label, String[] args) {
-        if (args.length == 0 && commandMap.containsKey("")) {
-            commandMap.get("").onCommand(cs, args);
+        if (args.length == 0) {
+            if (commandMap.containsKey("")) {
+                commandMap.get("").onCommand(cs, args);
+                return true;
+            }
+
+            for (JulyCommand command : commandMap.values()) {
+                String per = command.getPermission();
+                String desc = command.getDescription();
+
+                if ((per == null || per.equals("") || cs.hasPermission(per)) && desc != null) {
+                    sendMessage(cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
+                }
+            }
+
             return true;
         }
 
-        if (args.length > 0) {
-            String firstArg = args[0].toLowerCase();
+        String firstArg = args[0].toLowerCase();
 
-            // 如果存在命令
-            if (commandMap.containsKey(firstArg)) {
-                JulyCommand command = commandMap.get(firstArg);
+        // 如果存在命令
+        if (commandMap.containsKey(firstArg)) {
+            JulyCommand command = commandMap.get(firstArg);
 
-                if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
-                    sendMessage(cs, mustBePlayerMessage);
-                    return true;
-                }
+            if (command.isOnlyPlayerCanUse() && !(cs instanceof Player)) {
+                sendMessage(cs, mustBePlayerMessage);
+                return true;
+            }
 
-                String per = command.getPermission();
+            String per = command.getPermission();
 
-                if (per != null && !per.equalsIgnoreCase("") && !cs.hasPermission(command.getPermission())) {
-                    sendMessage(cs, noPermissionMessage);
-                    return true;
-                }
+            if (per != null && !per.equalsIgnoreCase("") && !cs.hasPermission(command.getPermission())) {
+                sendMessage(cs, noPermissionMessage);
+                return true;
+            }
 
-                // 没有执行成功
-                if (!command.onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0))) {
-                    boolean messageSent = false;
-                    String[] arr = args;
+            // 没有执行成功
+            if (!command.onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0))) {
+                boolean messageSent = false;
+                String[] arr = args;
 
-                    while (!messageSent && arr.length > 0) {
-                        arr = ArrayUtil.removeElementFromStrArray(arr, arr.length - 1);
+                while (!messageSent && arr.length > 0) {
+                    arr = ArrayUtil.removeElementFromStrArray(arr, arr.length - 1);
 
-                        // 匹配前缀
-                        for (String desc : command.getSubDescriptions()) {
-                            if (startsWithArgs(args[0] + " " + desc, arr)) {
-                                sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
-                                messageSent = true;
-                            }
+                    // 匹配前缀
+                    for (String desc : command.getSubDescriptions()) {
+                        if (startsWithArgs(args[0] + " " + desc, arr)) {
+                            sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
+                            messageSent = true;
                         }
                     }
-
                 }
 
-                return true;
             }
 
-            // 如果没有 help 命令，则按下面的实现进行
-            if (firstArg.equalsIgnoreCase("help")) {
-                for (JulyCommand command : commandMap.values()) {
-                    String per = command.getPermission();
-                    String desc = command.getDescription();
-
-                    if ((per == null || per.equals("") || cs.hasPermission(per)) && desc != null) {
-                        sendMessage(cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
-                    }
-                }
-
-                return true;
-            }
+            return true;
         }
 
-        // Bukkit.dispatchCommand(cs, label + " help");
+
         return true;
     }
 

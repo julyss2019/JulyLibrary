@@ -1,10 +1,12 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
 
+import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -293,10 +295,6 @@ public class    ItemBuilder implements Cloneable {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
             if (skullOwner != null) {
-                for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
-                    System.out.println(stackTraceElement.getClassName());
-                }
-
                 skullMeta.setOwner(skullOwner);
             }
 
@@ -328,8 +326,8 @@ public class    ItemBuilder implements Cloneable {
         }
 
 
-        itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? MessageUtil.translateColorCode(this.lores) : this.lores, placeholderMap));
-        itemMeta.setDisplayName(replacePlaceholder(this.colored ? MessageUtil.translateColorCode(this.displayName) : this.displayName));
+        itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? JulyMessage.toColoredMessages(this.lores) : this.lores, placeholderMap));
+        itemMeta.setDisplayName(replacePlaceholder(this.colored ? JulyMessage.toColoredMessage(this.displayName) : this.displayName));
 
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);

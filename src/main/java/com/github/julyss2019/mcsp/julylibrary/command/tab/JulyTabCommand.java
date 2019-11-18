@@ -1,14 +1,10 @@
 package com.github.julyss2019.mcsp.julylibrary.command.tab;
 
+import com.github.julyss2019.mcsp.julylibrary.command.JulyCommand;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public interface JulyTabCommand {
-    default Map<String, String[]> getTabCompleterMap() {
-        return new HashMap<>();
-    }
-
-    default String getPermission() {
-        return "";
-    }
+public interface JulyTabCommand extends JulyCommand {
+    Map<String, String[]> getTabCompleterMap();
 }

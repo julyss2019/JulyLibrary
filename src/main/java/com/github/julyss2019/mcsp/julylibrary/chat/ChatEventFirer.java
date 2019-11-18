@@ -11,6 +11,20 @@ public class ChatEventFirer implements Listener {
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
+        if (JulyChatInterceptor.isRegistered(player)) {
+            ChatInterceptor chatInterceptor = JulyChatInterceptor.getChatInterceptor(player);
+            ChatListener chatListener = chatInterceptor.getChatListener();
+
+            if (chatInterceptor.getTimeout()) {
+                event.setCancelled(true);
+                chatListener.onTimeout();
+            } else {
+                event.setCancelled(true);
+                chatListener.onChat(event);
+            }
+        }
+
+        // 弃用
         if (JulyChatFilter.hasChatFilter(player)) {
             ChatFilter chatFilter = JulyChatFilter.getChatFilter(player);
             ChatListener chatListener = chatFilter.getChatListener();
@@ -28,6 +42,9 @@ public class ChatEventFirer implements Listener {
 
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent event) {
-        JulyChatFilter.unregisterChatFilter(event.getPlayer());
+        Player player = event.getPlayer();
+
+        JulyChatFilter.unregisterChatFilter(player);
+        JulyChatInterceptor.unregister(player);
     }
 }

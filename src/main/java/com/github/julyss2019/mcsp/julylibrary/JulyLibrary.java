@@ -1,6 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
+import com.github.julyss2019.mcsp.julylibrary.chat.ChatEventFirer;
 import com.github.julyss2019.mcsp.julylibrary.chat.JulyChatFilter;
+import com.github.julyss2019.mcsp.julylibrary.chat.JulyChatInterceptor;
 import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventFirer;
 import com.github.julyss2019.mcsp.julylibrary.logger.FileLogger;
 import com.github.julyss2019.mcsp.julylibrary.logger.JulyFileLogger;
@@ -15,7 +17,6 @@ import org.bukkit.scheduler.BukkitTask;
 public class JulyLibrary extends JavaPlugin {
     private static JulyLibrary instance;
     private InventoryEventFirer inventoryEventFirer;
-    private int tickCounter = 0;
 
     @Override
     public void onEnable() {
@@ -23,6 +24,9 @@ public class JulyLibrary extends JavaPlugin {
         this.inventoryEventFirer = new InventoryEventFirer();
 
         Bukkit.getPluginManager().registerEvents(inventoryEventFirer, this);
+        Bukkit.getPluginManager().registerEvents(new ChatEventFirer(), this);
+        JulyFileLogger.init();
+        JulyMessage.init();
         getCommand("jl").setExecutor((cs, command, s, args) -> {
             if (args.length == 1 && args[0].equalsIgnoreCase("monitor")) {
                 cs.sendMessage("item_listener: " + inventoryEventFirer.getItemListeners().size());
@@ -32,28 +36,6 @@ public class JulyLibrary extends JavaPlugin {
 
             return false;
         });
-
-        JulyChatFilter.init();
-        JulyMessage.init();
-
-        // 定时 flush 任务
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                tickCounter++;
-
-                // 遍历所有 FileLogger
-                for (FileLogger fileLogger : JulyFileLogger.getLoggers()) {
-                    int interval = fileLogger.getSaveInterval();
-
-                    // 检查间隔
-                    if (interval == 0 || tickCounter % interval == 0) {
-                        fileLogger.flush();
-                    }
-                }
-            }
-        }.runTaskTimer(JulyLibrary.getInstance(), 0L, 20L);
-
         getLogger().info("插件初始化完毕.");
     }
 
@@ -61,6 +43,7 @@ public class JulyLibrary extends JavaPlugin {
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
         JulyFileLogger.closeLoggers();
+        JulyChatInterceptor.unregisterAll();
         JulyChatFilter.unregisterAll();
         HandlerList.unregisterAll(this);
         getLogger().info("插件被卸载.");

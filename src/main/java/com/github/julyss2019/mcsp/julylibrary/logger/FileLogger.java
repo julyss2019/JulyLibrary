@@ -13,7 +13,6 @@ import java.util.Calendar;
 public class FileLogger {
     private static SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
     private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
-    private static Gson gson = new Gson();
 
     private File loggerFolder;
     private String fileNameFormat;
@@ -98,10 +97,6 @@ public class FileLogger {
         }
     }
 
-    public void writeJson(Object object) {
-        write(gson.toJson(object));
-    }
-
     /**
      * DEBUG
      * @param s
@@ -166,6 +161,7 @@ public class FileLogger {
     void close() {
         try {
             this.loggerBufferedWriter.flush();
+            this.loggerWriter.flush();
             this.loggerBufferedWriter.close();
             this.loggerWriter.close();
         } catch (IOException e) {

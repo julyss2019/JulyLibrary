@@ -1,6 +1,5 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
-import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.PlayerUtil;
 import org.bukkit.Bukkit;
@@ -9,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JulyMessage {
@@ -57,7 +57,7 @@ public class JulyMessage {
      */
     public static boolean sendRawMessage(Player player, String json) {
         if (NMSUtil.SERVER_VERSION.equals("v1_7_R4")) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + MessageUtil.translateColorCode(json));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + JulyMessage.toColoredMessage(json));
             return true;
         }
 
@@ -74,6 +74,13 @@ public class JulyMessage {
         }
 
         return true;
+    }
+
+    public static List<String> toColoredMessages(List<String> messages) {
+        List<String> result = new ArrayList<>();
+
+        messages.forEach(s -> result.add(toColoredMessage(s)));
+        return result;
     }
 
     public static String toColoredMessage(String s) {
