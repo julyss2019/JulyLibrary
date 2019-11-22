@@ -53,15 +53,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
 
-            for (JulyCommand command : commandMap.values()) {
-                String per = command.getPermission();
-                String desc = command.getDescription();
-
-                if ((per == null || per.equals("") || cs.hasPermission(per)) && desc != null) {
-                    sendMessage(cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
-                }
-            }
-
+            sendAllCommandsDescriptions(cs, label);
             return true;
         }
 
@@ -105,8 +97,19 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
-
+        sendAllCommandsDescriptions(cs, label);
         return true;
+    }
+
+    private void sendAllCommandsDescriptions(CommandSender cs, String label) {
+        for (JulyCommand command : commandMap.values()) {
+            String per = command.getPermission();
+            String desc = command.getDescription();
+
+            if ((per == null || per.equals("") || cs.hasPermission(per)) && desc != null) {
+                sendMessage(cs, "/" + label + " " + command.getFirstArg() + " - " + desc);
+            }
+        }
     }
 
     /**

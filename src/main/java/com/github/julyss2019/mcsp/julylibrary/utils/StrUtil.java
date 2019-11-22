@@ -22,20 +22,4 @@ public class StrUtil {
         return 0;
     }
 
-    @Deprecated
-    public static List<String> replacePlaceholders(List<String> strList, Map<String, String> placeholderMap) {
-        List<String> result = new ArrayList<>();
-
-        for (String str : strList) {
-            String tmp = str;
-
-            for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
-                tmp = tmp.replace(entry.getKey(), entry.getValue());
-            }
-
-            result.add(tmp);
-        }
-
-        return result;
-    }
 }

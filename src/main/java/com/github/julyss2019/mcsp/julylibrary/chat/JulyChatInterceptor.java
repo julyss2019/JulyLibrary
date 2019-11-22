@@ -1,28 +1,28 @@
 package com.github.julyss2019.mcsp.julylibrary.chat;
 
-import org.apache.commons.lang3.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class JulyChatInterceptor {
     private static Map<String, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
 
+    /**
+     * 注册聊天拦截器
+     * @param chatInterceptor
+     */
     public static void registerChatInterceptor(ChatInterceptor chatInterceptor) {
-        Validate.notNull(chatInterceptor.getChatListener(), "chatListener 未设置");
-        Validate.notNull(chatInterceptor.getPlayerName(), "player 未设置");
-        Validate.notNull(chatInterceptor.getPlugin(), "plugin 未设置");
-
-        if (isRegistered(chatInterceptor.getPlayer())) {
+        if (hasChatInterceptor(chatInterceptor.getPlayer())) {
             throw new RuntimeException("该玩家已注册 ChatInterceptor");
         }
 
-        playerChatInterceptorMap.put(chatInterceptor.getPlayerName(), chatInterceptor);
+        playerChatInterceptorMap.put(chatInterceptor.getPlayerName().toLowerCase(), chatInterceptor);
     }
 
     /**
@@ -42,6 +42,9 @@ public class JulyChatInterceptor {
         return playerChatInterceptorMap.values();
     }
 
+    /**
+     * 注销所有的聊天拦截器
+     */
     public static void unregisterAll() {
         playerChatInterceptorMap.clear();
     }
@@ -62,32 +65,55 @@ public class JulyChatInterceptor {
         }
     }
 
+    /**
+     * 得到玩家的聊天拦截器
+     * @param player 玩家
+     * @return
+     */
     public static ChatInterceptor getChatInterceptor(Player player) {
         return getChatInterceptor(player.getName());
     }
 
+    /**
+     * 得到玩家的聊天拦截器
+     * @param playerName 玩家名
+     * @return
+     */
     public static ChatInterceptor getChatInterceptor(String playerName) {
-        return playerChatInterceptorMap.get(playerName);
+        return playerChatInterceptorMap.get(playerName.toLowerCase());
     }
 
     /**
      * 是否已注册聊天拦截器
-     * @param player
+     * @param player 玩家
      * @return
      */
-    public static boolean isRegistered(Player player) {
-        return isRegistered(player.getName());
+    public static boolean hasChatInterceptor(Player player) {
+        return hasChatInterceptor(player.getName());
     }
 
-    public static boolean isRegistered(String playerName) {
+    /**
+     * 是否已注册聊天拦截器
+     * @param playerName 玩家名
+     * @return
+     */
+    public static boolean hasChatInterceptor(String playerName) {
         return playerChatInterceptorMap.containsKey(playerName.toLowerCase());
     }
 
-    public static void unregister(Player player) {
-        unregister(player.getName());
+    /**
+     * 注销聊天拦截器
+     * @param player 玩家
+     */
+    public static void unregisterChatInterceptor(Player player) {
+        unregisterChatInterceptor(player.getName());
     }
 
-    public static void unregister(String playerName) {
+    /**
+     * 注销聊天拦截器
+     * @param playerName 玩家名
+     */
+    public static void unregisterChatInterceptor(String playerName) {
         playerChatInterceptorMap.remove(playerName.toLowerCase());
     }
 }

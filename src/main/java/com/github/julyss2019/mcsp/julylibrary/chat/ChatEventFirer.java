@@ -11,16 +11,22 @@ public class ChatEventFirer implements Listener {
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
-        if (JulyChatInterceptor.isRegistered(player)) {
+        if (JulyChatInterceptor.hasChatInterceptor(player)) {
             ChatInterceptor chatInterceptor = JulyChatInterceptor.getChatInterceptor(player);
             ChatListener chatListener = chatInterceptor.getChatListener();
 
-            if (chatInterceptor.getTimeout()) {
-                event.setCancelled(true);
+            event.setCancelled(true);
+
+            // 超时
+            if (chatInterceptor.isTimeout()) {
                 chatListener.onTimeout();
+                chatListener.onTimeout(event);
             } else {
-                event.setCancelled(true);
                 chatListener.onChat(event);
+            }
+
+            if (chatInterceptor.isOnlyFirst()) {
+                JulyChatInterceptor.unregisterChatInterceptor(player);
             }
         }
 
@@ -40,11 +46,14 @@ public class ChatEventFirer implements Listener {
         }
     }
 
+    /*
+    离线后注销拦截器
+     */
     @EventHandler
     public void onPlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
         JulyChatFilter.unregisterChatFilter(player);
-        JulyChatInterceptor.unregister(player);
+        JulyChatInterceptor.unregisterChatInterceptor(player);
     }
 }

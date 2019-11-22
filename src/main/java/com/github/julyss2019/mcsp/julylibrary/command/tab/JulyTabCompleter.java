@@ -10,7 +10,7 @@ import java.util.*;
 
 
 public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
-    private Map<String, TabEntry> treeMap = new HashMap<>();
+    private Map<String, Tab> treeMap = new HashMap<>();
 
     /**
      * 注册
@@ -34,7 +34,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
         // 返回根
         if (args.length == 0 || (args.length == 1 && args[0].equals(""))) {
             // 返回所有根
-            for (Map.Entry<String, TabEntry> entry : treeMap.entrySet()) {
+            for (Map.Entry<String, Tab> entry : treeMap.entrySet()) {
                 JulyTabCommand julyTabCommand = entry.getValue().getJulyTabCommand();
 
                 // 权限判断
@@ -50,15 +50,15 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
             return subArgs;
         }
 
-        TabEntry tabEntry = treeMap.get(args[0]);
-        JulyTabCommand julyTabCommand = tabEntry.getJulyTabCommand();
+        Tab tab = treeMap.get(args[0]);
+        JulyTabCommand julyTabCommand = tab.getJulyTabCommand();
 
         // 权限判断
         if (!cs.hasPermission(julyTabCommand.getPermission())) {
             return subArgs;
         }
 
-        TreeNode<String> lastTreeNode = tabEntry.getNode();
+        TreeNode<String> lastTreeNode = tab.getNode();
 
         /*
           遍历得到最小的 Node
@@ -100,7 +100,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
         // 创建根节点
         if (!treeMap.containsKey(pathArray[0])) {
-            treeMap.put(pathArray[0], new TabEntry(command, new ArrayMultiTreeNode<>(pathArray[0])));
+            treeMap.put(pathArray[0], new Tab(command, new ArrayMultiTreeNode<>(pathArray[0])));
         }
 
         treeNode = treeMap.get(pathArray[0]).getNode();

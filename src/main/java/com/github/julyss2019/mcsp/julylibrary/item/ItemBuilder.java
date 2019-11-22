@@ -2,11 +2,8 @@ package com.github.julyss2019.mcsp.julylibrary.item;
 
 
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
-import com.github.julyss2019.mcsp.julylibrary.utils.MessageUtil;
-import com.github.julyss2019.mcsp.julylibrary.utils.StrUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -266,16 +263,6 @@ public class    ItemBuilder implements Cloneable {
         return this;
     }
 
-    private String replacePlaceholder(String s) {
-        String tmp = s;
-
-        for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
-            tmp = tmp.replace(entry.getKey(), entry.getValue());
-        }
-
-        return tmp;
-    }
-
     /**
      * 构造
      * @return
@@ -325,9 +312,13 @@ public class    ItemBuilder implements Cloneable {
             }
         }
 
+        if (lores != null) {
+            itemMeta.setLore(replacePlaceholders(this.colored ? JulyMessage.toColoredMessages(this.lores) : this.lores));
+        }
 
-        itemMeta.setLore(StrUtil.replacePlaceholders(this.colored ? JulyMessage.toColoredMessages(this.lores) : this.lores, placeholderMap));
-        itemMeta.setDisplayName(replacePlaceholder(this.colored ? JulyMessage.toColoredMessage(this.displayName) : this.displayName));
+        if (displayName != null) {
+            itemMeta.setDisplayName(replacePlaceholders(this.colored ? JulyMessage.toColoredMessage(this.displayName) : this.displayName));
+        }
 
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);
@@ -347,6 +338,26 @@ public class    ItemBuilder implements Cloneable {
 
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    private String replacePlaceholders(String str) {
+        String result = str;
+
+        for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
+            result = result.replace(entry.getKey(), entry.getValue());
+        }
+
+        return result;
+    }
+
+    private List<String> replacePlaceholders(List<String> strList) {
+        List<String> result = new ArrayList<>();
+
+        for (String str : strList) {
+            result.add(replacePlaceholders(str));
+        }
+
+        return result;
     }
 
     public ItemBuilder skullOwner(String owner) {

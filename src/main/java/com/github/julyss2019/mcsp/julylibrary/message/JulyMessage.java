@@ -18,9 +18,9 @@ public class JulyMessage {
     private static Class<?> packetPlayOutChatClass = null;
 
     /*
-    初始化 Title 需要的类
+    初始化 Title 需要的类，因为必定会被 Bukkit 的 ClassLoader 加载，所以直接 static 就行
      */
-    public static void init() {
+    static {
         try {
             chatBaseComponentClass = NMSUtil.getNMSClass("IChatBaseComponent");
             packetPlayOutTitleClass = NMSUtil.getNMSClass("PacketPlayOutTitle");
@@ -39,7 +39,7 @@ public class JulyMessage {
      * @param json
      * @return
      */
-    public static boolean broadcaseRawMessage(String json) {
+    public static boolean broadcastRawMessage(String json) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!sendRawMessage(player, json)) {
                 return false;
@@ -76,6 +76,11 @@ public class JulyMessage {
         return true;
     }
 
+    /**
+     * List<String> 着色
+     * @param messages
+     * @return
+     */
     public static List<String> toColoredMessages(List<String> messages) {
         List<String> result = new ArrayList<>();
 
@@ -83,6 +88,11 @@ public class JulyMessage {
         return result;
     }
 
+    /**
+     * 文字着色
+     * @param s
+     * @return
+     */
     public static String toColoredMessage(String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
     }
@@ -105,12 +115,22 @@ public class JulyMessage {
         }
     }
 
+    /**
+     * 发送多条消息
+     * @param cs
+     * @param messages
+     */
     public static void sendColoredMessages(CommandSender cs, String... messages) {
         for (String msg : messages) {
             sendColoredMessage(cs, msg);
         }
     }
 
+    /**
+     * 发送多条消息
+     * @param cs
+     * @param messages
+     */
     public static void sendColoredMessages(CommandSender cs, List<String> messages) {
         for (String msg : messages) {
             sendColoredMessage(cs, msg);
@@ -118,7 +138,7 @@ public class JulyMessage {
     }
 
     /**
-     * 发送带颜色的消息（带前缀）
+     * 发送带颜色的消息
      * @param cs
      * @param msg
      */
@@ -145,7 +165,7 @@ public class JulyMessage {
      */
     public static void sendTitle(Player player, Title title) {
         if (!canUseTitle()) {
-            throw new RuntimeException("当前服务器版本不支持Title");
+            throw new RuntimeException("当前服务器版本(" + NMSUtil.SERVER_VERSION + ")不支持Title");
         }
 
         try {
@@ -168,10 +188,20 @@ public class JulyMessage {
         return packetPlayOutTitleClass != null;
     }
 
+    /**
+     * 发送 Title
+     * @param player
+     * @param text
+     */
     public static void sendColoredTitle(Player player, String text) {
         sendTitle(player, new Title.Builder().type(Title.Type.TITLE).text(text).colored().build());
     }
 
+    /**
+     * 发送 SubTitle
+     * @param player
+     * @param text
+     */
     public static void sendColoredSubTitle(Player player, String text) {
         sendTitle(player, new Title.Builder().type(Title.Type.SUBTITLE).text(text).colored().build());
     }

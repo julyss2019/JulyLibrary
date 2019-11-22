@@ -2,11 +2,11 @@ package com.github.julyss2019.mcsp.julylibrary.command.tab;
 
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
 
-class TabEntry {
+class Tab {
     private JulyTabCommand julyTabCommand;
     private ArrayMultiTreeNode<String> node;
 
-    TabEntry(JulyTabCommand julyTabCommand, ArrayMultiTreeNode<String> node) {
+    Tab(JulyTabCommand julyTabCommand, ArrayMultiTreeNode<String> node) {
         this.julyTabCommand = julyTabCommand;
         this.node = node;
     }

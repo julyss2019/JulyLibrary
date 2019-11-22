@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.chat;
 
+import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -21,10 +22,13 @@ public class ChatInterceptor {
         setPlugin(builder.plugin);
         setPlayerName(builder.playerName);
         setTimeout(builder.timeout);
-        creationTime = builder.creationTime;
         setOnlyFirst(builder.onlyFirst);
+        this.creationTime = System.currentTimeMillis();
     }
 
+    public boolean isOnlyFirst() {
+        return onlyFirst;
+    }
 
     /**
      * 设置仅作用一次
@@ -46,11 +50,11 @@ public class ChatInterceptor {
         this.chatListener = chatListener;
     }
 
-    public void setPlugin(Plugin plugin) {
+    private void setPlugin(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    public void setPlayerName(String playerName) {
+    private void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
 
@@ -58,7 +62,7 @@ public class ChatInterceptor {
         return playerName;
     }
 
-    public boolean getTimeout() {
+    public boolean isTimeout() {
         return timeout != -1 && ((System.currentTimeMillis() - creationTime) / 1000L > timeout);
     }
 
@@ -75,33 +79,33 @@ public class ChatInterceptor {
     }
 
     public void unregister() {
-        JulyChatInterceptor.unregister(playerName);
+        JulyChatInterceptor.unregisterChatInterceptor(playerName);
+    }
+
+    public void register() {
+        JulyChatInterceptor.registerChatInterceptor(this);
     }
 
 
     public static final class Builder {
         private ChatListener chatListener;
-        private Plugin plugin;
-        private String playerName;
         private int timeout;
-        private long creationTime;
         private boolean onlyFirst;
+        private String playerName;
+        private Plugin plugin;
 
-        public Builder() {
+        public Builder plugin(@NotNull Plugin plugin) {
+            this.plugin = plugin;
+            return this;
+        }
+
+        public Builder player(Player player) {
+            this.playerName = player.getName();
+            return this;
         }
 
         public Builder chatListener(@NotNull ChatListener val) {
             chatListener = val;
-            return this;
-        }
-
-        public Builder plugin(@NotNull Plugin val) {
-            plugin = val;
-            return this;
-        }
-
-        public Builder playerName(@NotNull String val) {
-            playerName = val;
             return this;
         }
 
@@ -120,6 +124,10 @@ public class ChatInterceptor {
         }
 
         public ChatInterceptor build() {
+            Validate.notNull(plugin, "plugin 不能为 null");
+            Validate.notNull(chatListener, "chatListener 不能为 null");
+            Validate.notNull(playerName, "player 不能为 null");
+
             return new ChatInterceptor(this);
         }
     }

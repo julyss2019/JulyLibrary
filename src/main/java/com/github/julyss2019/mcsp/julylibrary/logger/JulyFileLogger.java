@@ -1,23 +1,31 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
 import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class JulyFileLogger {
     private static List<FileLogger> loggers = new ArrayList<>();
     private static int tickCounter = 0;
 
-    public static void init() {
-        // 定时 flush 任务
-        new BukkitRunnable() {
+    static {
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
+                if (!JulyLibrary.getInstance().isEnabled()) {
+                    return;
+                }
+
+                System.out.println("test");
                 tickCounter++;
 
                 // 遍历所有 FileLogger
@@ -30,7 +38,7 @@ public class JulyFileLogger {
                     }
                 }
             }
-        }.runTaskTimer(JulyLibrary.getInstance(), 0L, 20L);
+        }, 0L, 1000L);
     }
 
     /**

@@ -1,10 +1,11 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 可通过 TitleBuilder 构造出本类
+ * 可通过 Title.Builder 构造出本类
  */
 public class Title {
     public enum Type {TITLE, SUBTITLE}
@@ -15,7 +16,7 @@ public class Title {
     private int stay;
     private int fadeOut;
 
-    protected Title(Title.Type type, String text, int fadeIn, int stay, int fadeOut) {
+    private Title(Title.Type type, String text, int fadeIn, int stay, int fadeOut) {
         this.titleType = type;
         this.text = text;
         this.fadeIn = fadeIn;
@@ -43,6 +44,17 @@ public class Title {
         return fadeOut;
     }
 
+    /**
+     * 发送 Title
+     * @param player
+     */
+    public void send(Player player) {
+        JulyMessage.sendTitle(player, this);
+    }
+
+    /**
+     * Builder
+     */
     public static class Builder {
         private Title.Type titleType = Title.Type.TITLE;
         private String text;
