@@ -33,8 +33,8 @@ public class FileLogger {
         this.isDateFormat = fileNameFormat.contains("%DATE%");
 
         // 创建文件
-        if (!loggerFolder.exists()) {
-            loggerFolder.mkdirs();
+        if (!loggerFolder.exists() && loggerFolder.mkdirs()) {
+            throw new RuntimeException("创建文件夹失败");
         }
 
         // 初始化

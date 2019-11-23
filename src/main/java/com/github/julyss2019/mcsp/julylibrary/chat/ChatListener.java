@@ -8,8 +8,6 @@ public interface ChatListener {
      * @param event
      */
     default void onChat(AsyncPlayerChatEvent event) {}
-    @Deprecated
-    default void onTimeout() {}
 
     /**
      * 超时事件

@@ -19,7 +19,6 @@ public class ChatEventFirer implements Listener {
 
             // 超时
             if (chatInterceptor.isTimeout()) {
-                chatListener.onTimeout();
                 chatListener.onTimeout(event);
             } else {
                 chatListener.onChat(event);
@@ -27,21 +26,6 @@ public class ChatEventFirer implements Listener {
 
             if (chatInterceptor.isOnlyFirst()) {
                 JulyChatInterceptor.unregisterChatInterceptor(player);
-            }
-        }
-
-        // 弃用
-        if (JulyChatFilter.hasChatFilter(player)) {
-            ChatFilter chatFilter = JulyChatFilter.getChatFilter(player);
-            ChatListener chatListener = chatFilter.getChatListener();
-
-            if (!chatFilter.isTimeout()) {
-                event.setCancelled(true);
-                chatListener.onChat(event);
-            } else {
-                chatListener.onTimeout();
-                event.setCancelled(true);
-                JulyChatFilter.unregisterChatFilter(player);
             }
         }
     }
@@ -53,7 +37,6 @@ public class ChatEventFirer implements Listener {
     public void onPlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        JulyChatFilter.unregisterChatFilter(player);
         JulyChatInterceptor.unregisterChatInterceptor(player);
     }
 }

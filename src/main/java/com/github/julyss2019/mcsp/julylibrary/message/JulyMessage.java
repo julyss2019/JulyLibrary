@@ -56,11 +56,6 @@ public class JulyMessage {
      * @return
      */
     public static boolean sendRawMessage(Player player, String json) {
-        if (NMSUtil.SERVER_VERSION.equals("v1_7_R4")) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + JulyMessage.toColoredMessage(json));
-            return true;
-        }
-
         try {
             Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, json);
             Object packet = packetPlayOutChatClass.getConstructor(chatBaseComponentClass).newInstance(chatBaseComponent);

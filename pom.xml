@@ -8,10 +8,7 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
-    <properties>
-        <mac_output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mac_output>
-        <win_output>G:\july_ss\mc_servers\1.12.2_paper\plugins</win_output>
-    </properties>
+
 
     <repositories>
         <repository>
@@ -63,6 +60,12 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <properties>
+        <mac_output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mac_output>
+        <win_output>G:\july_ss\mc_servers\1.12.2_paper\plugins</win_output>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -70,9 +73,9 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
-                    <finalName>JulyLibrary</finalName>
+                    <finalName>${artifactId}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${mac_output}</outputDirectory>
+                    <outputDirectory>${win_output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

@@ -1,7 +1,5 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
-import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,31 +12,36 @@ import java.util.TimerTask;
 public class JulyFileLogger {
     private static List<FileLogger> loggers = new ArrayList<>();
     private static int tickCounter = 0;
+    private static Timer timer;
 
-    static {
-        Timer timer = new Timer();
+    public static void cancelTask() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (!JulyLibrary.getInstance().isEnabled()) {
-                    return;
-                }
+    public static void runTask() {
+        if (timer != null) {
+            timer = new Timer();
 
-                System.out.println("test");
-                tickCounter++;
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    tickCounter++;
 
-                // 遍历所有 FileLogger
-                for (FileLogger fileLogger : JulyFileLogger.getLoggers()) {
-                    int interval = fileLogger.getSaveInterval();
+                    // 遍历所有 FileLogger
+                    for (FileLogger fileLogger : JulyFileLogger.getLoggers()) {
+                        int interval = fileLogger.getSaveInterval();
 
-                    // 检查间隔
-                    if (interval == 0 || tickCounter % interval == 0) {
-                        fileLogger.flush();
+                        // 检查间隔
+                        if (interval == 0 || tickCounter % interval == 0) {
+                            fileLogger.flush();
+                        }
                     }
                 }
-            }
-        }, 0L, 1000L);
+            }, 0L, 1000L);
+        }
     }
 
     /**

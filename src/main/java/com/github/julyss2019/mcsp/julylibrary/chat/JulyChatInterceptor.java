@@ -19,7 +19,7 @@ public class JulyChatInterceptor {
      */
     public static void registerChatInterceptor(ChatInterceptor chatInterceptor) {
         if (hasChatInterceptor(chatInterceptor.getPlayer())) {
-            throw new RuntimeException("该玩家已注册 ChatInterceptor");
+            throw new RuntimeException("玩家已注册 ChatInterceptor");
         }
 
         playerChatInterceptorMap.put(chatInterceptor.getPlayerName().toLowerCase(), chatInterceptor);
