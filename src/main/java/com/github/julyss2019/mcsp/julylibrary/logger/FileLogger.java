@@ -1,6 +1,5 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
-import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -23,8 +22,6 @@ public class FileLogger {
     private BufferedWriter loggerBufferedWriter;
     private long nextDayMillis;
     private boolean isDateFormat;
-
-    public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
 
     FileLogger(File loggerFolder, String fileNameFormat, int saveInterval) {
         this.loggerFolder = loggerFolder;
@@ -97,40 +94,8 @@ public class FileLogger {
         }
     }
 
-    /**
-     * DEBUG
-     * @param s
-     */
-    public void d(String s) {
-        log(LoggerLevel.DEBUG, s);
-    }
-
-    /**
-     * ERROR
-     * @param s
-     */
-    public void e(String s) {
-        log(LoggerLevel.ERROR, s);
-    }
-
-    /**
-     * WARNING
-     * @param s
-     */
-    public void w(String s) {
-        log(LoggerLevel.WARNING, s);
-    }
-
-    /**
-     * INFO
-     * @param s
-     */
-    public void i(String s) {
-        log(LoggerLevel.INFO, s);
-    }
-
-    public void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
-        String log = "[" + loggerLevel.name() + "] " + "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
+    public void log( @NotNull String s) {
+        String log = "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
 
         write(log);
     }
