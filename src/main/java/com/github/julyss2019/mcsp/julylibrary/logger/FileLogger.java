@@ -12,6 +12,8 @@ import java.util.Date;
 public class FileLogger {
     private static final SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
 
+    public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
+
     private File loggerFolder;
     private String fileName;
     private boolean autoFlush;
@@ -74,17 +76,6 @@ public class FileLogger {
         loggerFolder = builder.loggerFolder;
         fileName = builder.fileName;
         autoFlush = builder.autoFlush;
-
-        this.loggerFile = new File(loggerFolder, escape(fileName));
-
-        try {
-            this.loggerWriter = new FileWriter(this.loggerFile, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("创建 FileWriter 失败");
-        }
-
-        this.loggerBufferedWriter = new BufferedWriter(this.loggerWriter);
     }
 
     public File getLoggerFolder() {
@@ -99,7 +90,19 @@ public class FileLogger {
         return autoFlush;
     }
 
-    public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
+    public void setAutoFlush(boolean autoFlush) {
+        this.autoFlush = autoFlush;
+    }
+
+    public void setLoggerFolder(@NotNull File loggerFolder) {
+        this.loggerFolder = loggerFolder;
+        checkFile();
+    }
+
+    public void setFileName(@NotNull String fileName) {
+        this.fileName = fileName;
+        checkFile();
+    }
 
     /**
      * 刷新，写入内容到文件中
@@ -119,7 +122,7 @@ public class FileLogger {
     private void checkFile() {
         String newFileName = escape(fileName);
 
-        if (!newFileName.equalsIgnoreCase(loggerFile.getName())) {
+        if (loggerFile == null || !newFileName.equalsIgnoreCase(loggerFile.getName())) {
             close();
             // 重新定义新的文件
             this.loggerFile = new File(this.loggerFolder, newFileName);
@@ -129,6 +132,7 @@ public class FileLogger {
                 this.loggerBufferedWriter = new BufferedWriter(this.loggerWriter);
             } catch (IOException e) {
                 e.printStackTrace();
+                throw new RuntimeException("创建 Writer 失败");
             }
         }
     }
@@ -210,15 +214,14 @@ public class FileLogger {
         private String fileName;
         private boolean autoFlush;
 
-        public Builder() {
-        }
+        public Builder() {}
 
-        public Builder loggerFolder(File loggerFolder) {
+        public Builder loggerFolder(@NotNull File loggerFolder) {
             this.loggerFolder = loggerFolder;
             return this;
         }
 
-        public Builder fileName(String fileName) {
+        public Builder fileName(@NotNull String fileName) {
             this.fileName = fileName;
             return this;
         }
