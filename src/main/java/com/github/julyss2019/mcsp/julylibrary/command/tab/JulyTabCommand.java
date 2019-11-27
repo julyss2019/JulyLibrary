@@ -6,5 +6,5 @@ import java.util.HashMap;
 import java.util.Map;
 
 public interface JulyTabCommand extends JulyCommand {
-    Map<String, String[]> getTabCompleterMap();
+    TabCompleter getTabCompleter();
 }

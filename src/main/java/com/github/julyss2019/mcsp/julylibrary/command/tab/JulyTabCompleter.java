@@ -3,6 +3,7 @@ package com.github.julyss2019.mcsp.julylibrary.command.tab;
 import com.github.julyss2019.mcsp.julylibrary.utils.ArrayUtil;
 import com.scalified.tree.TreeNode;
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -14,11 +15,13 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
     /**
      * 注册
-     * @param julyTabCommand
+     * @param tabCompleter
      */
-    public void register(JulyTabCommand julyTabCommand) {
-        for (Map.Entry<String, String[]> entry : julyTabCommand.getTabCompleterMap().entrySet()) {
-            setSubArgs(julyTabCommand, entry.getKey(), entry.getValue());
+    public void register(TabCompleter tabCompleter) {
+        Validate.notNull(tabCompleter, "JulyTabCommand 的 TabCompleter 不能为 null");
+
+        for (Map.Entry<String, String[]> entry : tabCompleter.getTabMap().entrySet()) {
+            setSubArgs(tabCompleter.getCommand(), entry.getKey(), entry.getValue());
         }
     }
 
@@ -35,7 +38,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
         if (args.length == 0 || (args.length == 1 && args[0].equals(""))) {
             // 返回所有根
             for (Map.Entry<String, Tab> entry : treeMap.entrySet()) {
-                JulyTabCommand julyTabCommand = entry.getValue().getJulyTabCommand();
+                JulyTabCommand julyTabCommand = entry.getValue().getCommand();
 
                 // 权限判断
                 if (cs.hasPermission(julyTabCommand.getPermission())) {
@@ -51,7 +54,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
         }
 
         Tab tab = treeMap.get(args[0]);
-        JulyTabCommand julyTabCommand = tab.getJulyTabCommand();
+        JulyTabCommand julyTabCommand = tab.getCommand();
 
         // 权限判断
         if (!cs.hasPermission(julyTabCommand.getPermission())) {

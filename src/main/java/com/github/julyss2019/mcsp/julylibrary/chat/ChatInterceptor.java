@@ -43,6 +43,10 @@ public class ChatInterceptor {
      * @param timeout 单位：秒
      */
     public void setTimeout(int timeout) {
+        if (timeout <= 0 && timeout != -1) {
+            throw new RuntimeException("timeout 必须 > 0 或 == -1");
+        }
+
         this.timeout = timeout;
     }
 
@@ -78,18 +82,17 @@ public class ChatInterceptor {
         return plugin;
     }
 
-    public void unregister() {
-        JulyChatInterceptor.unregisterChatInterceptor(playerName);
-    }
-
     public void register() {
         JulyChatInterceptor.registerChatInterceptor(this);
     }
 
+    public void unregister() {
+        JulyChatInterceptor.unregisterChatInterceptor(playerName);
+    }
 
     public static final class Builder {
         private ChatListener chatListener;
-        private int timeout;
+        private int timeout = -1;
         private boolean onlyFirst;
         private String playerName;
         private Plugin plugin;
@@ -110,10 +113,6 @@ public class ChatInterceptor {
         }
 
         public Builder timeout(int val) {
-            if (timeout < 0) {
-                throw new RuntimeException("timeout 必须 >= 0");
-            }
-
             timeout = val;
             return this;
         }

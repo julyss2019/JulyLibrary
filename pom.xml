@@ -8,8 +8,6 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
-
-
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -69,13 +67,27 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>se.eris</groupId>
+                <artifactId>notnull-instrumenter-maven-plugin</artifactId>
+                <version>0.6.8</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>instrument</goal>
+                            <goal>tests-instrument</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
                     <finalName>${artifactId}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${win_output}</outputDirectory>
+                    <outputDirectory>${mac_output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

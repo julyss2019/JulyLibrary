@@ -3,11 +3,11 @@ package com.github.julyss2019.mcsp.julylibrary.command.tab;
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
 
 class Tab {
-    private JulyTabCommand julyTabCommand;
+    private JulyTabCommand command;
     private ArrayMultiTreeNode<String> node;
 
-    Tab(JulyTabCommand julyTabCommand, ArrayMultiTreeNode<String> node) {
-        this.julyTabCommand = julyTabCommand;
+    Tab(JulyTabCommand command, ArrayMultiTreeNode<String> node) {
+        this.command = command;
         this.node = node;
     }
 
@@ -23,7 +23,7 @@ class Tab {
      * 得到 JulyTabCommand
      * @return
      */
-    JulyTabCommand getJulyTabCommand() {
-        return julyTabCommand;
+    JulyTabCommand getCommand() {
+        return command;
     }
 }
