@@ -8,10 +8,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
-    private Map<String, JulyCommand> commandMap = new HashMap<>();
+    private Map<String, JulyCommand> commandMap = new HashMap<>(); // Key 可为 null
     private String prefix = "";
     private String mustBePlayerMessage = "&c命令执行者必须是玩家!";
     private String noPermissionMessage = "&c无权限!";
@@ -42,14 +43,16 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
      * @param command
      */
     public void register(JulyCommand command) {
-        commandMap.put(command.getFirstArg().toLowerCase(), command);
+        String firstArg = command.getFirstArg();
+
+        commandMap.put(firstArg == null || firstArg.equals("") ? null : firstArg.toLowerCase(), command);
     }
 
     @Override
     public boolean onCommand(CommandSender cs, org.bukkit.command.Command bukkitCommand, String label, String[] args) {
         if (args.length == 0) {
-            if (commandMap.containsKey("")) {
-                commandMap.get("").onCommand(cs, args);
+            if (commandMap.containsKey(null)) {
+                commandMap.get(null).onCommand(cs, args);
                 return true;
             }
 
