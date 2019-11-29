@@ -12,6 +12,7 @@ import java.util.*;
 
 
 public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
+    private List<String> globalCommands = new ArrayList<>();
     private Map<String, Tab> globalTabMap = new HashMap<>();
 
     /**
@@ -23,6 +24,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
         Validate.notNull(tabCompleter, "JulyTabCommand 的 TabCompleter 不能为 null");
         globalTabMap.putAll(tabCompleter.getTabMap());
+        globalCommands.add(command.getFirstArg());
     }
 
     /**
@@ -36,17 +38,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
 
         // 返回根
         if (args.length == 0) {
-            // 返回所有根
-            for (Map.Entry<String, Tab> entry : globalTabMap.entrySet()) {
-                JulyTabCommand julyTabCommand = entry.getValue().getCommand();
-
-                // 权限判断
-                if (cs.hasPermission(julyTabCommand.getPermission())) {
-                    resultArgs.add(entry.getKey());
-                }
-            }
-
-            return resultArgs;
+            return globalCommands;
         }
 
         if (!globalTabMap.containsKey(args[0])) {
@@ -102,9 +94,10 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
             }
         }
 
-        if (resultTabList.size() == 0) {
-            resultTabList.addAll(subArgs);
-        }
+//        // 一个前缀都没匹配
+//        if (resultTabList.size() == 0) {
+//            resultTabList.addAll(subArgs);
+//        }
 
         return resultTabList.size() == 0 ? null : resultTabList;
     }
