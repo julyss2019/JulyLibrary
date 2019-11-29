@@ -3,23 +3,28 @@ package com.github.julyss2019.mcsp.julylibrary.command.tab;
 import com.github.julyss2019.mcsp.julylibrary.utils.ArrayUtil;
 import com.scalified.tree.TreeNode;
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 
 public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
-    private Map<String, Tab> treeMap = new HashMap<>();
+    private List<String> globalCommands = new ArrayList<>();
+    private Map<String, Tab> globalTabMap = new HashMap<>();
 
     /**
      * 注册
-     * @param julyTabCommand
+     * @param command
      */
-    public void register(JulyTabCommand julyTabCommand) {
-        for (Map.Entry<String, String[]> entry : julyTabCommand.getTabCompleterMap().entrySet()) {
-            setSubArgs(julyTabCommand, entry.getKey(), entry.getValue());
-        }
+    public void register(JulyTabCommand command) {
+        TabCompleter tabCompleter = command.getTabCompleter();
+
+        Validate.notNull(tabCompleter, "JulyTabCommand 的 TabCompleter 不能为 null");
+        globalTabMap.putAll(tabCompleter.getTabMap());
+        globalCommands.add(command.getFirstArg());
     }
 
     /**
@@ -28,129 +33,71 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
      * @param args 子参数
      * @return
      */
-    private List<String> getSubArgs(CommandSender cs, String... args) {
-        List<String> subArgs = new ArrayList<>();
+    private List<String> getSubArgs(CommandSender cs, Command command, String label, String... args) {
+        List<String> resultArgs = new ArrayList<>();
 
         // 返回根
-        if (args.length == 0 || (args.length == 1 && args[0].equals(""))) {
-            // 返回所有根
-            for (Map.Entry<String, Tab> entry : treeMap.entrySet()) {
-                JulyTabCommand julyTabCommand = entry.getValue().getJulyTabCommand();
-
-                // 权限判断
-                if (cs.hasPermission(julyTabCommand.getPermission())) {
-                    subArgs.add(entry.getKey());
-                }
-            }
-
-            return subArgs;
+        if (args.length == 0) {
+            return globalCommands;
         }
 
-        if (!treeMap.containsKey(args[0])) {
-            return subArgs;
+        if (!globalTabMap.containsKey(args[0])) {
+            return resultArgs;
         }
 
-        Tab tab = treeMap.get(args[0]);
-        JulyTabCommand julyTabCommand = tab.getJulyTabCommand();
+        Tab tab = globalTabMap.get(args[0]);
+        JulyTabCommand tabCommand = tab.getCommand();
 
         // 权限判断
-        if (!cs.hasPermission(julyTabCommand.getPermission())) {
-            return subArgs;
+        if (!cs.hasPermission(tabCommand.getPermission())) {
+            return resultArgs;
         }
+
+        // 处理未知（不常规）的Tab
+        resultArgs.addAll(Optional.ofNullable(tabCommand.onTabComplete(cs, command, label, args)).orElse(new ArrayList<>()));
 
         TreeNode<String> lastTreeNode = tab.getNode();
 
         /*
-          遍历得到最小的 Node
+          遍历得到目标节点
          */
         for (int i = 1; i < args.length; i++) {
             TreeNode<String> tmp = lastTreeNode.find(args[i]);
 
             if (tmp == null) {
-                return subArgs;
+                return resultArgs;
             }
 
             lastTreeNode = tmp;
         }
 
         /*
-         * 得到最小Node的所有子项
+         * 得到最小节点的所有子项
          */
         for (TreeNode<String> node : lastTreeNode.subtrees()) {
-            subArgs.add(node.data());
+            resultArgs.add(node.data());
         }
 
-        return subArgs;
-    }
-
-    /**
-     * 设置节点
-     * @param command
-     * @param parentArgPath
-     * @param subArgs
-     */
-    private void setSubArgs(JulyTabCommand command, String parentArgPath, String... subArgs) {
-        String[] pathArray = parentArgPath.split("\\.");
-
-        if (pathArray.length < 1) {
-            throw new IllegalArgumentException("路径中没有根");
-        }
-
-        TreeNode<String> treeNode;
-
-        // 创建根节点
-        if (!treeMap.containsKey(pathArray[0])) {
-            treeMap.put(pathArray[0], new Tab(command, new ArrayMultiTreeNode<>(pathArray[0])));
-        }
-
-        treeNode = treeMap.get(pathArray[0]).getNode();
-
-        /*
-         *  遍历得到最小的节点
-         */
-        for (String s : pathArray) {
-            TreeNode<String> tmp = treeNode.find(s);
-
-            // 没有节点则创建节点
-            if (tmp == null) {
-                tmp = new ArrayMultiTreeNode<>(s);
-
-                treeNode.add(tmp);
-            }
-
-            treeNode = tmp;
-        }
-
-        // 此时 node 已经是目标的 node了
-
-        if (subArgs != null) {
-            for (String subArg : subArgs) {
-                if (subArg == null) {
-                    continue;
-                }
-
-                if (treeNode.find(subArg) == null) {
-                    treeNode.add(new ArrayMultiTreeNode<>(subArg));
-                }
-            }
-        }
+        return resultArgs;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender cs, Command command, String label, String[] args) {
-        List<String> parentTabList = getSubArgs(cs, ArrayUtil.removeElementFromStrArray(args, args.length - 1)); // 删除最后一个元素
+        // 过滤第一个无效字符串
+        List<String> subArgs = getSubArgs(cs, command, label, ArrayUtil.removeElementFromStrArray(args, args.length - 1)); // 删除最后一个元素
         List<String> resultTabList = new ArrayList<>();
 
-        for (String parentTab : parentTabList) {
+        for (String subArg : subArgs) {
             // 如果前缀匹配了则添加到列表
-            if (parentTab.startsWith(args[args.length - 1])) {
-                resultTabList.add(parentTab);
+            if (subArg.startsWith(args[args.length - 1])) {
+                resultTabList.add(subArg);
             }
         }
 
-        if (resultTabList.size() == 0) {
-            resultTabList.addAll(parentTabList);
-        }
+//        // 一个前缀都没匹配
+//        if (resultTabList.size() == 0) {
+//            resultTabList.addAll(subArgs);
+//        }
 
         return resultTabList.size() == 0 ? null : resultTabList;
     }

@@ -7,45 +7,107 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 
 public class FileLogger {
-    private static SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
-    private static SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
+
+    public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
 
     private File loggerFolder;
-    private String fileNameFormat;
-    private int saveInterval;
+    private String fileName;
+    private boolean autoFlush;
 
     private File loggerFile;
     private FileWriter loggerWriter;
     private BufferedWriter loggerBufferedWriter;
-    private long nextDayMillis;
-    private boolean isDateFormat;
 
-    FileLogger(File loggerFolder, String fileNameFormat, int saveInterval) {
-        this.loggerFolder = loggerFolder;
-        this.fileNameFormat = fileNameFormat;
-        this.saveInterval = saveInterval;
-        this.isDateFormat = fileNameFormat.contains("%DATE%");
+    private static String escape(String input) {
+        StringBuilder sb = new StringBuilder();
+        int max = input.length();
+        int i;
 
-        // 创建文件
-        if (!loggerFolder.exists() && loggerFolder.mkdirs()) {
-            throw new RuntimeException("创建文件夹失败");
+        for (i = 0; i < max; i++) {
+            char c = input.charAt(i);
+
+            if (i + 1 >= max) {
+                sb.append(c);
+                continue;
+            }
+
+            if (c == '%') {
+                char next = input.charAt(i + 1);
+
+                switch (next) {
+                    case 'd':
+                        int left = input.indexOf("{", i + 1);
+
+                        if (left == -1) {
+                            throw new RuntimeException("非法的表达式");
+                        }
+
+                        int right = input.indexOf("}", left);
+
+                        if (right == -1) {
+                            throw new RuntimeException("非法的表达式");
+                        }
+
+                        sb.append(new SimpleDateFormat(input.substring(left + 1, right)).format(new Date()));
+                        i = right;
+                        break;
+                    case '%':
+                        sb.append("%");
+                        i++;
+                        break;
+                    default:
+                        sb.append(c);
+                        break;
+                }
+            } else {
+                sb.append(c);
+            }
+
         }
 
-        // 初始化
-        checkDay();
+        return sb.toString();
+    }
+
+    private FileLogger(Builder builder) {
+        loggerFolder = builder.loggerFolder;
+        fileName = builder.fileName;
+        autoFlush = builder.autoFlush;
+    }
+
+    public File getLoggerFolder() {
+        return loggerFolder;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public boolean isAutoFlush() {
+        return autoFlush;
+    }
+
+    public void setAutoFlush(boolean autoFlush) {
+        this.autoFlush = autoFlush;
+    }
+
+    public void setLoggerFolder(@NotNull File loggerFolder) {
+        this.loggerFolder = loggerFolder;
+        checkFile();
+    }
+
+    public void setFileName(@NotNull String fileName) {
+        this.fileName = fileName;
+        checkFile();
     }
 
     /**
      * 刷新，写入内容到文件中
      */
     public void flush() {
-        if (!loggerFile.exists()) {
-            throw new RuntimeException("文件不存在");
-        }
-
         // 写入
         try {
             loggerBufferedWriter.flush();
@@ -55,47 +117,60 @@ public class FileLogger {
     }
 
     /**
-     * 检查是否到了下一天
+     * 检查文件名变更
      */
-    private void checkDay() {
-        if (System.currentTimeMillis() >= nextDayMillis) {
-            try {
-                // 保存旧的
-                if (loggerBufferedWriter != null) {
-                    loggerBufferedWriter.flush();
-                    loggerBufferedWriter.close();
-                    loggerWriter.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void checkFile() {
+        String newFileName = escape(fileName);
 
-            // 得到下一天的时间
-            Calendar calendar = Calendar.getInstance();
-
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            calendar.add(Calendar.DATE, 1);
-
+        if (loggerFile == null || !newFileName.equalsIgnoreCase(loggerFile.getName())) {
+            close();
             // 重新定义新的文件
-            this.loggerFile = new File(this.loggerFolder, (this.fileNameFormat == null ? "%DATE%" : this.fileNameFormat)
-                    .replace("%DATE%", DATE_SDF.format(System.currentTimeMillis())));
-            this.nextDayMillis = calendar.getTimeInMillis();
+            this.loggerFile = new File(this.loggerFolder, newFileName);
 
             try {
                 this.loggerWriter = new FileWriter(this.loggerFile, true);
                 this.loggerBufferedWriter = new BufferedWriter(this.loggerWriter);
             } catch (IOException e) {
                 e.printStackTrace();
+                throw new RuntimeException("创建 Writer 失败");
             }
         }
     }
 
-    public void log( @NotNull String s) {
-        String log = "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
+    /**
+     * DEBUG
+     * @param s
+     */
+    public void d(String s) {
+        log(LoggerLevel.DEBUG, s);
+    }
+
+    /**
+     * ERROR
+     * @param s
+     */
+    public void e(String s) {
+        log(LoggerLevel.ERROR, s);
+    }
+
+    /**
+     * WARNING
+     * @param s
+     */
+    public void w(String s) {
+        log(LoggerLevel.WARNING, s);
+    }
+
+    /**
+     * INFO
+     * @param s
+     */
+    public void i(String s) {
+        log(LoggerLevel.INFO, s);
+    }
+
+    private void log(@NotNull LoggerLevel loggerLevel, @NotNull String s) {
+        String log = "[" + loggerLevel.name() + "] " + "[" + TIME_SDF.format(System.currentTimeMillis()) + "] " + s;
 
         write(log);
     }
@@ -105,10 +180,8 @@ public class FileLogger {
      * @param s
      * @return
      */
-    private boolean write(String s) {
-        if (isDateFormat) {
-            checkDay();
-        }
+    public void write(String s) {
+        checkFile();
 
         try {
             this.loggerBufferedWriter.write(s);
@@ -117,13 +190,15 @@ public class FileLogger {
             e.printStackTrace();
         }
 
-        return true;
+        if (autoFlush) {
+            flush();
+        }
     }
 
     /**
      * 关闭
      */
-    void close() {
+    public void close() {
         try {
             this.loggerBufferedWriter.flush();
             this.loggerWriter.flush();
@@ -134,31 +209,30 @@ public class FileLogger {
         }
     }
 
-    public File getLoggerFolder() {
-        return loggerFolder;
-    }
+    public static final class Builder {
+        private File loggerFolder;
+        private String fileName;
+        private boolean autoFlush;
 
-    public String getFileNameFormat() {
-        return fileNameFormat;
-    }
+        public Builder() {}
 
-    public int getSaveInterval() {
-        return saveInterval;
-    }
+        public Builder loggerFolder(@NotNull File loggerFolder) {
+            this.loggerFolder = loggerFolder;
+            return this;
+        }
 
-    public FileWriter getLoggerWriter() {
-        return loggerWriter;
-    }
+        public Builder fileName(@NotNull String fileName) {
+            this.fileName = fileName;
+            return this;
+        }
 
-    public BufferedWriter getLoggerBufferedWriter() {
-        return loggerBufferedWriter;
-    }
+        public Builder autoFlush(boolean autoFlush) {
+            this.autoFlush = autoFlush;
+            return this;
+        }
 
-    public long getNextDayMillis() {
-        return nextDayMillis;
-    }
-
-    public File getLoggerFile() {
-        return loggerFile;
+        public FileLogger build() {
+            return new FileLogger(this);
+        }
     }
 }
