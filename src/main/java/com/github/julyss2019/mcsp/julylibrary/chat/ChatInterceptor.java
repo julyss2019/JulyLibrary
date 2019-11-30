@@ -13,9 +13,9 @@ public class ChatInterceptor {
     private ChatListener chatListener;
     private Plugin plugin;
     private String playerName;
-    private int timeout = -1;
+    private int timeout;
     private long creationTime;
-    private boolean onlyFirst = true;
+    private boolean onlyFirst;
 
     private ChatInterceptor(Builder builder) {
         setChatListener(builder.chatListener);
@@ -93,7 +93,7 @@ public class ChatInterceptor {
     public static final class Builder {
         private ChatListener chatListener;
         private int timeout = -1;
-        private boolean onlyFirst;
+        private boolean onlyFirst = true;
         private String playerName;
         private Plugin plugin;
 

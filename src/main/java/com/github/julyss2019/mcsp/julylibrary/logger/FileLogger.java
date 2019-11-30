@@ -121,9 +121,13 @@ public class FileLogger {
      */
     private void checkFile() {
         String newFileName = escape(fileName);
+        boolean exists = false;
 
-        if (loggerFile == null || !newFileName.equalsIgnoreCase(loggerFile.getName())) {
-            close();
+        if (loggerFile == null || (exists =!newFileName.equalsIgnoreCase(loggerFile.getName()))) {
+            if (exists) {
+                close();
+            }
+
             // 重新定义新的文件
             this.loggerFile = new File(this.loggerFolder, newFileName);
 
@@ -212,7 +216,7 @@ public class FileLogger {
     public static final class Builder {
         private File loggerFolder;
         private String fileName;
-        private boolean autoFlush;
+        private boolean autoFlush = true;
 
         public Builder() {}
 
