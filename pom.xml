@@ -98,7 +98,7 @@
                 <configuration>
                     <finalName>${artifactId}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${win_output}</outputDirectory>
+                    <outputDirectory>${mac_output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>

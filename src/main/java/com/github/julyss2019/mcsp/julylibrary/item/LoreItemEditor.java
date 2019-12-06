@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class LoreItemEditor {
     private ItemStack itemStack;
@@ -18,10 +19,13 @@ public class LoreItemEditor {
     private boolean colored;
 
     private LoreItemEditor(ItemStack itemStack) {
-        this.itemStack = itemStack;
-        this.itemMeta = itemStack.getItemMeta();
-        List<String> tmp = itemMeta.getLore();
-        this.lores = tmp == null ? new ArrayList<>() : tmp;
+        if (!ItemUtil.isValidItem(itemStack)) {
+            throw new RuntimeException("物品不能为空");
+        }
+
+        this.itemStack = itemStack.clone();
+        this.itemMeta = this.itemStack.getItemMeta();
+        this.lores = Optional.ofNullable(itemMeta.getLore()).orElse(new ArrayList<>());
     }
 
     /**
@@ -73,14 +77,6 @@ public class LoreItemEditor {
     public LoreItemEditor colored() {
         this.colored = true;
         return this;
-    }
-
-    public static LoreItemEditor createNew(ItemStack itemStack) {
-        if (!ItemUtil.isValidItem(itemStack)) {
-            throw new RuntimeException("物品不能为空");
-        }
-
-        return new LoreItemEditor(itemStack.clone());
     }
 
     public ItemStack build() {
