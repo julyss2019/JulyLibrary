@@ -18,7 +18,7 @@ public class LoreItemEditor {
     private List<String> lores;
     private boolean colored;
 
-    private LoreItemEditor(ItemStack itemStack) {
+    public LoreItemEditor(ItemStack itemStack) {
         if (!ItemUtil.isValidItem(itemStack)) {
             throw new RuntimeException("物品不能为空");
         }

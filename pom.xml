@@ -8,6 +8,39 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
+    <profiles>
+        <profile>
+            <id>macbook</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <JulyLibrary.outputDirectory>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</JulyLibrary.outputDirectory>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <JulyLibrary.outputDirectory>G:\july_ss\mc_servers\1.12.2_paper\plugins</JulyLibrary.outputDirectory>
+            </properties>
+        </profile>
+    </profiles>
+
+
+    <properties>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <output>${JulyLibrary.outputDirectory}</output>
+    </properties>
+
+
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -59,13 +92,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mac_output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mac_output>
-        <win_output>G:\july_ss\mc_servers\1.12.2_paper\plugins</win_output>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -92,13 +118,30 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                    <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>当前系统: ${os.name}</echo>
+                                <echo>输出路径：${output}</echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
                     <finalName>${artifactId}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${mac_output}</outputDirectory>
+                    <outputDirectory>${output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
