@@ -17,7 +17,7 @@
                 </os>
             </activation>
             <properties>
-                <JulyLibrary.outputDirectory>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</JulyLibrary.outputDirectory>
+                <outputDirectory>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</outputDirectory>
             </properties>
         </profile>
         <profile>
@@ -28,7 +28,7 @@
                 </os>
             </activation>
             <properties>
-                <JulyLibrary.outputDirectory>G:\july_ss\mc_servers\1.12.2_paper\plugins</JulyLibrary.outputDirectory>
+                <outputDirectory>G:\july_ss\mc_servers\1.12.2_paper\plugins</outputDirectory>
             </properties>
         </profile>
     </profiles>
@@ -37,7 +37,7 @@
     <properties>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <output>${JulyLibrary.outputDirectory}</output>
+        <output>${outputDirectory}</output>
     </properties>
 
 

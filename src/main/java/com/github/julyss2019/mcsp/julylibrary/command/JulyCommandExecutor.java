@@ -3,12 +3,10 @@ package com.github.julyss2019.mcsp.julylibrary.command;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import com.github.julyss2019.mcsp.julylibrary.utils.ArrayUtil;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
@@ -78,23 +76,26 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
                 return true;
             }
 
+            String[] withoutFirstArgArgs = ArrayUtil.removeElementFromStrArray(args, 0);
+
             // 没有执行成功
-            if (!command.onCommand(cs, ArrayUtil.removeElementFromStrArray(args, 0))) {
+            if (!command.onCommand(cs, withoutFirstArgArgs)) {
                 boolean messageSent = false;
-                String[] arr = args;
 
-                while (!messageSent && arr.length > 0) {
-                    arr = ArrayUtil.removeElementFromStrArray(arr, arr.length - 1);
-
-                    // 匹配前缀
-                    for (String desc : command.getSubDescriptions()) {
-                        if (startsWithArgs(args[0] + " " + desc, arr)) {
-                            sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
-                            messageSent = true;
-                        }
+                for (String desc : command.getSubDescriptions()) {
+                    if (isStartWithArgs(desc, withoutFirstArgArgs)) {
+                        sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
+                        messageSent = true;
                     }
                 }
 
+                if (!messageSent) {
+                    for (String desc : command.getSubDescriptions()) {
+                        sendMessage( cs, "/" + label + " " + command.getFirstArg() + " " + desc);
+                    }
+
+                    return true;
+                }
             }
 
             return true;
@@ -121,7 +122,7 @@ public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
      * @param args
      * @return
      */
-    private boolean startsWithArgs(String s, String[] args) {
+    private boolean isStartWithArgs(String s, String[] args) {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < args.length; i++) {
