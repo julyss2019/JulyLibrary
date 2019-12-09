@@ -10,10 +10,10 @@
 
     <profiles>
         <profile>
-            <id>macbook</id>
+            <id>macOS</id>
             <activation>
                 <os>
-                    <family>Windows</family>
+                    <family>mac</family>
                 </os>
             </activation>
             <properties>
