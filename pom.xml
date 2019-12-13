@@ -17,7 +17,7 @@
                 </os>
             </activation>
             <properties>
-                <outputDirectory>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</outputDirectory>
+                <mcsp.output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mcsp.output>
             </properties>
         </profile>
         <profile>
@@ -28,7 +28,7 @@
                 </os>
             </activation>
             <properties>
-                <outputDirectory>G:\july_ss\mc_servers\1.12.2_paper\plugins</outputDirectory>
+                <mcsp.output>G:\july_ss\mc_servers\1.12.2_paper\plugins</mcsp.output>
             </properties>
         </profile>
     </profiles>
@@ -37,7 +37,6 @@
     <properties>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <output>${outputDirectory}</output>
     </properties>
 
 
@@ -128,7 +127,7 @@
                         <configuration>
                             <tasks>
                                 <echo>当前系统: ${os.name}</echo>
-                                <echo>输出路径：${output}</echo>
+                                <echo>输出路径：${mcsp.output}</echo>
                             </tasks>
                         </configuration>
                     </execution>
@@ -141,7 +140,7 @@
                 <configuration>
                     <finalName>${artifactId}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <outputDirectory>${output}</outputDirectory>
+                    <outputDirectory>${mcsp.output}</outputDirectory>
                     <!-- get all project dependencies -->
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
