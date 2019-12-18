@@ -4,11 +4,25 @@ import com.github.julyss2019.mcsp.julylibrary.item.ItemBuilder;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemUtil {
+    @Nullable
+    public static String getItemId(ItemStack itemStack) {
+        if (itemStack == null) {
+            return null;
+        }
+
+        int id = itemStack.getTypeId();
+        short data = itemStack.getDurability();
+
+        return id + (data == 0 ? "" : ":" + data);
+    }
+
+    @Deprecated
     public static ItemStack getItemByID(String idStr) {
         String[] aId = idStr.split(":");
 
