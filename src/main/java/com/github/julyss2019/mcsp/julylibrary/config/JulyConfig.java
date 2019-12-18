@@ -31,8 +31,8 @@ public class JulyConfig {
      * @param clazz 配置类（不需要实例化）
      * @return
      */
-    public static Object loadConfig(Plugin plugin, ConfigurationSection section, Class<?> clazz) {
-        Object obj = null;
+    public static <T> T loadConfig(Plugin plugin, ConfigurationSection section, Class<T> clazz) {
+        T obj = null;
 
         try {
             obj = clazz.newInstance();

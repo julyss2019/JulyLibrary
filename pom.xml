@@ -8,32 +8,6 @@
     <artifactId>JulyLibrary</artifactId>
     <version>RELEASE</version>
 
-    <profiles>
-        <profile>
-            <id>macOS</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <properties>
-                <mcsp.output>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins</mcsp.output>
-            </properties>
-        </profile>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                </os>
-            </activation>
-            <properties>
-                <mcsp.output>G:\july_ss\mc_servers\1.12.2_paper\plugins</mcsp.output>
-            </properties>
-        </profile>
-    </profiles>
-
-
     <properties>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -117,23 +91,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                    <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <echo>当前系统: ${os.name}</echo>
-                                <echo>输出路径：${mcsp.output}</echo>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4.1</version>
@@ -171,6 +128,32 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.julyss2019.maven.plugins</groupId>
+                <artifactId>os-copyer-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <copyers>
+                        <coper>
+                            <from>${build.directory}/${build.finalName}.jar</from>
+                            <operatingSystems>
+                                <operatingSystem>
+                                    <os>Mac OS X</os>
+                                    <to>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins/${artifactId}.jar</to>
+                                    <overwrite>true</overwrite>
+                                </operatingSystem>
+                            </operatingSystems>
+                        </coper>
+                    </copyers>
                 </configuration>
             </plugin>
         </plugins>
