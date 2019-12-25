@@ -142,16 +142,16 @@
                 <configuration>
                     <copyers>
                         <coper>
-                            <from>${build.directory}/${build.finalName}.jar</from>
+                            <source>${build.directory}/${build.finalName}.jar</source>
                             <operatingSystems>
                                 <operatingSystem>
                                     <name>Mac OS X</name>
-                                    <to>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins/${artifactId}.jar</to>
+                                    <dest>/Users/july_ss/Desktop/july_ss/mc_servers/1.12.2/plugins/${artifactId}.jar</dest>
                                     <overwrite>true</overwrite>
                                 </operatingSystem>
                                 <operatingSystem>
                                     <name>Windows 10</name>
-                                    <to>G:\july_ss\mc_servers\1.12.2_paper\plugins\${artifactId}.jar</to>
+                                    <dest>G:\july_ss\mc_servers\1.12.2_paper\plugins\${artifactId}.jar</dest>
                                     <overwrite>true</overwrite>
                                 </operatingSystem>
                             </operatingSystems>
