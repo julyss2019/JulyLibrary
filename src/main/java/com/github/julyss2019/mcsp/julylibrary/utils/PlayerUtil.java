@@ -22,7 +22,7 @@ public class PlayerUtil {
         boolean filter(ItemStack itemStack);
     }
 
-    public static boolean sendPacket(Player player, @NotNull Object packet) {
+    public static void sendPacket(Player player, @NotNull Object packet) {
         try
         {
             Object handle = player.getClass().getMethod("getHandle").invoke(player);
@@ -30,11 +30,8 @@ public class PlayerUtil {
 
             playerConnection.getClass().getMethod("sendPacket", packetClass).invoke(playerConnection, packet);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | NoSuchFieldException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
         }
-
-        return true;
     }
 
     public static boolean isOnline(Player player) {

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * 可通过 Title.Builder 构造出本类
  */
 public class Title {
-    public enum Type {TITLE, SUBTITLE}
+    public enum Type {TITLE, SUBTITLE, ACTIONBAR}
 
     private Title.Type titleType;
     private String text;

@@ -1,17 +1,33 @@
 package com.github.julyss2019.mcsp.julylibrary.config;
 
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 public class JulyConfig {
     @Deprecated
     public static void reloadConfig(Plugin plugin, ConfigurationSection section, Object obj) {
         setFields(plugin, section, obj);
+    }
+
+    /**
+     * 载入配置
+     * 不存在的值用 defaultSection 代替
+     * @param plugin
+     * @param section
+     * @param defaultSection
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T loadConfig(Plugin plugin, ConfigurationSection section, ConfigurationSection defaultSection, Class<T> clazz) {
+        T result = loadConfig(plugin, defaultSection, clazz);
+
+        loadConfig(plugin, section, result);
+        return result;
     }
 
     /**
@@ -32,15 +48,14 @@ public class JulyConfig {
      * @return
      */
     public static <T> T loadConfig(Plugin plugin, ConfigurationSection section, Class<T> clazz) {
-        T obj = null;
+        T obj;
 
         try {
             obj = clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        assert obj != null;
         setFields(plugin, section, obj);
         return obj;
     }
@@ -50,6 +65,8 @@ public class JulyConfig {
 
         // 反射获得所有变量
         for (Field field : clazz.getDeclaredFields()) {
+            String fieldName = field.getName();
+
             // 查看是否有Config注解
             if (field.isAnnotationPresent(Config.class)) {
                 Config configAnnotation = field.getAnnotation(Config.class);
@@ -62,32 +79,28 @@ public class JulyConfig {
 
                     if (fieldType == short.class) {
                         value = (short) section.getInt(configAnnotation.path());
-                    } else if (fieldType == Sound.class) { // 对 Sound 类的支持
-                        String soundName = section.getString(configPath);
-
-                        try {
-                            value = Sound.valueOf(soundName);
-                        } catch (Exception e) {
-                            plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " = " + soundName + " 不合法.");
-                        }
-                    } else if (fieldType == Material.class) {
-                        String materialName = section.getString(configPath);
-
-                        try {
-                            value = Material.valueOf(materialName);
-                        } catch (Exception e) {
-                            plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " = " + materialName + " 不合法.");
-                        }
                     } else {
-                        try {
+                        // 对 java.lang.Enum 类的支持
+                        Object[] enumConstants = fieldType.getEnumConstants();
+
+                        if (enumConstants != null && fieldType.getEnumConstants().length > 0) {
+                            for (Object enumObj : fieldType.getEnumConstants()) {
+                                try {
+                                    if (enumObj.getClass().getMethod("name").invoke(enumObj).equals(section.getString(configPath))) {
+                                        value = enumObj;
+                                    }
+                                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        } else {
                             value = section.get(configPath);
-                        } catch (Exception e) {
-                            plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " 不合法.");
                         }
                     }
 
-                    // 没值的情况
+                    // 没有有效值
                     if (value == null || value instanceof MemorySection) {
+                        plugin.getLogger().warning(clazz.getName() + " 中的 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为找不到合适的值.");
                         continue;
                     }
 
@@ -97,12 +110,12 @@ public class JulyConfig {
                     try {
                         field.set(obj, value);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
 
                     field.setAccessible(false);
                 } else {
-                    plugin.getLogger().warning(clazz.getName() + " 中 " + configPath + " 不存在.");
+                    plugin.getLogger().warning(clazz.getName() + " 中的 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
                 }
             }
         }

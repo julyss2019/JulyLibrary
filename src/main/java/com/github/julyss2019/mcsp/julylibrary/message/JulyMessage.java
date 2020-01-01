@@ -39,14 +39,10 @@ public class JulyMessage {
      * @param json
      * @return
      */
-    public static boolean broadcastRawMessage(String json) {
+    public static void broadcastRawMessage(String json) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!sendRawMessage(player, json)) {
-                return false;
-            }
+            sendRawMessage(player, json);
         }
-
-        return true;
     }
 
     /**
@@ -55,20 +51,15 @@ public class JulyMessage {
      * @param json
      * @return
      */
-    public static boolean sendRawMessage(Player player, String json) {
+    public static void sendRawMessage(Player player, String json) {
         try {
             Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, json);
             Object packet = packetPlayOutChatClass.getConstructor(chatBaseComponentClass).newInstance(chatBaseComponent);
 
-            if (!PlayerUtil.sendPacket(player, packet)) {
-                return false;
-            }
+            PlayerUtil.sendPacket(player, packet);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
         }
-
-        return true;
     }
 
     /**
@@ -171,7 +162,7 @@ public class JulyMessage {
 
             PlayerUtil.sendPacket(player, packet);
         } catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -181,23 +172,5 @@ public class JulyMessage {
      */
     public static boolean canUseTitle() {
         return packetPlayOutTitleClass != null;
-    }
-
-    /**
-     * 发送 Title
-     * @param player
-     * @param text
-     */
-    public static void sendColoredTitle(Player player, String text) {
-        sendTitle(player, new Title.Builder().type(Title.Type.TITLE).text(text).colored().build());
-    }
-
-    /**
-     * 发送 SubTitle
-     * @param player
-     * @param text
-     */
-    public static void sendColoredSubTitle(Player player, String text) {
-        sendTitle(player, new Title.Builder().type(Title.Type.SUBTITLE).text(text).colored().build());
     }
 }
