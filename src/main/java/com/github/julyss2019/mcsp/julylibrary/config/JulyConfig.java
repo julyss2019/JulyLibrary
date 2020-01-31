@@ -100,7 +100,7 @@ public class JulyConfig {
 
                     // 没有有效值
                     if (value == null || value instanceof MemorySection) {
-                        plugin.getLogger().warning(clazz.getName() + " 中的 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为找不到合适的值.");
+                        plugin.getLogger().warning(clazz.getName() + " 中的变量 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为找不到合适的值.");
                         continue;
                     }
 
@@ -115,7 +115,7 @@ public class JulyConfig {
 
                     field.setAccessible(false);
                 } else {
-                    plugin.getLogger().warning(clazz.getName() + " 中的 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
+                    plugin.getLogger().warning(clazz.getName() + " 中的变量 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
                 }
             }
         }

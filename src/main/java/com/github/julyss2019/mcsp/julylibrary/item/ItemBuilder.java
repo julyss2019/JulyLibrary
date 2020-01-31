@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class    ItemBuilder implements Cloneable {
+public class ItemBuilder implements Cloneable {
     private Material material;
     private short durability;
     private int amount = 1;
@@ -258,7 +259,14 @@ public class    ItemBuilder implements Cloneable {
      * @param value
      * @return
      */
+    @Deprecated
     public ItemBuilder addPlaceholder(String key, String value) {
+        placeholderMap.put(key, value);
+        return this;
+    }
+
+    @Deprecated
+    public ItemBuilder setInnerPlaceholder(String key, String value) {
         placeholderMap.put(key, value);
         return this;
     }
@@ -297,7 +305,7 @@ public class    ItemBuilder implements Cloneable {
                     profileField.setAccessible(true);
                     profileField.set(skullMeta, profile);
                 } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-                    e1.printStackTrace();
+                    throw new RuntimeException(e1);
                 }
             }
 
@@ -371,6 +379,7 @@ public class    ItemBuilder implements Cloneable {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     @Override
     public ItemBuilder clone() {
         try {

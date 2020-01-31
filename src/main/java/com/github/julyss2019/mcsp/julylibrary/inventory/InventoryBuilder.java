@@ -15,18 +15,23 @@ import java.util.Map;
 
 public class InventoryBuilder {
     private Inventory inventory;
-    private int rowCount = 0;
+    private int rowCount = -1;
     private String title = "";
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private InventoryListener inventoryListener;
     private boolean colored;
-    private InventoryEventFirer inventoryEventFirer = JulyLibrary.getInstance().getInventoryEventFirer();
+    private boolean cancelInteract = true;
 
     public InventoryBuilder() {}
 
     private boolean isValidRowCount(int rowCount) {
         return rowCount > 0 && rowCount < 7;
+    }
+
+    public InventoryBuilder cancelInteract(boolean b) {
+        this.cancelInteract = b;
+        return this;
     }
 
     /**
@@ -93,7 +98,7 @@ public class InventoryBuilder {
         }
 
         if (index < 0 || index > rowCount * 9) {
-            throw new IllegalArgumentException("索引不合法");
+            throw new IllegalArgumentException("索引不合法: " + index);
         }
 
         itemIndexMap.put(index, item);
@@ -193,21 +198,24 @@ public class InventoryBuilder {
 
         // 注册监听的物品
         if (this.itemListenerMap.size() > 0) {
-            List<IndexListenerItem> indexListenerItems = new ArrayList<>();
+            List<Item> items = new ArrayList<>();
 
             for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
-                indexListenerItems.add(new IndexListenerItem(entry.getKey(), entry.getValue()));
+                items.add(new Item(entry.getKey(), entry.getValue()));
             }
 
-            this.inventoryEventFirer.listenInventoryItems(this.inventory, indexListenerItems);
+            JulyLibrary.getInstance().getInventoryEventFirer().listenInventoryItems(this.inventory, items);
         }
 
         // 注册监听的背包
         if (this.inventoryListener != null) {
-            this.inventoryEventFirer.listenInventory(this.inventory, this.inventoryListener);
+            JulyLibrary.getInstance().getInventoryEventFirer().listenInventory(this.inventory, this.inventoryListener);
         }
 
-        this.inventoryEventFirer.cancelInteractInventory(this.inventory);
+        if (cancelInteract) {
+            JulyLibrary.getInstance().getInventoryEventFirer().cancelInventoryInteract(this.inventory);
+        }
+
         return this.inventory;
     }
 }

@@ -6,16 +6,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JulyMessage {
-    private static Class<?> chatBaseComponentClass = null;
-    private static Class<?> packetPlayOutTitleClass = null;
+    private static Class<?> chatBaseComponentClass;
+    private static Class<?> packetPlayOutTitleClass;
     private static Class<?> titleActionClass = null;
-    private static Class<?> packetPlayOutChatClass = null;
+    private static Class<?> packetPlayOutChatClass;
 
     /*
     初始化 Title 需要的类，因为必定会被 Bukkit 的 ClassLoader 加载，所以直接 static 就行
@@ -30,7 +31,7 @@ public class JulyMessage {
                 titleActionClass = packetPlayOutTitleClass.getDeclaredClasses()[0];
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("获取 NMS 类失败", e);
         }
     }
 
@@ -39,7 +40,7 @@ public class JulyMessage {
      * @param json
      * @return
      */
-    public static void broadcastRawMessage(String json) {
+    public static void broadcastRawMessage(@NotNull String json) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendRawMessage(player, json);
         }
@@ -51,7 +52,7 @@ public class JulyMessage {
      * @param json
      * @return
      */
-    public static void sendRawMessage(Player player, String json) {
+    public static void sendRawMessage(@NotNull Player player, @NotNull String json) {
         try {
             Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, json);
             Object packet = packetPlayOutChatClass.getConstructor(chatBaseComponentClass).newInstance(chatBaseComponent);
@@ -67,7 +68,7 @@ public class JulyMessage {
      * @param messages
      * @return
      */
-    public static List<String> toColoredMessages(List<String> messages) {
+    public static List<String> toColoredMessages(@NotNull List<String> messages) {
         List<String> result = new ArrayList<>();
 
         messages.forEach(s -> result.add(toColoredMessage(s)));
@@ -79,7 +80,7 @@ public class JulyMessage {
      * @param s
      * @return
      */
-    public static String toColoredMessage(String s) {
+    public static String toColoredMessage(@NotNull String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
     }
 
@@ -87,7 +88,7 @@ public class JulyMessage {
      * 发送一条空行
      * @param cs
      */
-    public static void sendBlankLine(CommandSender cs) {
+    public static void sendBlankLine(@NotNull CommandSender cs) {
         sendColoredMessage(cs, "");
     }
 
@@ -95,7 +96,7 @@ public class JulyMessage {
      * 广播带颜色的消息
      * @param msg
      */
-    public static void broadcastColoredMessage(String msg) {
+    public static void broadcastColoredMessage(@NotNull String msg) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendColoredMessage(player, msg);
         }
@@ -106,7 +107,7 @@ public class JulyMessage {
      * @param cs
      * @param messages
      */
-    public static void sendColoredMessages(CommandSender cs, String... messages) {
+    public static void sendColoredMessages(CommandSender cs, @NotNull String... messages) {
         for (String msg : messages) {
             sendColoredMessage(cs, msg);
         }
@@ -117,7 +118,7 @@ public class JulyMessage {
      * @param cs
      * @param messages
      */
-    public static void sendColoredMessages(CommandSender cs, List<String> messages) {
+    public static void sendColoredMessages(@NotNull CommandSender cs, @NotNull List<String> messages) {
         for (String msg : messages) {
             sendColoredMessage(cs, msg);
         }
@@ -128,7 +129,7 @@ public class JulyMessage {
      * @param cs
      * @param msg
      */
-    public static void sendColoredMessage(CommandSender cs, String msg) {
+    public static void sendColoredMessage(@NotNull CommandSender cs, @NotNull String msg) {
         cs.sendMessage(toColoredMessage(msg));
     }
 
@@ -137,7 +138,7 @@ public class JulyMessage {
      * @param title
      * @return
      */
-    public static void broadcastTitle(Title title) {
+    public static void broadcastTitle(@NotNull Title title) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             sendTitle(player, title);
         }
@@ -149,9 +150,9 @@ public class JulyMessage {
      * @param title
      * @return
      */
-    public static void sendTitle(Player player, Title title) {
+    public static void sendTitle(@NotNull Player player, @NotNull Title title) {
         if (!canUseTitle()) {
-            throw new RuntimeException("当前服务器版本(" + NMSUtil.SERVER_VERSION + ")不支持Title");
+            throw new RuntimeException("当前服务器版本 " + NMSUtil.SERVER_VERSION + " 不支持Title");
         }
 
         try {

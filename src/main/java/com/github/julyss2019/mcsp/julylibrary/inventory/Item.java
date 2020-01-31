@@ -1,10 +1,10 @@
 package com.github.julyss2019.mcsp.julylibrary.inventory;
 
-public class IndexListenerItem {
+public class Item {
     private int index;
     private ItemListener itemListener;
 
-    public IndexListenerItem(int index, ItemListener itemListener) {
+    public Item(int index, ItemListener itemListener) {
         this.index = index;
         this.itemListener = itemListener;
     }

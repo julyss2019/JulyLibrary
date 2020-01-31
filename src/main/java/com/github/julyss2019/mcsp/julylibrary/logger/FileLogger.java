@@ -123,20 +123,25 @@ public class FileLogger {
         String newFileName = escape(fileName);
         boolean exists = false;
 
-        if (loggerFile == null || (exists =!newFileName.equalsIgnoreCase(loggerFile.getName()))) {
+        if (loggerFile == null || (exists = !newFileName.equalsIgnoreCase(loggerFile.getName()))) {
             if (exists) {
                 close();
             }
 
             // 重新定义新的文件
             this.loggerFile = new File(this.loggerFolder, newFileName);
+            File parentFolder = loggerFile.getParentFile();
+
+            if (!parentFolder.exists() && !parentFolder.mkdirs()) {
+                throw new RuntimeException("创建父文件夹失败");
+            }
 
             try {
                 this.loggerWriter = new FileWriter(this.loggerFile, true);
                 this.loggerBufferedWriter = new BufferedWriter(this.loggerWriter);
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException("创建 Writer 失败");
+                throw new RuntimeException("创建 FileWriter 失败");
             }
         }
     }

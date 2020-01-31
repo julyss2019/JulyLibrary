@@ -18,10 +18,6 @@ public class PlayerUtil {
         packetClass = NMSUtil.getNMSClass("Packet");
     }
 
-    public interface ItemFilter {
-        boolean filter(ItemStack itemStack);
-    }
-
     public static void sendPacket(Player player, @NotNull Object packet) {
         try
         {
@@ -70,30 +66,20 @@ public class PlayerUtil {
     /**
      * 得到玩家背包物品数量
      * @param player
-     * @param itemFilter
+     * @param matcher
      * @return
      */
-    public static int getItemAmount(Player player, ItemFilter itemFilter) {
+    public static int getItemAmount(Player player, Matcher<ItemStack> matcher) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
 
         for (ItemStack itemStack : items) {
-            if (itemFilter.filter(itemStack)) {
+            if (matcher.match(itemStack)) {
                 totalAmount += itemStack.getAmount();
             }
         }
 
         return totalAmount;
-    }
-
-    /**
-     * 判断玩家背包中是否有至少一件目标物品
-     * @param player 玩家
-     * @param itemStackMatcher 物品匹配器
-     * @return
-     */
-    public static boolean hasItem(Player player, Matcher<ItemStack> itemStackMatcher) {
-        return hasEnoughItem(player, itemStackMatcher, 1);
     }
 
     /**
@@ -118,42 +104,14 @@ public class PlayerUtil {
         return totalAmount >= amount;
     }
 
-    @Deprecated
-    public static boolean hasItem(Player player, ItemFilter itemFilter, int amount) {
-        return hasEnoughItem(player, itemFilter, amount);
-    }
-
-    /**
-     * 是否有足够的物品
-     * @param player
-     * @param itemFilter
-     * @param amount
-     * @return
-     */
-    @Deprecated
-    public static boolean hasEnoughItem(Player player, ItemFilter itemFilter, int amount) {
-        int totalAmount = 0;
-        ItemStack[] items = player.getInventory().getContents();
-
-        for (int i = 0; i < items.length && totalAmount < amount; i++) {
-            ItemStack itemStack = items[i];
-
-            if (itemFilter.filter(itemStack)) {
-                totalAmount += itemStack.getAmount();
-            }
-        }
-
-        return totalAmount >= amount;
-    }
-
-    public static boolean takeItems(Player player, ItemFilter itemFilter, int takeAmount) {
+    public static boolean takeItems(Player player, Matcher<ItemStack> matcher, int takeAmount) {
         PlayerInventory playerInventory = player.getInventory();
         int tookAmount = 0;
 
         for (int i = 0; i < 36 && tookAmount < takeAmount; i++) {
             ItemStack itemStack = playerInventory.getItem(i);
 
-            if (itemFilter.filter(itemStack)) {
+            if (matcher.match(itemStack)) {
                 int itemAmount = itemStack.getAmount();
 
                 // 如果物品的数量超过剩下需要的数量

@@ -1,5 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary.inventory;
 
+import com.github.julyss2019.mcsp.julylibrary.event.ItemClickEvent;
+import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,13 +16,19 @@ import java.util.*;
  * 用于唤醒各种定义的事件
  */
 public class InventoryEventFirer implements Listener {
-    private Map<Inventory, List<IndexListenerItem>> itemListenerMap = new HashMap<>(); // 物品监听器
+    private Map<Inventory, List<Item>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
     private List<Inventory> cancelInteractInventories = new ArrayList<>();
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        Inventory clickedInventory = event.getClickedInventory();
+        Inventory clickedInventory;
+
+        if (NMSUtil.SERVER_VERSION.equalsIgnoreCase("v1_7_R4")) {
+            clickedInventory = event.getInventory();
+        } else {
+            clickedInventory = event.getClickedInventory();
+        }
 
         // 背包监听器或背包物品监听器
         if (cancelInteractInventories.contains(clickedInventory)) {
@@ -39,15 +48,25 @@ public class InventoryEventFirer implements Listener {
 
         // 背包物品监听器
         if (itemListenerMap.containsKey(clickedInventory)) {
-            for (IndexListenerItem indexListenerItem : itemListenerMap.get(clickedInventory)) {
-                if (event.getSlot() == indexListenerItem.getIndex()) {
-                    ItemListener itemListener = indexListenerItem.getItemListener();
+            for (Item item : itemListenerMap.get(clickedInventory)) {
+                if (event.getSlot() == item.getIndex()) {
+                    ItemListener itemListener = item.getItemListener();
+                    ItemClickEvent itemClickEvent = new ItemClickEvent(item, event);
 
-                    itemListener.onClicked(event); // 调用事件
+                    Bukkit.getPluginManager().callEvent(itemClickEvent);
 
-                    if (itemListenerMap.containsKey(clickedInventory)) {
-                        itemListener.onClick(event); // 调用事件
+                    if (itemClickEvent.isCancelled()) {
+                        return;
                     }
+
+                    itemListener.onClicked(event); // 调用老事件
+
+                    // 这时可能inv已经被关闭了
+                    if (itemListenerMap.containsKey(clickedInventory)) {
+                        itemListener.onClick(event); // 调用新事件
+                    }
+
+                    return;
                 }
             }
         }
@@ -101,17 +120,17 @@ public class InventoryEventFirer implements Listener {
         cancelInteractInventories.remove(inventory);
     }
 
-    void cancelInteractInventory(@NotNull Inventory inventory) {
+    void cancelInventoryInteract(@NotNull Inventory inventory) {
         cancelInteractInventories.add(inventory);
     }
 
     /**
      * 监听物品
      * @param inventory
-     * @param indexListenerItems
+     * @param items
      */
-    void listenInventoryItems(@NotNull Inventory inventory, @NotNull List<IndexListenerItem> indexListenerItems) {
-        itemListenerMap.put(inventory, indexListenerItems);
+    void listenInventoryItems(@NotNull Inventory inventory, @NotNull List<Item> items) {
+        itemListenerMap.put(inventory, items);
     }
 
     /**
@@ -127,11 +146,11 @@ public class InventoryEventFirer implements Listener {
      * 得到被监听的物品
      * @return
      */
-    public List<IndexListenerItem> getItemListeners() {
-        List<IndexListenerItem> resultList = new ArrayList<>();
+    public List<Item> getItemListeners() {
+        List<Item> resultList = new ArrayList<>();
 
-        for (List<IndexListenerItem> indexListenerItems : itemListenerMap.values()) {
-            resultList.addAll(indexListenerItems);
+        for (List<Item> items : itemListenerMap.values()) {
+            resultList.addAll(items);
 
         }
 
