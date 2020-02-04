@@ -24,7 +24,7 @@ public class InventoryEventFirer implements Listener {
     public void onInventoryClickEvent(InventoryClickEvent event) {
         Inventory clickedInventory;
 
-        if (NMSUtil.SERVER_VERSION.equalsIgnoreCase("v1_7_R4")) {
+        if (NMSUtil.NMS_VERSION.equalsIgnoreCase("v1_7_R4")) {
             clickedInventory = event.getInventory();
         } else {
             clickedInventory = event.getClickedInventory();

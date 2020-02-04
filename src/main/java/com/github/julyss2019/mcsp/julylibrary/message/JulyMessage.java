@@ -10,28 +10,31 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JulyMessage {
-    private static Class<?> chatBaseComponentClass;
+    private static final List<String> TITLE_NMS_VERSIONS = Arrays.asList("1_8_R1", "1_8_R2", "1_8_R3", "1_9_R1", "1_9_R2", "1_10_R1", "1_11_R1", "1_12_R1", "1_13_R1", "1_13_R2", "1_14_R1", "1_15_R1");
+    private static final List<String> RAW_NMS_VERSIONS = Arrays.asList("1.7_R1", "1.7_R2", "1.7_R3", "1.7_R4", "1_8_R1", "1_8_R2", "1_8_R3", "1_9_R1", "1_9_R2", "1_10_R1", "1_11_R1", "1_12_R1", "1_13_R1", "1_13_R2", "1_14_R1", "1_15_R1");
+    private static Class<?> ichatBaseComponentClass;
     private static Class<?> packetPlayOutTitleClass;
     private static Class<?> titleActionClass = null;
     private static Class<?> packetPlayOutChatClass;
+    private static Class<?> v1_7_ChatSerializerClass;
 
-    /*
-    初始化 Title 需要的类，因为必定会被 Bukkit 的 ClassLoader 加载，所以直接 static 就行
-     */
     static {
         try {
-            chatBaseComponentClass = NMSUtil.getNMSClass("IChatBaseComponent");
+            ichatBaseComponentClass = NMSUtil.getNMSClass("IChatBaseComponent");
             packetPlayOutTitleClass = NMSUtil.getNMSClass("PacketPlayOutTitle");
             packetPlayOutChatClass = NMSUtil.getNMSClass("PacketPlayOutChat");
 
             if (packetPlayOutTitleClass != null) {
                 titleActionClass = packetPlayOutTitleClass.getDeclaredClasses()[0];
             }
-        } catch (Exception e) {
-            throw new RuntimeException("获取 NMS 类失败", e);
+        } catch (Exception ignored) {}
+
+        if (NMSUtil.NMS_VERSION.equals("v1_7_R4") || NMSUtil.NMS_VERSION.equals("v1_7_R3") || NMSUtil.NMS_VERSION.equals("v1_7_R2") || NMSUtil.NMS_VERSION.equals("v1_7_R1")) {
+            v1_7_ChatSerializerClass = NMSUtil.getNMSClass("ChatSerializer");
         }
     }
 
@@ -53,9 +56,27 @@ public class JulyMessage {
      * @return
      */
     public static void sendRawMessage(@NotNull Player player, @NotNull String json) {
+        if (!canSendRawMessage()) {
+            throw new RuntimeException("当前版本不支持发送 Raw: " + NMSUtil.NMS_VERSION);
+        }
+
+        // 1.7版本支持
+        if (NMSUtil.NMS_VERSION.equals("v1_7_R4") || NMSUtil.NMS_VERSION.equals("v1_7_R3") || NMSUtil.NMS_VERSION.equals("v1_7_R2") || NMSUtil.NMS_VERSION.equals("v1_7_R1")) {
+            try {
+                Object chatBaseComponent = v1_7_ChatSerializerClass.getMethod("a", String.class).invoke(null, json);
+                Object packet = packetPlayOutChatClass.getConstructor(ichatBaseComponentClass).newInstance(chatBaseComponent);
+
+                PlayerUtil.sendPacket(player, packet);
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+
+            return;
+        }
+
         try {
-            Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, json);
-            Object packet = packetPlayOutChatClass.getConstructor(chatBaseComponentClass).newInstance(chatBaseComponent);
+            Object chatBaseComponent = ichatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, json);
+            Object packet = packetPlayOutChatClass.getConstructor(ichatBaseComponentClass).newInstance(chatBaseComponent);
 
             PlayerUtil.sendPacket(player, packet);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -152,13 +173,13 @@ public class JulyMessage {
      */
     public static void sendTitle(@NotNull Player player, @NotNull Title title) {
         if (!canUseTitle()) {
-            throw new RuntimeException("当前服务器版本 " + NMSUtil.SERVER_VERSION + " 不支持Title");
+            throw new RuntimeException("当前版本不支持发送 Title: " + NMSUtil.NMS_VERSION);
         }
 
         try {
             Object titleAction = titleActionClass.getField(title.getTitleType().name()).get(null); // 因为是 Enum 类，所以 Object 用 null
-            Object chatBaseComponent = chatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title.getText() + "\"}"); // 是静态方法，所以用 null
-            Object packet = packetPlayOutTitleClass.getDeclaredConstructor(titleActionClass, chatBaseComponentClass, int.class, int.class, int.class)
+            Object chatBaseComponent = ichatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + title.getText() + "\"}"); // 是静态方法，所以用 null
+            Object packet = packetPlayOutTitleClass.getDeclaredConstructor(titleActionClass, ichatBaseComponentClass, int.class, int.class, int.class)
                     .newInstance(titleAction, chatBaseComponent, title.getFadeIn(), title.getStay(), title.getFadeOut());
 
             PlayerUtil.sendPacket(player, packet);
@@ -168,10 +189,18 @@ public class JulyMessage {
     }
 
     /**
-     * 是否可以使用 Title
+     * 能否使用 Title
      * @return
      */
     public static boolean canUseTitle() {
-        return packetPlayOutTitleClass != null;
+        return TITLE_NMS_VERSIONS.contains(NMSUtil.NMS_VERSION);
+    }
+
+    /**
+     * 能否使用 raw
+     * @return
+     */
+    public static boolean canSendRawMessage() {
+        return RAW_NMS_VERSIONS.contains(NMSUtil.NMS_VERSION);
     }
 }

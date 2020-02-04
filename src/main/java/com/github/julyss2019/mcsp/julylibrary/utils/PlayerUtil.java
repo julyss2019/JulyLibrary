@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -69,7 +70,7 @@ public class PlayerUtil {
      * @param matcher
      * @return
      */
-    public static int getItemAmount(Player player, Matcher<ItemStack> matcher) {
+    public static int getItemAmount(Player player, Matcher<@Nullable ItemStack> matcher) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
 
@@ -89,7 +90,7 @@ public class PlayerUtil {
      * @param amount 数量
      * @return
      */
-    public static boolean hasEnoughItem(Player player, Matcher<ItemStack> itemStackMatcher, int amount) {
+    public static boolean hasEnoughItem(Player player, Matcher<@Nullable ItemStack> itemStackMatcher, int amount) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
 
@@ -104,7 +105,7 @@ public class PlayerUtil {
         return totalAmount >= amount;
     }
 
-    public static boolean takeItems(Player player, Matcher<ItemStack> matcher, int takeAmount) {
+    public static boolean takeItems(Player player, Matcher<@Nullable ItemStack> matcher, int takeAmount) {
         PlayerInventory playerInventory = player.getInventory();
         int tookAmount = 0;
 
