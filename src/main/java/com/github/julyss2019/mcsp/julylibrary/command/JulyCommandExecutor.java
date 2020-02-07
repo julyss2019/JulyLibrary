@@ -9,6 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
+@Deprecated
 public class JulyCommandExecutor implements org.bukkit.command.CommandExecutor {
     private Map<String, JulyCommand> commandMap = new HashMap<>(); // Key 可为 null
     private String prefix = "";

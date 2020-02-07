@@ -8,7 +8,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 public class JulyLibrary extends JavaPlugin implements Listener {
     private static JulyLibrary instance;

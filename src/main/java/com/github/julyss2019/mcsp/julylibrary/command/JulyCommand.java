@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public interface JulyCommand {
     boolean onCommand(CommandSender cs, String[] args);
 

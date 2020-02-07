@@ -129,7 +129,6 @@ public class YamlUtil {
         }
     }
 
-    @Deprecated
     public static Location getLocationFromSection(ConfigurationSection section) {
         return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
     }
@@ -144,7 +143,6 @@ public class YamlUtil {
      * @param section
      * @param location
      */
-    @Deprecated
     public static void setLocationToSection(@NotNull ConfigurationSection section, @NotNull Location location) {
         section.set("world", location.getWorld().getName());
         section.set("x", location.getX());

@@ -2,6 +2,7 @@ package com.github.julyss2019.mcsp.julylibrary.command.tab;
 
 import com.scalified.tree.multinode.ArrayMultiTreeNode;
 
+@Deprecated
 class Tab {
     private JulyTabCommand command;
     private ArrayMultiTreeNode<String> node;
@@ -20,7 +21,7 @@ class Tab {
     }
 
     /**
-     * 得到 JulyTabCommand
+     * 得到 JulyTabHandler
      * @return
      */
     JulyTabCommand getCommand() {

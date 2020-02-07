@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-
+@Deprecated
 public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
     private List<String> globalCommands = new ArrayList<>();
     private Map<String, Tab> globalTabMap = new HashMap<>();
@@ -22,7 +22,7 @@ public class JulyTabCompleter implements org.bukkit.command.TabCompleter {
     public void register(JulyTabCommand command) {
         TabCompleter tabCompleter = command.getTabCompleter();
 
-        Validate.notNull(tabCompleter, "JulyTabCommand 的 TabCompleter 不能为 null");
+        Validate.notNull(tabCompleter, "JulyTabHandler 的 TabCompleter 不能为 null");
         globalTabMap.putAll(tabCompleter.getTabMap());
         globalCommands.add(command.getFirstArg());
     }

@@ -156,7 +156,7 @@ public class InventoryBuilder {
     }
 
     /**
-     * 有色的
+     * 着色
      * @return
      */
     public InventoryBuilder colored() {
@@ -165,7 +165,7 @@ public class InventoryBuilder {
     }
 
     /**
-     * 是否有色
+     * 着色
      * @param b
      * @return
      */

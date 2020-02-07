@@ -11,11 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class JulyMessage {
-    private static final List<String> TITLE_NMS_VERSIONS = Arrays.asList("1_8_R1", "1_8_R2", "1_8_R3", "1_9_R1", "1_9_R2", "1_10_R1", "1_11_R1", "1_12_R1", "1_13_R1", "1_13_R2", "1_14_R1", "1_15_R1");
-    private static final List<String> RAW_NMS_VERSIONS = Arrays.asList("1.7_R1", "1.7_R2", "1.7_R3", "1.7_R4", "1_8_R1", "1_8_R2", "1_8_R3", "1_9_R1", "1_9_R2", "1_10_R1", "1_11_R1", "1_12_R1", "1_13_R1", "1_13_R2", "1_14_R1", "1_15_R1");
+    private static final List<String> TITLE_NMS_VERSIONS = Arrays.asList("v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1");
+    private static final List<String> RAW_NMS_VERSIONS = Arrays.asList("v1_7_R1", "v1_7_R2", "v1_7_R3", "v1_7_R4", "v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1");
     private static Class<?> ichatBaseComponentClass;
     private static Class<?> packetPlayOutTitleClass;
     private static Class<?> titleActionClass = null;
@@ -60,6 +61,11 @@ public class JulyMessage {
             throw new RuntimeException("当前版本不支持发送 Raw: " + NMSUtil.NMS_VERSION);
         }
 
+        if (Bukkit.getServer().getName().equals("Cauldron")) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + json);
+            return;
+        }
+
         // 1.7版本支持
         if (NMSUtil.NMS_VERSION.equals("v1_7_R4") || NMSUtil.NMS_VERSION.equals("v1_7_R3") || NMSUtil.NMS_VERSION.equals("v1_7_R2") || NMSUtil.NMS_VERSION.equals("v1_7_R1")) {
             try {
@@ -89,6 +95,7 @@ public class JulyMessage {
      * @param messages
      * @return
      */
+    @Deprecated
     public static List<String> toColoredMessages(@NotNull List<String> messages) {
         List<String> result = new ArrayList<>();
 
@@ -101,6 +108,7 @@ public class JulyMessage {
      * @param s
      * @return
      */
+    @Deprecated
     public static String toColoredMessage(@NotNull String s) {
         return ChatColor.translateAlternateColorCodes('&', s);
     }
@@ -134,12 +142,17 @@ public class JulyMessage {
         }
     }
 
+    @Deprecated
+    public static void sendColoredMessages(@NotNull CommandSender cs, @NotNull List<String> messages) {
+        sendColoredMessages(cs, (Collection<String>) messages);
+    }
+
     /**
      * 发送多条消息
      * @param cs
      * @param messages
      */
-    public static void sendColoredMessages(@NotNull CommandSender cs, @NotNull List<String> messages) {
+    public static void sendColoredMessages(@NotNull CommandSender cs, @NotNull Collection<String> messages) {
         for (String msg : messages) {
             sendColoredMessage(cs, msg);
         }
@@ -152,6 +165,57 @@ public class JulyMessage {
      */
     public static void sendColoredMessage(@NotNull CommandSender cs, @NotNull String msg) {
         cs.sendMessage(toColoredMessage(msg));
+    }
+
+    /**
+     * 发送消息如果在线
+     * @param player
+     * @param messages 信息
+     * @return 是否发送成功
+     */
+    public static boolean sendColoredMessageIfOnline(@NotNull Player player, @NotNull Collection<String> messages) {
+        if (!PlayerUtil.isOnline(player)) {
+            return false;
+        }
+
+        for (String msg : messages) {
+            sendColoredMessage(player, msg);
+        }
+
+        return true;
+    }
+
+    /**
+     * 发送消息如果再想
+     * @param player
+     * @param messages 信息
+     * @return 是否发送成功
+     */
+    public static boolean sendColoredMessageIfOnline(@NotNull Player player, @NotNull String... messages) {
+        if (!PlayerUtil.isOnline(player)) {
+            return false;
+        }
+
+        for (String msg : messages) {
+            sendColoredMessage(player, msg);
+        }
+
+        return true;
+    }
+
+    /**
+     * 发送消息如果再想
+     * @param player
+     * @param msg
+     * @return 是否发送成功
+     */
+    public static boolean sendColoredMessageIfOnline(@NotNull Player player, @NotNull String msg) {
+        if (!PlayerUtil.isOnline(player)) {
+            return false;
+        }
+
+        sendColoredMessage(player, msg);
+        return true;
     }
 
     /**

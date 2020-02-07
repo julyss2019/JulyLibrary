@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ListUtil {
+    @Deprecated
     public static List<String> toLowercaseList(List<String> list) {
         List<String> newList = new ArrayList<>();
 
@@ -15,6 +16,7 @@ public class ListUtil {
         return newList;
     }
 
+    @Deprecated
     public static List<String> replacePlaceholders(List<String> strList, Map<String, String> placeholderMap) {
         List<String> result = new ArrayList<>();
 

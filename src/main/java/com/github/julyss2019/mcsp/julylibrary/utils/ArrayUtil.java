@@ -1,5 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 
 public class ArrayUtil {
@@ -9,7 +11,7 @@ public class ArrayUtil {
      * @param index 索引，从0开始
      * @return
      */
-    public static String[] removeElementFromStrArray(String[] arr, int index) {
+    public static String[] removeElementFromStrArray(@NotNull String[] arr, int index) {
         String[] newArr = Arrays.copyOf(arr, arr.length);
 
         for (int i = 0; i < newArr.length - index - 1; i++) {

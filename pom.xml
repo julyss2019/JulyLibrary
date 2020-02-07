@@ -157,6 +157,7 @@
                                     <name>Windows 10</name>
                                     <dests>
                                         <dest>G:\july_ss\mc_servers\1.7.10_kc\plugins\${artifactId}.jar</dest>
+                                        <dest>G:\july_ss\mc_servers\1.7.10_contigo\plugins\${artifactId}.jar</dest>
                                         <dest>G:\july_ss\mc_servers\1.12.2_paper\plugins\${artifactId}.jar</dest>
                                         <dest>G:\july_ss\mc_servers\1.12.2_catserver\plugins\${artifactId}.jar</dest>
                                         <dest>G:\july_ss\mc_servers\1.7.2_paper\plugins\${artifactId}.jar</dest>

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class TabCompleter {
     private JulyTabCommand command;
     private Map<String, Tab> tabMap;

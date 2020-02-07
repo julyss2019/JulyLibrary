@@ -1,9 +1,11 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.*;
 
 public class FileUtil {
-    public static StringBuilder readLines(File file) {
+    public static StringBuilder readLines(@NotNull File file) {
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -20,7 +22,7 @@ public class FileUtil {
         return sb;
     }
 
-    public static String getFileName(File file) {
+    public static String getFileName(@NotNull File file) {
         String tmp = file.getName();
 
         return tmp.substring(0, tmp.lastIndexOf("."));

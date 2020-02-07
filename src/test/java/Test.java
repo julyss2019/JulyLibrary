@@ -1,17 +1,12 @@
-import com.github.julyss2019.mcsp.julylibrary.logger.FileLogger;
-import com.github.julyss2019.mcsp.julylibrary.utils.FileUtil;
-import org.bukkit.Sound;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import com.github.julyss2019.mcsp.julylibrary.commandv2.tab.Tab;
 
 public class Test {
-    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
-        Map<String, String> map = new HashMap<>();
+    public static void main(String[] args) {
+        Tab tab = new Tab("test");
 
-        System.out.println(map.values().getClass());
+        tab.addSubTab(new Tab("t1").addSubTab(new Tab("t")).addSubTab(new Tab("tt")));
+        tab.addSubTab(new Tab("t2"));
+
+        System.out.println(tab.toString());
     }
 }
