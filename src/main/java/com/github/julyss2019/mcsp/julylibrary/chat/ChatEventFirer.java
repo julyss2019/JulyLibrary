@@ -11,8 +11,8 @@ public class ChatEventFirer implements Listener {
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
 
-        if (JulyChatInterceptor.hasChatInterceptor(player)) {
-            ChatInterceptor chatInterceptor = JulyChatInterceptor.getChatInterceptor(player);
+        if (ChatInterceptorManager.hasChatInterceptor(player)) {
+            ChatInterceptor chatInterceptor = ChatInterceptorManager.getChatInterceptor(player);
             ChatListener chatListener = chatInterceptor.getChatListener();
 
             event.setCancelled(true);
@@ -25,7 +25,7 @@ public class ChatEventFirer implements Listener {
             }
 
             if (chatInterceptor.isOnlyFirst()) {
-                JulyChatInterceptor.unregisterChatInterceptor(player);
+                ChatInterceptorManager.unregisterChatInterceptor(player);
             }
         }
     }
@@ -37,6 +37,6 @@ public class ChatEventFirer implements Listener {
     public void onPlayerQuitEvent(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        JulyChatInterceptor.unregisterChatInterceptor(player);
+        ChatInterceptorManager.unregisterChatInterceptor(player);
     }
 }

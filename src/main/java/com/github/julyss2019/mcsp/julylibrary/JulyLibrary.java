@@ -1,7 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
 import com.github.julyss2019.mcsp.julylibrary.chat.ChatEventFirer;
-import com.github.julyss2019.mcsp.julylibrary.chat.JulyChatInterceptor;
+import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorManager;
 import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventFirer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
@@ -35,7 +35,7 @@ public class JulyLibrary extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
-        JulyChatInterceptor.unregisterAll();
+        ChatInterceptorManager.unregisterAll();
         HandlerList.unregisterAll((Plugin) instance);
         getLogger().info("插件被卸载.");
     }

@@ -83,11 +83,11 @@ public class ChatInterceptor {
     }
 
     public void register() {
-        JulyChatInterceptor.registerChatInterceptor(this);
+        ChatInterceptorManager.registerChatInterceptor(this);
     }
 
     public void unregister() {
-        JulyChatInterceptor.unregisterChatInterceptor(playerName);
+        ChatInterceptorManager.unregisterChatInterceptor(playerName);
     }
 
     public static final class Builder {

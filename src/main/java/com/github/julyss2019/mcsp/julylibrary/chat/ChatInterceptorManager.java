@@ -10,8 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Deprecated
-public class JulyChatInterceptor {
+public class ChatInterceptorManager {
     private static Map<String, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
 
     /**

@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -26,5 +27,56 @@ public class FileUtil {
         String tmp = file.getName();
 
         return tmp.substring(0, tmp.lastIndexOf("."));
+    }
+
+    /**
+     * 创建jar包内的资源文件（如果不存在）
+     * @param fileName
+     * @param outFile
+     */
+    private void saveResourceFile(@NotNull Plugin plugin, @NotNull String fileName, @NotNull File outFile, boolean replace) {
+        File outParentFile = outFile.getParentFile();
+
+        // 创建父文件夹
+        if (!outParentFile.exists() && !outParentFile.mkdirs()) {
+            throw new RuntimeException("创建文件夹失败: " + outParentFile.getAbsolutePath());
+        }
+
+        if (!outFile.exists() && !replace) {
+            InputStream in = null;
+            FileOutputStream out = null;
+
+            try {
+                in = plugin.getResource(fileName);
+                out = new FileOutputStream(outFile);
+                byte[] buf = new byte[1024];
+                int len;
+
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+
+                out.close();
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

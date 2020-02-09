@@ -52,7 +52,7 @@ public class JulyTabHandler implements TabCompleter {
         Tab finalTab = tabMap.get(args[0]);
 
         if (finalTab == null) {
-            return new ArrayList<>();
+            return null;
         }
 
         // 递归得到最终 Tab
@@ -62,12 +62,12 @@ public class JulyTabHandler implements TabCompleter {
             if (finalTab.hasSubTab(arg)) {
                 finalTab = finalTab.getSubTab(arg);
             } else {
-                return new ArrayList<>();
+                return null;
             }
         }
 
         if (finalTab == null) {
-            return new ArrayList<>();
+            return null;
         }
 
         List<String> result = new ArrayList<>();
@@ -79,7 +79,7 @@ public class JulyTabHandler implements TabCompleter {
             }
         }
 
-        return result;
+        return result.size() == 0 ? null : result;
     }
 
     @Override

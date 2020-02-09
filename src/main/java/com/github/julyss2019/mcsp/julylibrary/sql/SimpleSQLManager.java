@@ -1,12 +1,13 @@
 package com.github.julyss2019.mcsp.julylibrary.sql;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class SQLManager {
+public class SimpleSQLManager {
     private String driver;
     private String url;
     private String user;
@@ -14,7 +15,11 @@ public class SQLManager {
     private boolean connected;
     private Connection connection;
 
-    public SQLManager(@NotNull String driver, @NotNull String url, @NotNull String user, @NotNull String password) {
+    public SimpleSQLManager(@NotNull String driver, @NotNull String url) {
+        this(driver, url, null, null);
+    }
+
+    public SimpleSQLManager(@NotNull String driver, @NotNull String url, @Nullable String user, @Nullable String password) {
         this.driver = driver;
         this.url = url;
         this.user = user;
@@ -49,7 +54,7 @@ public class SQLManager {
         }
 
         try {
-            this.connection = DriverManager.getConnection(url, user, password);
+            this.connection = (password == null || user == null) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, user, password);
             this.connected = true;
         } catch (SQLException e) {
             throw new RuntimeException("连接失败", e);
