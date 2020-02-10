@@ -24,7 +24,6 @@ public class NMSUtil {
     public static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     public static final String NMS_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
-
     /**
      * 得到NMS类
      * @param name 类名

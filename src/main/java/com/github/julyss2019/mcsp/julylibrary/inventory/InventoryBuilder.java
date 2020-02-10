@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class InventoryBuilder {
     private Inventory inventory;
-    private int rowCount = -1;
+    private int row = -1;
     private String title = "";
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
@@ -39,6 +39,7 @@ public class InventoryBuilder {
      * @param itemStack
      * @return
      */
+    @Deprecated
     public InventoryBuilder fillAll(@NotNull ItemStack itemStack) {
         fillAll(itemStack, true);
         return this;
@@ -50,12 +51,13 @@ public class InventoryBuilder {
      * @param replace 覆盖
      * @return
      */
+    @Deprecated
     public InventoryBuilder fillAll(@NotNull ItemStack itemStack, boolean replace) {
-        if (!isValidRowCount(this.rowCount)) {
+        if (!isValidRowCount(this.row)) {
             throw new IllegalArgumentException("行数未设置");
         }
 
-        for (int i = 0; i < this.rowCount * 9; i++) {
+        for (int i = 0; i < this.row * 9; i++) {
             if (replace || itemIndexMap.containsKey(i)) {
                 item(i, itemStack);
             }
@@ -74,7 +76,7 @@ public class InventoryBuilder {
             throw new IllegalArgumentException("行数不合法");
         }
 
-        this.rowCount = row;
+        this.row = row;
         return this;
     }
 
@@ -93,12 +95,8 @@ public class InventoryBuilder {
     }
 
     public InventoryBuilder item(int index, @NotNull ItemStack item, @Nullable ItemListener itemListener) {
-        if (rowCount == -1) {
-            throw new IllegalArgumentException("行数未设置");
-        }
-
-        if (index < 0 || index > rowCount * 9) {
-            throw new IllegalArgumentException("索引不合法: " + index);
+        if (index < 0 || index > 54) {
+            throw new RuntimeException("索引不合法: " + index);
         }
 
         itemIndexMap.put(index, item);
@@ -185,11 +183,17 @@ public class InventoryBuilder {
     }
 
     public Inventory build() {
-        if (this.rowCount == -1) {
+        if (this.row == -1) {
             throw new IllegalArgumentException("行数未设置");
         }
 
-        this.inventory = Bukkit.createInventory(null, this.rowCount * 9, this.colored ? JulyMessage.toColoredMessage(this.title) : this.title);
+        itemIndexMap.keySet().forEach(integer -> {
+            if (integer >= row * 9) {
+                throw new RuntimeException("索引越界: " + integer + ", Size: " + (row * 9));
+            }
+        });
+
+        this.inventory = Bukkit.createInventory(null, this.row * 9, this.colored ? JulyMessage.toColoredMessage(this.title) : this.title);
 
         // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : itemIndexMap.entrySet()) {
@@ -204,16 +208,16 @@ public class InventoryBuilder {
                 items.add(new Item(entry.getKey(), entry.getValue()));
             }
 
-            JulyLibrary.getInstance().getInventoryEventFirer().listenInventoryItems(this.inventory, items);
+            JulyLibrary.getInstance().getInventoryEventCaller().listenInventoryItems(this.inventory, items);
         }
 
         // 注册监听的背包
         if (this.inventoryListener != null) {
-            JulyLibrary.getInstance().getInventoryEventFirer().listenInventory(this.inventory, this.inventoryListener);
+            JulyLibrary.getInstance().getInventoryEventCaller().addInventoryListener(this.inventory, this.inventoryListener);
         }
 
-        if (cancelInteract) {
-            JulyLibrary.getInstance().getInventoryEventFirer().cancelInventoryInteract(this.inventory);
+        if (this.cancelInteract) {
+            JulyLibrary.getInstance().getInventoryEventCaller().addCancelIntercatInventory(this.inventory);
         }
 
         return this.inventory;

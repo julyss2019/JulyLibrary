@@ -1,8 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
-import com.github.julyss2019.mcsp.julylibrary.chat.ChatEventFirer;
+import com.github.julyss2019.mcsp.julylibrary.chat.ChatEventCaller;
 import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorManager;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventFirer;
+import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventCaller;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -11,18 +11,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JulyLibrary extends JavaPlugin implements Listener {
     private static JulyLibrary instance;
-    private InventoryEventFirer inventoryEventFirer;
+    private InventoryEventCaller inventoryEventCaller;
 
     @Override
     public void onEnable() {
         instance = this;
 
-        Bukkit.getPluginManager().registerEvents(this.inventoryEventFirer = new InventoryEventFirer(), this);
-        Bukkit.getPluginManager().registerEvents(new ChatEventFirer(), this);
+        Bukkit.getPluginManager().registerEvents(this.inventoryEventCaller = new InventoryEventCaller(), this);
+        Bukkit.getPluginManager().registerEvents(new ChatEventCaller(), this);
         getCommand("jl").setExecutor((cs, command, s, args) -> {
             if (args.length == 1 && args[0].equalsIgnoreCase("monitor")) {
-                cs.sendMessage("item_listener: " + inventoryEventFirer.getItemListeners().size());
-                cs.sendMessage("inventory_listener: " + inventoryEventFirer.getInventoryListeners().size());
+                cs.sendMessage("item_listener: " + inventoryEventCaller.getItemListeners().size());
+                cs.sendMessage("inventory_listener: " + inventoryEventCaller.getInventoryListeners().size());
                 return true;
             }
 
@@ -44,8 +44,8 @@ public class JulyLibrary extends JavaPlugin implements Listener {
      * 得到背包事件触发器
      * @return
      */
-    public InventoryEventFirer getInventoryEventFirer() {
-        return inventoryEventFirer;
+    public InventoryEventCaller getInventoryEventCaller() {
+        return inventoryEventCaller;
     }
 
     public static JulyLibrary getInstance() {

@@ -1,8 +1,9 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
 import com.github.julyss2019.mcsp.julylibrary.Matcher;
-import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
+import com.github.julyss2019.mcsp.julylibrary.message.JulyText;
 import com.github.julyss2019.mcsp.julylibrary.utils.ItemUtil;
+import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class LoreItemEditor {
     private ItemStack itemStack;
@@ -28,11 +31,17 @@ public class LoreItemEditor {
         this.lores = Optional.ofNullable(itemMeta.getLore()).orElse(new ArrayList<>());
     }
 
+    public LoreItemEditor clearLores() {
+        lores.clear();
+        return this;
+    }
+
     /**
      * 根据匹配器删除lore
      * @param matcher
      * @return
      */
+    @Deprecated
     public LoreItemEditor remove(Matcher<String> matcher) {
         List<String> resultList = new ArrayList<>();
 
@@ -50,14 +59,42 @@ public class LoreItemEditor {
         return this;
     }
 
-    public LoreItemEditor addLore(@Nullable String lore) {
-        if (lore != null) {
-            lores.add(lore);
-        }
-
+    /**
+     * 删除lore
+     * @param predicate 条件
+     * @return
+     */
+    public LoreItemEditor removeLore(@NotNull Predicate<String> predicate) {
+        lores.removeIf(predicate);
         return this;
     }
 
+    /**
+     * 删除lore
+     * @param index 索引
+     * @return
+     */
+    public LoreItemEditor removeLore(int index) {
+        lores.remove(index);
+        return this;
+    }
+
+    /**
+     * 添加lore
+     * @param lore
+     * @return
+     */
+    public LoreItemEditor addLore(@NotNull String lore) {
+        lores.add(lore);
+        return this;
+    }
+
+    /**
+     * 插入lore
+     * @param index
+     * @param lore
+     * @return
+     */
     public LoreItemEditor insertLore(int index, @Nullable String lore) {
         if (lore != null) {
             lores.add(index, lore);
@@ -66,28 +103,44 @@ public class LoreItemEditor {
         return this;
     }
 
-    public LoreItemEditor addLore(Collection<String> lores) {
-        for (String lore : lores) {
-            addLore(lore);
-        }
-
+    /**
+     * 添加lore
+     * @param lores
+     * @return
+     */
+    public LoreItemEditor addLores(@NotNull Collection<String> lores) {
+        lores.forEach(this::addLore);
         return this;
     }
 
+    /**
+     * 设置lores
+     * @param lores
+     * @return
+     */
+    public LoreItemEditor setLores(@NotNull Collection<String> lores) {
+        clearLores();
+        addLores(lores);
+        return this;
+    }
+
+    /**
+     * 着色
+     * @return
+     */
     public LoreItemEditor colored() {
         this.colored = true;
         return this;
     }
 
+    @Deprecated
     public ItemStack build() {
+        return get();
+    }
+
+    public ItemStack get() {
         if (colored) {
-            List<String> coloredLores = new ArrayList<>();
-
-            for (String lore : lores) {
-                coloredLores.add(JulyMessage.toColoredMessage(lore));
-            }
-
-            itemMeta.setLore(coloredLores);
+            itemMeta.setLore(lores.stream().map(JulyText::getColoredText).collect(Collectors.toList()));
         } else {
             itemMeta.setLore(lores);
         }

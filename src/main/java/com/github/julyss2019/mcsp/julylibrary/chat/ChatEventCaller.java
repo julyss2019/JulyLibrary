@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class ChatEventFirer implements Listener {
+public class ChatEventCaller implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onAsyncPlayerChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();

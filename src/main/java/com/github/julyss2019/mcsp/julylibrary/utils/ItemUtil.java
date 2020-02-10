@@ -17,9 +17,9 @@ public class ItemUtil {
      * @param itemStack
      * @return
      */
-    public static @Nullable String getItemId(@NotNull ItemStack itemStack) {
+    public static @Nullable String getItemId(ItemStack itemStack) {
         if (!isValidItem(itemStack)) {
-            throw new RuntimeException("物品不合法");
+            return null;
         }
 
         int id = itemStack.getTypeId();
@@ -33,17 +33,45 @@ public class ItemUtil {
      * @param itemStack
      * @return
      */
-    public static boolean isValidItem(@Nullable ItemStack itemStack) {
+    public static boolean isValidItem(ItemStack itemStack) {
         return itemStack != null && itemStack.getItemMeta() != null;
     }
 
     /**
+     * 得到物品指定索引的lore
+     * @param itemStack 允许无效物品
+     * @param index
+     * @return
+     */
+    public static String getLore(ItemStack itemStack, int index) {
+        if (index < 0) {
+            throw new RuntimeException("索引不合法: " + index);
+        }
+
+        if (!isValidItem(itemStack)) {
+            return null;
+        }
+
+        List<String> lores = itemStack.getItemMeta().getLore();
+
+        if (lores == null) {
+            return null;
+        }
+
+        if (index >= lores.size()) {
+            return null;
+        }
+
+        return lores.get(index);
+    }
+
+    /**
      * 判断物品是否包含指定lore
-     * @param itemStack
+     * @param itemStack 允许无效物品
      * @param lore
      * @return
      */
-    public static boolean containsLore(@Nullable ItemStack itemStack, @NotNull String lore) {
+    public static boolean containsLore(ItemStack itemStack, @NotNull String lore) {
         if (!isValidItem(itemStack)) {
             return false;
         }
@@ -55,10 +83,10 @@ public class ItemUtil {
 
     /**
      * 得到物品lore
-     * @param itemStack
-     * @return 不为空的`List
+     * @param itemStack 允许无效物品
+     * @return 不为null的List
      */
-    public static List<String> getLores(@Nullable ItemStack itemStack) {
+    public static List<String> getLores(ItemStack itemStack) {
         if (!isValidItem(itemStack)) {
             return new ArrayList<>();
         }
@@ -88,7 +116,9 @@ public class ItemUtil {
         }
 
         if (section.contains("data")) {
-            itemBuilder.data((short) section.getInt("data"));
+            itemBuilder.data((short) section.getInt("data")); // 启用
+        } else if (section.contains("durability")) {
+            itemBuilder.durability((short) section.getInt("durability"));
         }
 
         return itemBuilder;
@@ -116,23 +146,34 @@ public class ItemUtil {
         return newItemStack;
     }
 
-    @Deprecated
-    public static ItemStack getItemByID(String idStr) {
-        String[] aId = idStr.split(":");
-
-        for (String id : aId) {
-            if (id.matches("[0-9]+")) {
-                throw new RuntimeException("非法的ID");
-            }
+    /**
+     * 设置物品lore
+     * @param itemStack 合法物品
+     * @param lores
+     * @return
+     */
+    public static ItemStack setLores(ItemStack itemStack, @Nullable List<String> lores) {
+        if (!isValidItem(itemStack)) {
+            throw new RuntimeException("物品不合法");
         }
 
-        return new ItemStack(Integer.parseInt(aId[0]), 1, aId.length == 1 ? 0 : Short.parseShort(aId[1]));
+        ItemStack resultItemStack = itemStack.clone();
+        ItemMeta resultItemStackMeta = resultItemStack.getItemMeta();
+
+        resultItemStackMeta.setLore(lores);
+        resultItemStack.setItemMeta(resultItemStackMeta);
+        return resultItemStack;
     }
 
-    @Deprecated
-    public static ItemStack addLore(ItemStack itemStack, String lore) {
+    /**
+     * 添加lore
+     * @param itemStack 合法物品
+     * @param lore
+     * @return
+     */
+    public static ItemStack addLore(ItemStack itemStack, @NotNull String lore) {
         if (!isValidItem(itemStack)) {
-            return null;
+            throw new RuntimeException("物品不合法");
         }
 
         ItemStack resultItem = itemStack.clone();
@@ -143,6 +184,23 @@ public class ItemUtil {
         resultItemMeta.setLore(lores);
         resultItem.setItemMeta(resultItemMeta);
         return resultItem;
+    }
+
+    /**
+     * 通过ID获得物品
+     * @param idStr
+     * @return
+     */
+    public static ItemStack getItemByID(String idStr) {
+        String[] aId = idStr.split(":");
+
+        for (String id : aId) {
+            if (id.matches("[0-9]+")) {
+                throw new RuntimeException("非法的ID");
+            }
+        }
+
+        return new ItemStack(Integer.parseInt(aId[0]), 1, aId.length == 1 ? 0 : Short.parseShort(aId[1]));
     }
 
     @Deprecated

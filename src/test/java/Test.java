@@ -1,14 +1,17 @@
 import com.github.julyss2019.mcsp.julylibrary.commandv2.SubCommandHandler;
 import com.github.julyss2019.mcsp.julylibrary.commandv2.tab.Tab;
+import org.bukkit.Material;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Test {
     public static void main(String[] args) {
-        Tab tab = new Tab("test");
+        for (Material material : Material.values()) {
+            System.out.println(material.name());
+        }
 
-        tab.addSubTab(new Tab("t1").addSubTab(new Tab("t")).addSubTab(new Tab("tt")));
-        tab.addSubTab(new Tab("t2"));
 
-        System.out.println(tab.toString());
     }
 
 

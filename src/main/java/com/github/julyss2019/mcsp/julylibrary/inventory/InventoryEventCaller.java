@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * 用于唤醒各种定义的事件
  */
-public class InventoryEventFirer implements Listener {
+public class InventoryEventCaller implements Listener {
     private Map<Inventory, List<Item>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
     private List<Inventory> cancelInteractInventories = new ArrayList<>();
@@ -120,7 +120,7 @@ public class InventoryEventFirer implements Listener {
         cancelInteractInventories.remove(inventory);
     }
 
-    void cancelInventoryInteract(@NotNull Inventory inventory) {
+    void addCancelIntercatInventory(@NotNull Inventory inventory) {
         cancelInteractInventories.add(inventory);
     }
 
@@ -138,7 +138,7 @@ public class InventoryEventFirer implements Listener {
      * @param inventory
      * @param inventoryListener
      */
-    void listenInventory(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
+    void addInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
     }
 

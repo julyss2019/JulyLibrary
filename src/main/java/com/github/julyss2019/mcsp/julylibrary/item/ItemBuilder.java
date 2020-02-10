@@ -49,6 +49,7 @@ public class ItemBuilder implements Cloneable {
         }
     }
 
+    @Deprecated
     public ItemBuilder data(short data) {
         this.durability = data;
         return this;
@@ -228,7 +229,7 @@ public class ItemBuilder implements Cloneable {
      */
     public ItemBuilder amount(int amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("amount must >= 0");
+            throw new IllegalArgumentException("数量必须大于0");
         }
 
         this.amount = amount;

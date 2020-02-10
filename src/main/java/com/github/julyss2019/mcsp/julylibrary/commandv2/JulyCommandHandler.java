@@ -19,8 +19,8 @@ import java.util.*;
 
 public class JulyCommandHandler extends JulyTabHandler implements CommandExecutor {
     private Map<String, RegisteredCommand> registeredCommandMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private String commandFormat = "/${cmd_name} ${arg} - ${desc}";
-    private String subCommandFormat = "/${cmd_name} ${args} - ${desc}";
+    private String commandFormat = "/${label} ${arg} - ${desc}";
+    private String subCommandFormat = "/${label} ${args} - ${desc}";
     private String noPermissionMessage = "&c你没有权限: ${per}.";
     private String onlyPlayerCanUseMessage = "&c该命令只能由玩家执行.";
     private String onlyConsoleCanUseMessage = "&c该命令只能由控制台执行.";
@@ -115,6 +115,7 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
         Tab tab = new Tab(firstArg);
 
         for (Method method : julyCommand.getClass().getDeclaredMethods()) {
+            String methodName = method.getName();
             SubCommandHandler subCommandHandler = method.getAnnotation(SubCommandHandler.class); // 注解
 
             if (subCommandHandler == null) {
@@ -123,24 +124,36 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
 
             method.setAccessible(true);
 
-            if (subCommandHandler.description() == null) {
-                throw new RuntimeException("SubCommandHandler 中的 description() 不能返回 null");
+            if (method.getReturnType() != void.class) {
+                throw new RuntimeException(methodName + " 方法返回类型必须为 void");
             }
 
-            if (subCommandHandler.firstArg() == null) {
-                throw new RuntimeException("SubCommandHandler 中的 firstArg() 不能返回 null");
+            Class<?>[] parameters = method.getParameterTypes();
+
+            if (parameters.length != 2 || parameters[0] != CommandSender.class || parameters[1] != String[].class) {
+                throw new RuntimeException(methodName + " 方法参数必须为 CommandSender, String[]");
             }
 
-            if (subCommandHandler.length() < 0) {
-                throw new RuntimeException("SubCommandHandler 中的 length() 必须>=0");
+            if (subCommandHandler.description().equals("")) {
+                throw new RuntimeException(methodName + " 方法 @SubCommandHandler 的 description() 不能返回空");
+            }
+
+            if (subCommandHandler.firstArg().equals("")) {
+                throw new RuntimeException(methodName + " 方法 @SubCommandHandler 的 firstArg() 不能返回空");
+            }
+
+            int len = subCommandHandler.length();
+
+            if (len < -1) {
+                throw new RuntimeException(methodName + " 方法 @SubCommandHandler 的 length() 必须 >= -1");
+            }
+
+            if (len != -1 && subCommandHandler.subArgs().length != len) {
+                throw new RuntimeException(methodName + " 方法 @SubCommandHandler 的 length() 与 args() 不匹配");
             }
 
             if (subCommandHandler.senders().length == 0) {
-                throw new RuntimeException("SubCommandHandler 中的 senders() 必须填写至少一个成员");
-            }
-
-            if (subCommandHandler.length() != subCommandHandler.subArgs().length) {
-                throw new RuntimeException("SubCommandHandler 中的 length() 与 subArgs() 长度不一致");
+                throw new RuntimeException(methodName + " 方法 @SubCommandHandler 的 senders() 必须填写至少一个成员");
             }
 
             // 保存子命令
@@ -167,7 +180,7 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
 
                     if (canUse(cs, subCommandHandler.senders()) && (subCommandHandler.permission().equals("") || cs.hasPermission(subCommandHandler.permission()))) {
                         JulyMessage.sendColoredMessage(cs, JulyText.setPlaceholders(commandFormat, new MapBuilder<String, String>()
-                                .put("cmd_name", cmd.getName())
+                                .put("label", label)
                                 .put("arg", julyCommand.getFirstArg())
                                 .put("desc", julyCommand.getDescription())
                                 .build()));
@@ -185,7 +198,7 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
             SubCommandHandler subCommandHandler = registeredSubCommand.getSubCommandHandler();
             int subArgsLen = subCommandHandler.length();
 
-            if (subArgsLen == argsLen - 2 && args[1].equalsIgnoreCase(subCommandHandler.firstArg())) {
+            if ((subArgsLen == -1 || subArgsLen == argsLen - 2) && args[1].equalsIgnoreCase(subCommandHandler.firstArg())) {
                 if (!canUse(cs, subCommandHandler.senders())) {
                     JulyMessage.sendColoredMessage(cs, cs instanceof Player ? onlyPlayerCanUseMessage : onlyConsoleCanUseMessage);
                     return true;
@@ -194,7 +207,7 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
                 String per = subCommandHandler.permission();
 
                 // 权限判断
-                if (per != null && !cs.hasPermission(per)) {
+                if (!per.equals("") && !cs.hasPermission(per)) {
                     JulyMessage.sendColoredMessage(cs, JulyText.setPlaceholders(noPermissionMessage,
                             new MapBuilder<String, String>().put("per", per).build()));
                     return true;
@@ -205,6 +218,8 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
             }
         }
 
+        boolean sent = false;
+
         for (RegisteredSubCommand registeredSubCommand : registeredCommand.getRegisteredSubCommands()) {
             SubCommandHandler subCommandHandler = registeredSubCommand.getSubCommandHandler();
 
@@ -212,21 +227,26 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
                 continue;
             }
 
-            if (!subCommandHandler.permission().equals("") && !cs.hasPermission(subCommandHandler.permission())) {
+            String per = subCommandHandler.permission();
+
+            if (!per.equals("") && !cs.hasPermission(per)) {
                 continue;
             }
 
             String[] subArgs = subCommandHandler.subArgs();
 
             JulyMessage.sendColoredMessage(cs, JulyText.setPlaceholders(subCommandFormat, new MapBuilder<String, String>()
-                    .put("cmd_name", cmd.getName())
+                    .put("label", label)
                     .put("args", registeredSubCommand.getJulyCommand().getFirstArg() + " " + subCommandHandler.firstArg() + (subArgs.length == 0 ? "" : " " + argsToStr(subCommandHandler.subArgs())))
                     .put("desc", subCommandHandler.description())
                     .build()));
-            return true;
+            sent = true;
         }
 
-        JulyMessage.sendColoredMessage(cs, noneMessage);
+        if (!sent) {
+            JulyMessage.sendColoredMessage(cs, noneMessage);
+        }
+
         return true;
     }
 
