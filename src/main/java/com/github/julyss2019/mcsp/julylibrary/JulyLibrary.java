@@ -1,8 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary;
 
-import com.github.julyss2019.mcsp.julylibrary.chat.ChatEventCaller;
+import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorListener;
 import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorManager;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryEventCaller;
+import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryBuilderListener;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -11,18 +11,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JulyLibrary extends JavaPlugin implements Listener {
     private static JulyLibrary instance;
-    private InventoryEventCaller inventoryEventCaller;
+    private ChatInterceptorManager chatInterceptorManager;
+    private InventoryBuilderListener inventoryBuilderListener;
 
     @Override
     public void onEnable() {
         instance = this;
+        this.chatInterceptorManager = new ChatInterceptorManager();
 
-        Bukkit.getPluginManager().registerEvents(this.inventoryEventCaller = new InventoryEventCaller(), this);
-        Bukkit.getPluginManager().registerEvents(new ChatEventCaller(), this);
+        Bukkit.getPluginManager().registerEvents(this.inventoryBuilderListener = new InventoryBuilderListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ChatInterceptorListener(), this);
         getCommand("jl").setExecutor((cs, command, s, args) -> {
             if (args.length == 1 && args[0].equalsIgnoreCase("monitor")) {
-                cs.sendMessage("item_listener: " + inventoryEventCaller.getItemListeners().size());
-                cs.sendMessage("inventory_listener: " + inventoryEventCaller.getInventoryListeners().size());
+                cs.sendMessage("item_listener: " + inventoryBuilderListener.getItemListeners().size());
+                cs.sendMessage("inventory_listener: " + inventoryBuilderListener.getInventoryListeners().size());
                 return true;
             }
 
@@ -32,10 +34,14 @@ public class JulyLibrary extends JavaPlugin implements Listener {
         getLogger().info("插件初始化完毕.");
     }
 
+    public ChatInterceptorManager getChatInterceptorManager() {
+        return chatInterceptorManager;
+    }
+
     @Override
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
-        ChatInterceptorManager.unregisterAll();
+        chatInterceptorManager.unregisterAll();
         HandlerList.unregisterAll((Plugin) instance);
         getLogger().info("插件被卸载.");
     }
@@ -44,8 +50,8 @@ public class JulyLibrary extends JavaPlugin implements Listener {
      * 得到背包事件触发器
      * @return
      */
-    public InventoryEventCaller getInventoryEventCaller() {
-        return inventoryEventCaller;
+    public InventoryBuilderListener getInventoryBuilderListener() {
+        return inventoryBuilderListener;
     }
 
     public static JulyLibrary getInstance() {

@@ -1,12 +1,11 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
 
-import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
+import com.github.julyss2019.mcsp.julylibrary.message.JulyText;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -17,16 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class ItemBuilder implements Cloneable {
+public class ItemBuilder {
     private Material material;
     private short durability;
     private int amount = 1;
     private String displayName;
     private Map<Enchantment, Integer> enchantmentMap = new HashMap<>();
     private ArrayList<String> lores = new ArrayList<>();
-    private int loreCounter = 0;
-    private boolean colored;
-    private ArrayList<ItemFlag> itemFlags = new ArrayList<>();
+    private boolean colored = true;
+    private Set<ItemFlag> itemFlags = new HashSet<>();
     private Map<String, String> placeholderMap = new HashMap<>();
     private String skullOwner;
     private String skullTexture;
@@ -106,30 +104,13 @@ public class ItemBuilder implements Cloneable {
     }
 
     /**
-     * 在最前面递增添加lore
-     * @param lore
-     * @return
-     */
-    public ItemBuilder insertBeforeLore(@Nullable String lore) {
-        if (lore != null) {
-            this.lores.add(loreCounter++, lore);
-        }
-
-        return this;
-    }
-
-    /**
      * 设置lore
      * @param lores
      * @return
      */
-    public ItemBuilder lores(@Nullable List<String> lores) {
+    public ItemBuilder lores(@NotNull List<String> lores) {
         this.lores.clear();
-
-        if (lores != null) {
-            this.lores.addAll(lores);
-        }
-
+        lores.forEach(this::addLore);
         return this;
     }
 
@@ -138,7 +119,7 @@ public class ItemBuilder implements Cloneable {
      * @param lores
      * @return
      */
-    public ItemBuilder lores(@Nullable String... lores) {
+    public ItemBuilder lores(@NotNull String... lores) {
         this.lores.clear();
 
         if (lores != null) {
@@ -153,11 +134,8 @@ public class ItemBuilder implements Cloneable {
      * @param lore
      * @return
      */
-    public ItemBuilder addLore(@Nullable String lore) {
-        if (lore != null) {
-            lores.add(lore);
-        }
-
+    public ItemBuilder addLore(@NotNull String lore) {
+        lores.add(lore);
         return this;
     }
 
@@ -167,11 +145,8 @@ public class ItemBuilder implements Cloneable {
      * @param lore
      * @return
      */
-    public ItemBuilder insertLore(int index, @Nullable String lore) {
-        if (lore != null) {
-            this.lores.add(index, lore);
-        }
-
+    public ItemBuilder insertLore(int index, @NotNull String lore) {
+        this.lores.add(index, lore);
         return this;
     }
 
@@ -180,9 +155,9 @@ public class ItemBuilder implements Cloneable {
      * @param lores
      * @return
      */
-    public ItemBuilder addLores(@Nullable String... lores) {
-        if (lores != null) {
-            this.lores.addAll(Arrays.asList(lores));
+    public ItemBuilder addLores(@NotNull String... lores) {
+        for (String lore : lores) {
+            addLore(lore);
         }
 
         return this;
@@ -194,10 +169,7 @@ public class ItemBuilder implements Cloneable {
      * @return
      */
     public ItemBuilder addLores(@Nullable List<String> lores) {
-        if (lores != null) {
-            this.lores.addAll(lores);
-        }
-
+        lores.forEach(this::addLore);
         return this;
     }
 
@@ -228,10 +200,6 @@ public class ItemBuilder implements Cloneable {
      * @return
      */
     public ItemBuilder amount(int amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("数量必须大于0");
-        }
-
         this.amount = amount;
         return this;
     }
@@ -255,30 +223,16 @@ public class ItemBuilder implements Cloneable {
     }
 
     /**
-     * 添加占位符
-     * @param key
-     * @param value
-     * @return
-     */
-    @Deprecated
-    public ItemBuilder addPlaceholder(String key, String value) {
-        placeholderMap.put(key, value);
-        return this;
-    }
-
-    @Deprecated
-    public ItemBuilder setInnerPlaceholder(String key, String value) {
-        placeholderMap.put(key, value);
-        return this;
-    }
-
-    /**
      * 构造
      * @return
      */
     public ItemStack build() {
         if (this.material == null || this.material == Material.AIR) {
             throw new RuntimeException("物品不能为空");
+        }
+
+        if (this.amount <= 0) {
+            throw new IllegalArgumentException("数量必须大于0");
         }
 
         ItemStack itemStack = new ItemStack(this.material);
@@ -322,11 +276,11 @@ public class ItemBuilder implements Cloneable {
         }
 
         if (lores != null) {
-            itemMeta.setLore(replacePlaceholders(this.colored ? JulyMessage.toColoredMessages(this.lores) : this.lores));
+            itemMeta.setLore(this.colored ? JulyText.getColoredTexts(this.lores) : this.lores);
         }
 
         if (displayName != null) {
-            itemMeta.setDisplayName(replacePlaceholders(this.colored ? JulyMessage.toColoredMessage(this.displayName) : this.displayName));
+            itemMeta.setDisplayName(this.colored ? JulyText.getColoredText(this.displayName) : this.displayName);
         }
 
         for (ItemFlag itemFlag : itemFlags) {
@@ -349,26 +303,6 @@ public class ItemBuilder implements Cloneable {
         return itemStack;
     }
 
-    private String replacePlaceholders(String str) {
-        String result = str;
-
-        for (Map.Entry<String, String> entry : placeholderMap.entrySet()) {
-            result = result.replace(entry.getKey(), entry.getValue());
-        }
-
-        return result;
-    }
-
-    private List<String> replacePlaceholders(List<String> strList) {
-        List<String> result = new ArrayList<>();
-
-        for (String str : strList) {
-            result.add(replacePlaceholders(str));
-        }
-
-        return result;
-    }
-
     public ItemBuilder skullOwner(String owner) {
         this.skullOwner = owner;
         return this;
@@ -377,24 +311,5 @@ public class ItemBuilder implements Cloneable {
     public ItemBuilder skullTexture(String skullTexture) {
         this.skullTexture = skullTexture;
         return this;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    @Override
-    public ItemBuilder clone() {
-        try {
-            ItemBuilder itemBuilder = (ItemBuilder) super.clone();
-
-            itemBuilder.enchantmentMap = (HashMap<Enchantment, Integer>) ((HashMap<Enchantment, Integer>) enchantmentMap).clone();
-            itemBuilder.lores = (ArrayList<String>) lores.clone();
-            itemBuilder.itemFlags = (ArrayList<ItemFlag>) itemFlags.clone();
-            itemBuilder.placeholderMap = (HashMap<String, String>) ((HashMap<String, String>) placeholderMap).clone();
-            return itemBuilder;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 }

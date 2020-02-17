@@ -4,21 +4,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChatInterceptorManager {
-    private static Map<String, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
+    private Map<UUID, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
 
     /**
      * 注册聊天拦截器
      * @param chatInterceptor
      */
-    public static void registerChatInterceptor(ChatInterceptor chatInterceptor) {
-        playerChatInterceptorMap.put(chatInterceptor.getPlayerName().toLowerCase(), chatInterceptor);
+    public void registerChatInterceptor(@NotNull ChatInterceptor chatInterceptor) {
+        if (!chatInterceptor.getPlayer().isOnline()) {
+            throw new RuntimeException("玩家不在线");
+        }
+
+        playerChatInterceptorMap.put(chatInterceptor.getPlayer().getUniqueId(), chatInterceptor);
     }
 
     /**
@@ -26,7 +27,7 @@ public class ChatInterceptorManager {
      * @param plugin
      * @return
      */
-    public static Collection<ChatInterceptor> getChatInterceptors(@NotNull Plugin plugin) {
+    public Collection<ChatInterceptor> getChatInterceptors(@NotNull Plugin plugin) {
         return getChatInterceptors().stream().filter(chatInterceptor -> plugin.equals(chatInterceptor.getPlugin())).collect(Collectors.toList());
     }
 
@@ -34,14 +35,14 @@ public class ChatInterceptorManager {
      * 得到所有聊天拦截器
      * @return
      */
-    public static Collection<ChatInterceptor> getChatInterceptors() {
+    public Collection<ChatInterceptor> getChatInterceptors() {
         return playerChatInterceptorMap.values();
     }
 
     /**
      * 注销所有的聊天拦截器
      */
-    public static void unregisterAll() {
+    public void unregisterAll() {
         playerChatInterceptorMap.clear();
     }
 
@@ -49,8 +50,8 @@ public class ChatInterceptorManager {
      * 卸载一个 Plugin 的所有聊天拦截器
      * @param plugin
      */
-    public static void unregisterAll(@NotNull Plugin plugin) {
-        Iterator<Map.Entry<String, ChatInterceptor>> iterator = playerChatInterceptorMap.entrySet().iterator();
+    public void unregisterAll(@NotNull Plugin plugin) {
+        Iterator<Map.Entry<UUID, ChatInterceptor>> iterator = playerChatInterceptorMap.entrySet().iterator();
 
         while (iterator.hasNext()) {
             ChatInterceptor chatInterceptor = iterator.next().getValue();
@@ -66,50 +67,28 @@ public class ChatInterceptorManager {
      * @param player 玩家
      * @return
      */
-    public static ChatInterceptor getChatInterceptor(Player player) {
-        return getChatInterceptor(player.getName());
+    public ChatInterceptor getChatInterceptor(@NotNull Player player) {
+        return playerChatInterceptorMap.get(player.getUniqueId());
     }
-
-    /**
-     * 得到玩家的聊天拦截器
-     * @param playerName 玩家名
-     * @return
-     */
-    public static ChatInterceptor getChatInterceptor(String playerName) {
-        return playerChatInterceptorMap.get(playerName.toLowerCase());
-    }
-
     /**
      * 是否已注册聊天拦截器
      * @param player 玩家
      * @return
      */
-    public static boolean hasChatInterceptor(Player player) {
-        return hasChatInterceptor(player.getName());
+    public boolean hasChatInterceptor(@NotNull Player player) {
+        return playerChatInterceptorMap.containsKey(player.getUniqueId());
     }
 
-    /**
-     * 是否已注册聊天拦截器
-     * @param playerName 玩家名
-     * @return
-     */
-    public static boolean hasChatInterceptor(String playerName) {
-        return playerChatInterceptorMap.containsKey(playerName.toLowerCase());
-    }
 
     /**
      * 注销聊天拦截器
      * @param player 玩家
      */
-    public static void unregisterChatInterceptor(Player player) {
-        unregisterChatInterceptor(player.getName());
-    }
+    public void unregisterChatInterceptor(@NotNull Player player) {
+        if (!playerChatInterceptorMap.containsKey(player.getUniqueId())) {
+            throw new RuntimeException("未注册 ChatInterceptor");
+        }
 
-    /**
-     * 注销聊天拦截器
-     * @param playerName 玩家名
-     */
-    public static void unregisterChatInterceptor(String playerName) {
-        playerChatInterceptorMap.remove(playerName.toLowerCase());
+        playerChatInterceptorMap.remove(player.getUniqueId());
     }
 }

@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * 用于唤醒各种定义的事件
  */
-public class InventoryEventCaller implements Listener {
+public class InventoryBuilderListener implements Listener {
     private Map<Inventory, List<Item>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
     private List<Inventory> cancelInteractInventories = new ArrayList<>();

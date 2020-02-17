@@ -1,25 +1,20 @@
 package com.github.julyss2019.mcsp.julylibrary.chat;
 
+import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Deprecated
 public class JulyChatInterceptor {
-    private static Map<String, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
-
     /**
      * 注册聊天拦截器
      * @param chatInterceptor
      */
     public static void registerChatInterceptor(ChatInterceptor chatInterceptor) {
-        playerChatInterceptorMap.put(chatInterceptor.getPlayerName().toLowerCase(), chatInterceptor);
+        JulyLibrary.getInstance().getChatInterceptorManager().registerChatInterceptor(chatInterceptor);
     }
 
     /**
@@ -28,7 +23,7 @@ public class JulyChatInterceptor {
      * @return
      */
     public static Collection<ChatInterceptor> getChatInterceptors(@NotNull Plugin plugin) {
-        return getChatInterceptors().stream().filter(chatInterceptor -> plugin.equals(chatInterceptor.getPlugin())).collect(Collectors.toList());
+        return JulyLibrary.getInstance().getChatInterceptorManager().getChatInterceptors(plugin);
     }
 
     /**
@@ -36,14 +31,14 @@ public class JulyChatInterceptor {
      * @return
      */
     public static Collection<ChatInterceptor> getChatInterceptors() {
-        return playerChatInterceptorMap.values();
+        return JulyLibrary.getInstance().getChatInterceptorManager().getChatInterceptors();
     }
 
     /**
      * 注销所有的聊天拦截器
      */
     public static void unregisterAll() {
-        playerChatInterceptorMap.clear();
+        JulyLibrary.getInstance().getChatInterceptorManager().unregisterAll();
     }
 
     /**
@@ -51,15 +46,7 @@ public class JulyChatInterceptor {
      * @param plugin
      */
     public static void unregisterAll(@NotNull Plugin plugin) {
-        Iterator<Map.Entry<String, ChatInterceptor>> iterator = playerChatInterceptorMap.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            ChatInterceptor chatInterceptor = iterator.next().getValue();
-
-            if (chatInterceptor.getPlugin().equals(plugin)) {
-                iterator.remove();
-            }
-        }
+        JulyLibrary.getInstance().getChatInterceptorManager().unregisterAll(plugin);
     }
 
     /**
@@ -68,17 +55,10 @@ public class JulyChatInterceptor {
      * @return
      */
     public static ChatInterceptor getChatInterceptor(Player player) {
-        return getChatInterceptor(player.getName());
+        return JulyLibrary.getInstance().getChatInterceptorManager().getChatInterceptor(player);
     }
 
-    /**
-     * 得到玩家的聊天拦截器
-     * @param playerName 玩家名
-     * @return
-     */
-    public static ChatInterceptor getChatInterceptor(String playerName) {
-        return playerChatInterceptorMap.get(playerName.toLowerCase());
-    }
+
 
     /**
      * 是否已注册聊天拦截器
@@ -86,31 +66,16 @@ public class JulyChatInterceptor {
      * @return
      */
     public static boolean hasChatInterceptor(Player player) {
-        return hasChatInterceptor(player.getName());
+        return JulyLibrary.getInstance().getChatInterceptorManager().hasChatInterceptor(player);
     }
 
-    /**
-     * 是否已注册聊天拦截器
-     * @param playerName 玩家名
-     * @return
-     */
-    public static boolean hasChatInterceptor(String playerName) {
-        return playerChatInterceptorMap.containsKey(playerName.toLowerCase());
-    }
 
     /**
      * 注销聊天拦截器
      * @param player 玩家
      */
     public static void unregisterChatInterceptor(Player player) {
-        unregisterChatInterceptor(player.getName());
+        JulyLibrary.getInstance().getChatInterceptorManager().unregisterChatInterceptor(player);
     }
 
-    /**
-     * 注销聊天拦截器
-     * @param playerName 玩家名
-     */
-    public static void unregisterChatInterceptor(String playerName) {
-        playerChatInterceptorMap.remove(playerName.toLowerCase());
-    }
 }

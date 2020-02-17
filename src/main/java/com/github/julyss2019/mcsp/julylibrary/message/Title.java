@@ -16,7 +16,7 @@ public class Title {
     private int stay;
     private int fadeOut;
 
-    private Title(Title.Type type, String text, int fadeIn, int stay, int fadeOut) {
+    private Title(@NotNull Title.Type type, @NotNull String text, int fadeIn, int stay, int fadeOut) {
         this.titleType = type;
         this.text = text;
         this.fadeIn = fadeIn;
@@ -61,8 +61,7 @@ public class Title {
         private int fadeIn;
         private int stay;
         private int fadeOut;
-        private boolean colored = false;
-
+        private boolean colored = true;
 
         public Builder() {}
 
@@ -76,7 +75,7 @@ public class Title {
             return this;
         }
 
-        public Builder text(@NotNull String text) {
+        public Builder text(String text) {
             this.text = text;
             return this;
         }
@@ -102,6 +101,14 @@ public class Title {
         }
 
         public Title build() {
+            if (titleType == null) {
+                throw new RuntimeException("type 不能为 null");
+            }
+
+            if (text == null) {
+                throw new RuntimeException("text 不能为 null");
+            }
+
             return new Title(Title.Builder.this.titleType, colored ? ChatColor.translateAlternateColorCodes('&', text) : text, fadeIn, stay, fadeOut);
         }
     }

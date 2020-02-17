@@ -9,11 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public class JulyText {
-    @Deprecated
-    public static List<String> getColoredTexts(@NotNull List<String> messages) {
-        return getColoredTexts((Collection<String>) messages);
-    }
-
     /**
      * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}
      * @param s
@@ -79,6 +74,7 @@ public class JulyText {
         }
 
         long leftSeconds = seconds;
+
         long years = leftSeconds / 60L / 60L / 24L / 365L;
 
         leftSeconds = leftSeconds % (60L * 60L * 24L * 365L);
@@ -96,6 +92,8 @@ public class JulyText {
         leftSeconds = leftSeconds % (60L * 60L);
 
         long minutes = leftSeconds / 60L;
+
+        leftSeconds = leftSeconds % 60;
 
         StringBuilder stringBuilder = new StringBuilder();
 

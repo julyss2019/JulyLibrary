@@ -1,7 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.commandv2.registered;
 
-import com.github.julyss2019.mcsp.julylibrary.commandv2.JulyCommand;
-import com.github.julyss2019.mcsp.julylibrary.utils.ValidateUtil;
+import com.github.julyss2019.mcsp.julylibrary.commandv2.MainCommand;
 import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
 
 import java.util.Collection;
@@ -9,17 +8,35 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RegisteredCommand {
-    private JulyCommand julyCommand;
-    private Set<RegisteredSubCommand> registeredSubCommands = new HashSet<>();
+    private MainCommand mainCommand;
+    private Set<RegisteredSubCommand> registeredSubCommands;
 
-    public RegisteredCommand(@NotNull JulyCommand julyCommand, @NotNull Collection<RegisteredSubCommand> registeredSubCommands) {
-        this.julyCommand = julyCommand;
+    public RegisteredCommand() {}
 
-        registeredSubCommands.forEach(registeredSubCommand -> this.registeredSubCommands.add(ValidateUtil.notNull(registeredSubCommand, new RuntimeException("元素不能为null"))));
+    public void setMainCommand(MainCommand mainCommand) {
+        if (this.mainCommand != null) {
+            throw new UnsupportedOperationException();
+        }
+
+        this.mainCommand = mainCommand;
     }
 
-    public JulyCommand getJulyCommand() {
-        return julyCommand;
+    public void setRegisteredSubCommands(@NotNull Set<RegisteredSubCommand> registeredSubCommands) {
+        if (this.registeredSubCommands != null) {
+            throw new UnsupportedOperationException();
+        }
+
+        registeredSubCommands.forEach(registeredSubCommand -> {
+            if (registeredSubCommand == null) {
+                throw new RuntimeException("RegisteredSubCommand 不能为 null");
+            }
+        });
+
+        this.registeredSubCommands = new HashSet<>(registeredSubCommands);
+    }
+
+    public MainCommand getMainCommand() {
+        return mainCommand;
     }
 
     public Collection<RegisteredSubCommand> getRegisteredSubCommands() {

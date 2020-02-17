@@ -86,7 +86,7 @@ public class YamlUtil {
     public static void saveYaml(@NotNull YamlConfiguration yml, @NotNull File file, @NotNull Charset charset) {
         File parentFile = file.getParentFile();
 
-        if (!parentFile.exists() && !parentFile.mkdirs()) {
+        if (parentFile != null && !parentFile.exists() && !parentFile.mkdirs()) {
             throw new RuntimeException("创建父文件夹失败: " + parentFile.getAbsolutePath());
         }
 

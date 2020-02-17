@@ -20,7 +20,7 @@ public class InventoryBuilder {
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private InventoryListener inventoryListener;
-    private boolean colored;
+    private boolean colored = true;
     private boolean cancelInteract = true;
 
     public InventoryBuilder() {}
@@ -208,16 +208,16 @@ public class InventoryBuilder {
                 items.add(new Item(entry.getKey(), entry.getValue()));
             }
 
-            JulyLibrary.getInstance().getInventoryEventCaller().listenInventoryItems(this.inventory, items);
+            JulyLibrary.getInstance().getInventoryBuilderListener().listenInventoryItems(this.inventory, items);
         }
 
         // 注册监听的背包
         if (this.inventoryListener != null) {
-            JulyLibrary.getInstance().getInventoryEventCaller().addInventoryListener(this.inventory, this.inventoryListener);
+            JulyLibrary.getInstance().getInventoryBuilderListener().addInventoryListener(this.inventory, this.inventoryListener);
         }
 
         if (this.cancelInteract) {
-            JulyLibrary.getInstance().getInventoryEventCaller().addCancelIntercatInventory(this.inventory);
+            JulyLibrary.getInstance().getInventoryBuilderListener().addCancelIntercatInventory(this.inventory);
         }
 
         return this.inventory;
