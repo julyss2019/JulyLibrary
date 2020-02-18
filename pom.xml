@@ -6,7 +6,7 @@
 
     <groupId>com.github.julyss2019.mcsp</groupId>
     <artifactId>JulyLibrary</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.0-RELEASE</version>
 
     <properties>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
