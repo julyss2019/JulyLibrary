@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 public class YamlUtil {
     @Deprecated
@@ -18,6 +20,70 @@ public class YamlUtil {
             yml.save(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 补全 Section
+     * @param targetSection 目标 Section
+     * @param completedSection 完整的 Section
+     * @return
+     */
+    public static Set<String> completeSection(@NotNull ConfigurationSection targetSection, @NotNull ConfigurationSection completedSection) {
+        return completeSection0(targetSection, completedSection, new HashSet<>());
+    }
+
+    private static Set<String> completeSection0(@NotNull ConfigurationSection targetSection, @NotNull ConfigurationSection completedSection, @NotNull Set<String> changes) {
+        for (String key : completedSection.getKeys(false)) {
+            // 如果是节点，则递归
+            if (completedSection.isConfigurationSection(key)) {
+                completeSection0(targetSection, completedSection.getConfigurationSection(key), changes);
+            } else {
+                String sectionPath = completedSection.getCurrentPath();
+                String fullPath = sectionPath.equals("") ? key : sectionPath + "." + key;
+
+                // 如果路径不存在或值为 null
+                if (!targetSection.contains(fullPath) || targetSection.get(fullPath) == null) {
+                    targetSection.set(fullPath, completedSection.get(key));
+                    changes.add(fullPath);
+                }
+            }
+        }
+
+        return new HashSet<>(changes);
+    }
+
+    /**
+     * 补全yaml
+     * @param file 欲补全的文件
+     * @param completedSection 完整的节点
+     * @param charset 编码
+     */
+    @Deprecated
+    public static void completeConfig(@NotNull File file, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
+        completeConfig0(file, loadYaml(file, charset), completedSection, charset);
+    }
+
+    @Deprecated
+    private static void completeConfig0(@NotNull File targetFile, @NotNull YamlConfiguration targetYaml, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
+        boolean changed = false;
+
+        for (String key : completedSection.getKeys(false)) {
+            if (completedSection.isConfigurationSection(key)) {
+                completeConfig0(targetFile, targetYaml, completedSection.getConfigurationSection(key), charset);
+            } else {
+                String sectionPath = completedSection.getCurrentPath();
+                String fullPath = sectionPath.equals("") ? key : sectionPath + "." + key;
+
+                if (!targetYaml.contains(fullPath)) {
+                    targetYaml.set(fullPath, completedSection.get(key));
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            YamlUtil.saveYaml(targetYaml, targetFile, charset);
         }
     }
 

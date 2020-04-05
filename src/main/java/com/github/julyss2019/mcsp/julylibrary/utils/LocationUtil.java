@@ -11,6 +11,7 @@ public class LocationUtil {
      * @param section
      * @return
      */
+    @Deprecated
     public static Location getLocationBySection(@NotNull ConfigurationSection section) {
         return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
     }
@@ -20,6 +21,7 @@ public class LocationUtil {
      * @param section
      * @param location
      */
+    @Deprecated
     public static void setLocationToSection(@NotNull ConfigurationSection section, @NotNull Location location) {
         section.set("world", location.getWorld().getName());
         section.set("x", location.getX());

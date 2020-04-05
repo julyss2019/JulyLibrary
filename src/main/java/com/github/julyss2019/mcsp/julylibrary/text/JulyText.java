@@ -1,4 +1,4 @@
-package com.github.julyss2019.mcsp.julylibrary.message;
+package com.github.julyss2019.mcsp.julylibrary.text;
 
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-@Deprecated
 public class JulyText {
     /**
      * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}

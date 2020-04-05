@@ -1,5 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.logger;
 
+import com.github.julyss2019.mcsp.julylibrary.map.MapBuilder;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
@@ -7,9 +9,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
+@Deprecated
 public class FileLogger {
+    private static final SimpleDateFormat DATE_SDF = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat TIME_SDF = new SimpleDateFormat("HH:mm:ss");
 
     public enum LoggerLevel {DEBUG, ERROR, INFO, WARNING}
@@ -21,56 +24,6 @@ public class FileLogger {
     private File loggerFile;
     private FileWriter loggerWriter;
     private BufferedWriter loggerBufferedWriter;
-
-    private static String escape(String input) {
-        StringBuilder sb = new StringBuilder();
-        int max = input.length();
-        int i;
-
-        for (i = 0; i < max; i++) {
-            char c = input.charAt(i);
-
-            if (i + 1 >= max) {
-                sb.append(c);
-                continue;
-            }
-
-            if (c == '%') {
-                char next = input.charAt(i + 1);
-
-                switch (next) {
-                    case 'd':
-                        int left = input.indexOf("{", i + 1);
-
-                        if (left == -1) {
-                            throw new RuntimeException("非法的表达式");
-                        }
-
-                        int right = input.indexOf("}", left);
-
-                        if (right == -1) {
-                            throw new RuntimeException("非法的表达式");
-                        }
-
-                        sb.append(new SimpleDateFormat(input.substring(left + 1, right)).format(new Date()));
-                        i = right;
-                        break;
-                    case '%':
-                        sb.append("%");
-                        i++;
-                        break;
-                    default:
-                        sb.append(c);
-                        break;
-                }
-            } else {
-                sb.append(c);
-            }
-
-        }
-
-        return sb.toString();
-    }
 
     private FileLogger(Builder builder) {
         loggerFolder = builder.loggerFolder;
@@ -120,7 +73,7 @@ public class FileLogger {
      * 检查文件名变更
      */
     private void checkFile() {
-        String newFileName = escape(fileName);
+        String newFileName = JulyText.setPlaceholders(fileName, new MapBuilder<String, String>().put("date", DATE_SDF.format(System.currentTimeMillis())).build());
         boolean exists = false;
 
         if (loggerFile == null || (exists = !newFileName.equalsIgnoreCase(loggerFile.getName()))) {

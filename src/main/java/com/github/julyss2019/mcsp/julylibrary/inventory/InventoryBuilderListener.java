@@ -1,7 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.inventory;
 
 import com.github.julyss2019.mcsp.julylibrary.event.ItemClickEvent;
-import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -18,38 +17,35 @@ import java.util.*;
 public class InventoryBuilderListener implements Listener {
     private Map<Inventory, List<Item>> itemListenerMap = new HashMap<>(); // 物品监听器
     private Map<Inventory, InventoryListener> inventoryListenerMap = new HashMap<>(); // 背包监听器
-    private List<Inventory> cancelInteractInventories = new ArrayList<>();
+    private List<Inventory> inventories = new ArrayList<>();
 
     @EventHandler
     public void onInventoryClickEvent(InventoryClickEvent event) {
-        Inventory clickedInventory;
+        Inventory topInventory = event.getView().getTopInventory();
+        int topInventorySize = topInventory.getSize();
+        int rawSlot = event.getRawSlot(); // 标准位置。Shift 时，rawSlot 是鼠标指针所在的位置。
+        boolean shift = event.isShiftClick();
 
-        if (NMSUtil.NMS_VERSION.equalsIgnoreCase("v1_7_R4")) {
-            clickedInventory = event.getInventory();
-        } else {
-            clickedInventory = event.getClickedInventory();
-        }
-
-        // 背包监听器或背包物品监听器
-        if (cancelInteractInventories.contains(clickedInventory)) {
+        // 取消点击GUI里的东西，取消全局 Shift
+        if (inventories.contains(topInventory) && (shift || rawSlot < topInventorySize)) {
             event.setCancelled(true);
             event.setResult(Event.Result.DENY);
         }
 
-        // 背包监听器
-        if (inventoryListenerMap.containsKey(clickedInventory)) {
-            inventoryListenerMap.get(clickedInventory).onClick(event);
+        // 背包
+        if (inventoryListenerMap.containsKey(topInventory) && rawSlot < topInventorySize) {
+            inventoryListenerMap.get(topInventory).onClick(event);
 
             // onClick 执行完时，GUI可能已经关闭了
-            if (inventoryListenerMap.get(clickedInventory) != null) {
-                inventoryListenerMap.get(clickedInventory).onClicked(event);
+            if (inventoryListenerMap.get(topInventory) != null) {
+                inventoryListenerMap.get(topInventory).onClicked(event);
             }
         }
 
-        // 背包物品监听器
-        if (itemListenerMap.containsKey(clickedInventory)) {
-            for (Item item : itemListenerMap.get(clickedInventory)) {
-                if (event.getSlot() == item.getIndex()) {
+        // 背包物品
+        if (itemListenerMap.containsKey(topInventory) && rawSlot < topInventorySize) {
+            for (Item item : itemListenerMap.get(topInventory)) {
+                if (rawSlot == item.getIndex()) {
                     ItemListener itemListener = item.getItemListener();
                     ItemClickEvent itemClickEvent = new ItemClickEvent(item, event);
 
@@ -62,7 +58,7 @@ public class InventoryBuilderListener implements Listener {
                     itemListener.onClicked(event); // 调用老事件
 
                     // 这时可能inv已经被关闭了
-                    if (itemListenerMap.containsKey(clickedInventory)) {
+                    if (itemListenerMap.containsKey(topInventory)) {
                         itemListener.onClick(event); // 调用新事件
                     }
 
@@ -73,13 +69,14 @@ public class InventoryBuilderListener implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClickEvent(InventoryDragEvent event) {
+    public void onInventoryDragEvent(InventoryDragEvent event) {
         Inventory inventory = event.getInventory();
 
-        if (cancelInteractInventories.contains(inventory)) {
-            int guiSize = event.getView().getTopInventory().getSize();
+        if (inventories.contains(inventory)) {
+            int guiSize = event.getView().getTopInventory().getSize(); // 顶部GUI的大小
 
             for (int slot : event.getRawSlots()) {
+                // 如果在顶部GUI点击
                 if (slot > 0 && slot < guiSize) {
                     event.setCancelled(true);
                     event.setResult(Event.Result.DENY);
@@ -117,11 +114,11 @@ public class InventoryBuilderListener implements Listener {
         // 从 map 删除
         itemListenerMap.remove(inventory);
         inventoryListenerMap.remove(inventory);
-        cancelInteractInventories.remove(inventory);
+        inventories.remove(inventory);
     }
 
-    void addCancelIntercatInventory(@NotNull Inventory inventory) {
-        cancelInteractInventories.add(inventory);
+    void addInventory(@NotNull Inventory inventory) {
+        inventories.add(inventory);
     }
 
     /**
@@ -140,24 +137,5 @@ public class InventoryBuilderListener implements Listener {
      */
     void addInventoryListener(@NotNull Inventory inventory, @NotNull InventoryListener inventoryListener) {
         inventoryListenerMap.put(inventory, inventoryListener);
-    }
-
-    /**
-     * 得到被监听的物品
-     * @return
-     */
-    public List<Item> getItemListeners() {
-        List<Item> resultList = new ArrayList<>();
-
-        for (List<Item> items : itemListenerMap.values()) {
-            resultList.addAll(items);
-
-        }
-
-        return resultList;
-    }
-
-    public Collection<InventoryListener> getInventoryListeners() {
-        return inventoryListenerMap.values();
     }
 }

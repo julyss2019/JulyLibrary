@@ -1,7 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
 
-import com.github.julyss2019.mcsp.julylibrary.message.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Material;
@@ -14,9 +15,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class ItemBuilder {
+    private static Method ID_MATERIAL_METHOD;
+    private static boolean ITEM_FLAG_ENABLED;
+    private static boolean SKULL_TEXTURE_ENABLED;
     private Material material;
     private short durability;
     private int amount = 1;
@@ -25,9 +31,34 @@ public class ItemBuilder {
     private ArrayList<String> lores = new ArrayList<>();
     private boolean colored = true;
     private Set<ItemFlag> itemFlags = new HashSet<>();
-    private Map<String, String> placeholderMap = new HashMap<>();
     private String skullOwner;
     private String skullTexture;
+
+    static {
+        try {
+            ITEM_FLAG_ENABLED = Class.forName("org.bukkit.inventory.ItemFlag") != null;
+        } catch (ClassNotFoundException ignored) {}
+
+        try {
+            ID_MATERIAL_METHOD = Material.class.getDeclaredMethod("getMaterial", int.class);
+        } catch (NoSuchMethodException ignored) {}
+
+        try {
+            SKULL_TEXTURE_ENABLED = Class.forName("com.mojang.authlib.GameProfile") != null;
+        } catch (ClassNotFoundException ignored) {}
+    }
+
+    public static boolean idMaterialEnabled() {
+        return ID_MATERIAL_METHOD != null;
+    }
+
+    public static boolean isItemFlagEnabled() {
+        return ITEM_FLAG_ENABLED;
+    }
+
+    public static boolean isSkullTextureEnabled() {
+        return SKULL_TEXTURE_ENABLED;
+    }
 
     public ItemBuilder() {}
 
@@ -53,12 +84,56 @@ public class ItemBuilder {
         return this;
     }
 
+    @Deprecated
     public ItemBuilder addItemFlags(@NotNull ItemFlag... itemFlags) {
-        this.itemFlags.addAll(Arrays.asList(itemFlags));
+        for (ItemFlag itemFlag : itemFlags) {
+            addItemFlag(itemFlag);
+        }
+
         return this;
     }
 
+    /**
+     * 设置Flag
+     * @param itemFlags
+     * @return
+     */
+    public ItemBuilder itemFlags(@Nullable ItemFlag... itemFlags) {
+        return itemFlags(new HashSet<>(Arrays.asList(itemFlags)));
+    }
+
+    /**
+     * 设置Flag
+     * @param itemFlags
+     * @return
+     */
+    public ItemBuilder itemFlags(@Nullable Set<ItemFlag> itemFlags) {
+        if (itemFlags == null) {
+            this.itemFlags.clear();
+            return this;
+        }
+
+        itemFlags.forEach(itemFlag -> {
+            if (itemFlag == null) {
+                throw new NullPointerException("存在 null 元素");
+            }
+        });
+
+        this.itemFlags.clear();
+        this.itemFlags.addAll(itemFlags);
+        return this;
+    }
+
+    /**
+     * 添加Flag
+     * @param itemFlag
+     * @return
+     */
     public ItemBuilder addItemFlag(@NotNull ItemFlag itemFlag) {
+        if (!ITEM_FLAG_ENABLED) {
+            throw new RuntimeException("当前版本不支持 ItemFlag");
+        }
+
         itemFlags.add(itemFlag);
         return this;
     }
@@ -69,6 +144,10 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder material(@NotNull Material material) {
+        if (material == Material.AIR) {
+            throw new RuntimeException("Material 不允许为 AIR");
+        }
+
         this.material = material;
         return this;
     }
@@ -88,8 +167,18 @@ public class ItemBuilder {
      * @param id 物品id
      * @return
      */
+    @Deprecated
     public ItemBuilder material(int id) {
-        this.material = Material.getMaterial(id);
+        if (ID_MATERIAL_METHOD == null) {
+            throw new RuntimeException("当前版本不支持数字ID: " + NMSUtil.NMS_VERSION);
+        }
+
+        try {
+            this.material = (Material) ID_MATERIAL_METHOD.invoke(null, id);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
         return this;
     }
 
@@ -108,9 +197,20 @@ public class ItemBuilder {
      * @param lores
      * @return
      */
-    public ItemBuilder lores(@NotNull List<String> lores) {
+    public ItemBuilder lores(@Nullable List<String> lores) {
+        if (lores == null) {
+            this.lores.clear();
+            return this;
+        }
+
+        lores.forEach(s -> {
+            if (s == null) {
+                throw new NullPointerException("存在 null 元素");
+            }
+        });
+
         this.lores.clear();
-        lores.forEach(this::addLore);
+        this.lores.addAll(lores);
         return this;
     }
 
@@ -119,14 +219,8 @@ public class ItemBuilder {
      * @param lores
      * @return
      */
-    public ItemBuilder lores(@NotNull String... lores) {
-        this.lores.clear();
-
-        if (lores != null) {
-            this.lores.addAll(Arrays.asList(lores));
-        }
-
-        return this;
+    public ItemBuilder lores(@Nullable String... lores) {
+        return lores(Arrays.asList(lores));
     }
 
     /**
@@ -135,7 +229,7 @@ public class ItemBuilder {
      * @return
      */
     public ItemBuilder addLore(@NotNull String lore) {
-        lores.add(lore);
+        this.lores.add(lore);
         return this;
     }
 
@@ -168,7 +262,7 @@ public class ItemBuilder {
      * @param lores
      * @return
      */
-    public ItemBuilder addLores(@Nullable List<String> lores) {
+    public ItemBuilder addLores(@NotNull List<String> lores) {
         lores.forEach(this::addLore);
         return this;
     }
@@ -189,7 +283,27 @@ public class ItemBuilder {
      * @param level
      * @return
      */
+    @Deprecated
     public ItemBuilder enchant(@NotNull Enchantment enchantment, int level) {
+        return enchantment(enchantment, level);
+    }
+
+    public ItemBuilder addEnchantment(@NotNull Enchantment enchantment, int level) {
+        enchantment(enchantment, level);
+        return this;
+    }
+
+    /**
+     * 添加附魔
+     * @param enchantment
+     * @param level
+     * @return
+     */
+    public ItemBuilder enchantment(@NotNull Enchantment enchantment, int level) {
+        if (level <= 0) {
+            throw new IllegalArgumentException("level 必须 > 0");
+        }
+
         this.enchantmentMap.put(enchantment, level);
         return this;
     }
@@ -222,17 +336,27 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder skullOwner(@Nullable String owner) {
+        this.skullOwner = owner;
+        return this;
+    }
+
+    public ItemBuilder skullTexture(@Nullable String skullTexture) {
+        if (skullTexture != null && !SKULL_TEXTURE_ENABLED) {
+            throw new RuntimeException("当前版本不支持 skullTexture: " + NMSUtil.NMS_VERSION);
+        }
+
+        this.skullTexture = skullTexture;
+        return this;
+    }
+
     /**
      * 构造
      * @return
      */
     public ItemStack build() {
-        if (this.material == null || this.material == Material.AIR) {
-            throw new RuntimeException("物品不能为空");
-        }
-
-        if (this.amount <= 0) {
-            throw new IllegalArgumentException("数量必须大于0");
+        if (this.material == null) {
+            throw new RuntimeException("material 不能为 null");
         }
 
         ItemStack itemStack = new ItemStack(this.material);
@@ -244,12 +368,8 @@ public class ItemBuilder {
         if (itemMeta instanceof SkullMeta) {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
-            if (skullOwner != null) {
-                skullMeta.setOwner(skullOwner);
-            }
-
             if (skullTexture != null) {
-                GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+                GameProfile profile = new GameProfile(UUID.randomUUID(), UUID.randomUUID().toString());
                 Field profileField;
 
                 profile.getProperties().put("textures", new Property("textures", this.skullTexture));
@@ -267,11 +387,11 @@ public class ItemBuilder {
             itemMeta = skullMeta;
         } else {
             if (skullOwner != null) {
-                throw new RuntimeException("要设置 skullOwner, 必须使 material 为 SKULL_ITEM");
+                throw new RuntimeException("非头颅物品无法设置 skullTexture");
             }
 
             if (skullTexture != null) {
-                throw new RuntimeException("要设置 skullTexture, 必须使 material 为 SKULL_ITEM");
+                throw new RuntimeException("非头颅物品无法设置 SkullOwner");
             }
         }
 
@@ -301,15 +421,5 @@ public class ItemBuilder {
 
         itemStack.setItemMeta(itemMeta);
         return itemStack;
-    }
-
-    public ItemBuilder skullOwner(String owner) {
-        this.skullOwner = owner;
-        return this;
-    }
-
-    public ItemBuilder skullTexture(String skullTexture) {
-        this.skullTexture = skullTexture;
-        return this;
     }
 }

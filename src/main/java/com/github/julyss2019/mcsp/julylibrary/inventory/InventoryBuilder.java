@@ -1,7 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.inventory;
 
 import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
-import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,17 +21,11 @@ public class InventoryBuilder {
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private InventoryListener inventoryListener;
     private boolean colored = true;
-    private boolean cancelInteract = true;
 
     public InventoryBuilder() {}
 
     private boolean isValidRowCount(int rowCount) {
         return rowCount > 0 && rowCount < 7;
-    }
-
-    public InventoryBuilder cancelInteract(boolean b) {
-        this.cancelInteract = b;
-        return this;
     }
 
     /**
@@ -193,7 +187,7 @@ public class InventoryBuilder {
             }
         });
 
-        this.inventory = Bukkit.createInventory(null, this.row * 9, this.colored ? JulyMessage.toColoredMessage(this.title) : this.title);
+        this.inventory = Bukkit.createInventory(null, this.row * 9, this.colored ? JulyText.getColoredText(this.title) : this.title);
 
         // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : itemIndexMap.entrySet()) {
@@ -202,6 +196,10 @@ public class InventoryBuilder {
 
         // 注册监听的物品
         if (this.itemListenerMap.size() > 0) {
+/*            if (!this.cancelInteract) {
+                throw new RuntimeException("要使用 ItemListener, 必须使 cancelInteract = true");
+            }*/
+
             List<Item> items = new ArrayList<>();
 
             for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
@@ -216,9 +214,7 @@ public class InventoryBuilder {
             JulyLibrary.getInstance().getInventoryBuilderListener().addInventoryListener(this.inventory, this.inventoryListener);
         }
 
-        if (this.cancelInteract) {
-            JulyLibrary.getInstance().getInventoryBuilderListener().addCancelIntercatInventory(this.inventory);
-        }
+        JulyLibrary.getInstance().getInventoryBuilderListener().addInventory(this.inventory);
 
         return this.inventory;
     }

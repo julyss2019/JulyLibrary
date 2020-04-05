@@ -21,17 +21,18 @@ public class JulyLibrary extends JavaPlugin implements Listener {
 
         Bukkit.getPluginManager().registerEvents(this.inventoryBuilderListener = new InventoryBuilderListener(), this);
         Bukkit.getPluginManager().registerEvents(new ChatInterceptorListener(), this);
-        getCommand("jl").setExecutor((cs, command, s, args) -> {
-            if (args.length == 1 && args[0].equalsIgnoreCase("monitor")) {
-                cs.sendMessage("item_listener: " + inventoryBuilderListener.getItemListeners().size());
-                cs.sendMessage("inventory_listener: " + inventoryBuilderListener.getInventoryListeners().size());
+        getCommand("JulyLibrary").setExecutor((cs, command, s, args) -> {
+            if (args.length == 1 && args[0].equalsIgnoreCase("version")) {
+                cs.sendMessage("§f插件版本: " + getDescription().getVersion() + ".");
                 return true;
             }
 
-            return false;
+            cs.sendMessage("§f/jlib version - 显示插件版本");
+            return true;
         });
 
-        getLogger().info("插件初始化完毕.");
+        JulyLibraryLogger.info("插件版本: v" + getDescription().getVersion() + ".");
+        JulyLibraryLogger.info("插件初始化完毕.");
     }
 
     public ChatInterceptorManager getChatInterceptorManager() {
@@ -43,7 +44,7 @@ public class JulyLibrary extends JavaPlugin implements Listener {
         Bukkit.getScheduler().cancelTasks(this);
         chatInterceptorManager.unregisterAll();
         HandlerList.unregisterAll((Plugin) instance);
-        getLogger().info("插件被卸载.");
+        JulyLibraryLogger.info("插件被卸载.");
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.github.julyss2019.mcsp.julylibrary.commandv2.registered;
 
 import com.github.julyss2019.mcsp.julylibrary.commandv2.SubCommand;
-import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -1,8 +1,7 @@
-package com.github.julyss2019.mcsp.julylibrary.message;
+package com.github.julyss2019.mcsp.julylibrary.text;
 
 import org.jetbrains.annotations.NotNull;
 
-@Deprecated
 public class DateTimeUnit {
     public static final DateTimeUnit SIMPLE_CHINESE_UNIT = new DateTimeUnit("年", "月", "日", "时", "分", "秒");
 

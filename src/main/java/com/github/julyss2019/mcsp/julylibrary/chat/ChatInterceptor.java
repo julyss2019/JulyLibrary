@@ -35,7 +35,7 @@ public class ChatInterceptor {
     }
 
     public boolean isTimeout() {
-        return timeout != -1 && ((System.currentTimeMillis() - creationTime) / 1000L > timeout);
+        return timeout != 0 && ((System.currentTimeMillis() - creationTime) / 1000L > timeout);
     }
 
     public ChatListener getChatListener() {
@@ -92,7 +92,7 @@ public class ChatInterceptor {
             Validate.notNull(player, "player 不能为 null");
 
             if (timeout < 0) {
-                throw new RuntimeException("timeout 不合法");
+                throw new RuntimeException("timeout 必须 >= 0");
             }
 
             return new ChatInterceptor(this);

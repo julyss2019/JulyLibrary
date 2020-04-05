@@ -15,11 +15,11 @@ import java.util.Collection;
 import java.util.List;
 
 public class JulyMessage {
-    private static final List<String> TITLE_NMS_VERSIONS = Arrays.asList("v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1");
-    private static final List<String> RAW_NMS_VERSIONS = Arrays.asList("v1_7_R1", "v1_7_R2", "v1_7_R3", "v1_7_R4", "v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1");
+    private static final boolean TITLE_ENABLED = Arrays.asList("v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1").contains(NMSUtil.NMS_VERSION);
+    private static final boolean RAW_MESSAGE_ENABLED = Arrays.asList("v1_7_R1", "v1_7_R2", "v1_7_R3", "v1_7_R4", "v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1").contains(NMSUtil.NMS_VERSION);
     private static Class<?> ichatBaseComponentClass;
     private static Class<?> packetPlayOutTitleClass;
-    private static Class<?> titleActionClass = null;
+    private static Class<?> titleActionClass;
     private static Class<?> packetPlayOutChatClass;
     private static Class<?> v1_7_ChatSerializerClass;
 
@@ -57,7 +57,7 @@ public class JulyMessage {
      * @return
      */
     public static void sendRawMessage(@NotNull Player player, @NotNull String json) {
-        if (!canSendRawMessage()) {
+        if (!isRawMessageEnabled()) {
             throw new RuntimeException("当前版本不支持发送 Raw: " + NMSUtil.NMS_VERSION);
         }
 
@@ -236,7 +236,7 @@ public class JulyMessage {
      * @return
      */
     public static void sendTitle(@NotNull Player player, @NotNull Title title) {
-        if (!canUseTitle()) {
+        if (!isTitleEnabled()) {
             throw new RuntimeException("当前版本不支持发送 Title: " + NMSUtil.NMS_VERSION);
         }
 
@@ -256,15 +256,15 @@ public class JulyMessage {
      * 能否使用 Title
      * @return
      */
-    public static boolean canUseTitle() {
-        return TITLE_NMS_VERSIONS.contains(NMSUtil.NMS_VERSION);
+    public static boolean isTitleEnabled() {
+        return TITLE_ENABLED;
     }
 
     /**
      * 能否使用 raw
      * @return
      */
-    public static boolean canSendRawMessage() {
-        return RAW_NMS_VERSIONS.contains(NMSUtil.NMS_VERSION);
+    public static boolean isRawMessageEnabled() {
+        return RAW_MESSAGE_ENABLED;
     }
 }

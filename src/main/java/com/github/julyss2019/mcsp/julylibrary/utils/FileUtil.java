@@ -34,7 +34,7 @@ public class FileUtil {
      * @param fileName
      * @param outFile
      */
-    private void saveResourceFile(@NotNull Plugin plugin, @NotNull String fileName, @NotNull File outFile, boolean replace) {
+    public static void saveResourceFile(@NotNull Plugin plugin, @NotNull String fileName, @NotNull File outFile, boolean replace) {
         File outParentFile = outFile.getParentFile();
 
         // 创建父文件夹
@@ -42,12 +42,17 @@ public class FileUtil {
             throw new RuntimeException("创建文件夹失败: " + outParentFile.getAbsolutePath());
         }
 
-        if (!outFile.exists() && !replace) {
+        if (!outFile.exists() || replace) {
             InputStream in = null;
             FileOutputStream out = null;
 
             try {
                 in = plugin.getResource(fileName);
+
+                if (in == null) {
+                    throw new RuntimeException("文件不存在: " + fileName);
+                }
+
                 out = new FileOutputStream(outFile);
                 byte[] buf = new byte[1024];
                 int len;

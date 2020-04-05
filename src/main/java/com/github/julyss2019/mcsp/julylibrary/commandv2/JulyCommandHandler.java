@@ -6,16 +6,18 @@ import com.github.julyss2019.mcsp.julylibrary.commandv2.tab.JulyTabHandler;
 import com.github.julyss2019.mcsp.julylibrary.commandv2.tab.Tab;
 import com.github.julyss2019.mcsp.julylibrary.map.MapBuilder;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
-import com.github.julyss2019.mcsp.julylibrary.message.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import com.github.julyss2019.mcsp.julylibrary.utils.ArrayUtil;
-import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class JulyCommandHandler extends JulyTabHandler implements CommandExecutor {
     private Map<String, RegisteredCommand> registeredCommandMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -212,27 +214,29 @@ public class JulyCommandHandler extends JulyTabHandler implements CommandExecuto
 
         RegisteredCommand registeredCommand = registeredCommandMap.get(args[0]);
 
-        for (RegisteredSubCommand registeredSubCommand : registeredCommand.getRegisteredSubCommands()) {
-            SubCommand subCommand = registeredSubCommand.getSubCommand();
-            int subArgsLen = subCommand.length();
+        if (argsLen > 1) {
+            for (RegisteredSubCommand registeredSubCommand : registeredCommand.getRegisteredSubCommands()) {
+                SubCommand subCommand = registeredSubCommand.getSubCommand();
+                int subArgsLen = subCommand.length();
 
-            if ((subArgsLen == -1 || subArgsLen == argsLen - 2) && args[1].equalsIgnoreCase(subCommand.firstArg())) {
-                if (!canUse(cs, subCommand.senders())) {
-                    JulyMessage.sendColoredMessage(cs, cs instanceof Player ? onlyPlayerCanUseMessage : onlyConsoleCanUseMessage);
+                if (args[1].equalsIgnoreCase(subCommand.firstArg()) && (subArgsLen == -1 || (subArgsLen == argsLen - 2))) {
+                    if (!canUse(cs, subCommand.senders())) {
+                        JulyMessage.sendColoredMessage(cs, cs instanceof Player ? onlyPlayerCanUseMessage : onlyConsoleCanUseMessage);
+                        return true;
+                    }
+
+                    String per = subCommand.permission();
+
+                    // 权限判断
+                    if (!per.equals("") && !cs.hasPermission(per)) {
+                        JulyMessage.sendColoredMessage(cs, JulyText.setPlaceholders(noPermissionMessage,
+                                new MapBuilder<String, String>().put("per", per).build()));
+                        return true;
+                    }
+
+                    registeredSubCommand.execute(cs, ArrayUtil.removeElementFromStrArray(ArrayUtil.removeElementFromStrArray(args, 0), 0));
                     return true;
                 }
-
-                String per = subCommand.permission();
-
-                // 权限判断
-                if (!per.equals("") && !cs.hasPermission(per)) {
-                    JulyMessage.sendColoredMessage(cs, JulyText.setPlaceholders(noPermissionMessage,
-                            new MapBuilder<String, String>().put("per", per).build()));
-                    return true;
-                }
-
-                registeredSubCommand.execute(cs, ArrayUtil.removeElementFromStrArray(ArrayUtil.removeElementFromStrArray(args, 0), 0));
-                return true;
             }
         }
 

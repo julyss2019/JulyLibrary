@@ -1,11 +1,11 @@
 package com.github.julyss2019.mcsp.julylibrary.item;
 
 import com.github.julyss2019.mcsp.julylibrary.Matcher;
-import com.github.julyss2019.mcsp.julylibrary.message.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import com.github.julyss2019.mcsp.julylibrary.utils.ItemUtil;
-import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class LoreItemEditor {
     private ItemStack itemStack;
     private ItemMeta itemMeta;
     private List<String> lores;
-    private boolean colored;
+    private boolean colored = true;
 
     public LoreItemEditor(ItemStack itemStack) {
         if (!ItemUtil.isValidItem(itemStack)) {
@@ -122,6 +122,10 @@ public class LoreItemEditor {
         clearLores();
         addLores(lores);
         return this;
+    }
+
+    public List<String> getLores() {
+        return new ArrayList<>(lores);
     }
 
     /**

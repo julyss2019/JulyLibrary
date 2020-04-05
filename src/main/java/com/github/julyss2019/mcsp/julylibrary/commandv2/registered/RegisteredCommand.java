@@ -1,7 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.commandv2.registered;
 
 import com.github.julyss2019.mcsp.julylibrary.commandv2.MainCommand;
-import com.github.julyss2019.mcsp.julylibrary.validate.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashSet;

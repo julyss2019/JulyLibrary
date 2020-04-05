@@ -10,6 +10,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SubCommand {
     String firstArg();
+
+    /**
+     * 子命令长度
+     * @return -1 代表接受所有长度的子命令
+     */
     int length();
     String[] subArgs() default {};
     String description();
