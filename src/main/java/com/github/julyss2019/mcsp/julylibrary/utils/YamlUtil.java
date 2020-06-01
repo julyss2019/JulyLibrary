@@ -1,10 +1,13 @@
 package com.github.julyss2019.mcsp.julylibrary.utils;
 
+import com.github.julyss2019.mcsp.julylibrary.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -14,6 +17,32 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class YamlUtil {
+    /**
+     * 从 ConfigurationSection 获得 ItemBuilder，支持：material，durability，display_name，lores，enchantments
+     * @param section
+     * @return
+     */
+    public static ItemBuilder getItemBuilder(@NotNull ConfigurationSection section) {
+        ItemBuilder itemBuilder = new ItemBuilder()
+                .colored()
+                .material(section.getString("material"))
+                .durability((short) section.getInt("durability"))
+                .displayName(section.getString("display_name"))
+                .lores(section.getStringList("lores"));
+
+        if (section.contains("enchantments")) {
+            for (String enchantmentName : section.getConfigurationSection("enchantments").getKeys(false)) {
+                try {
+                    itemBuilder.addEnchantment(Enchantment.getByName(enchantmentName), section.getInt("enchantments." + enchantmentName));
+                } catch (Exception e) {
+                    throw new RuntimeException("enchantments." + enchantmentName + " 附魔不合法", e);
+                }
+            }
+        }
+
+        return itemBuilder;
+    }
+
     @Deprecated
     public static void saveYaml(YamlConfiguration yml, File file) {
         try {

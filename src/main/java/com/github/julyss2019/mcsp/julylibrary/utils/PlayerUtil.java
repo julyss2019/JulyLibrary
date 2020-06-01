@@ -83,6 +83,7 @@ public class PlayerUtil {
         return totalAmount;
     }
 
+    @Deprecated
     /**
      * 判断玩家背包中是否有足够的物品
      * @param player 玩家
@@ -91,6 +92,17 @@ public class PlayerUtil {
      * @return
      */
     public static boolean hasEnoughItem(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int amount) {
+        return hasEnoughInventoryItems(player, predicate, amount);
+    }
+    
+    /**
+     * 判断玩家背包中是否有足够的物品
+     * @param player 玩家
+     * @param predicate 匹配器
+     * @param amount 数量
+     * @return
+     */
+    public static boolean hasEnoughInventoryItems(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int amount) {
         int totalAmount = 0;
         ItemStack[] items = player.getInventory().getContents();
 
@@ -105,6 +117,7 @@ public class PlayerUtil {
         return totalAmount >= amount;
     }
 
+    @Deprecated
     /**
      * 拿走玩家背包中的物品
      * @param player
@@ -113,6 +126,17 @@ public class PlayerUtil {
      * @return 是否拿走足量的物品
      */
     public static boolean takeItems(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int takeAmount) {
+        return takeInventoryItems(player, predicate, takeAmount);
+    }
+    
+    /**
+     * 拿走玩家背包中的物品
+     * @param player
+     * @param predicate
+     * @param takeAmount 数量
+     * @return 是否拿走足量的物品
+     */
+    public static boolean takeInventoryItems(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int takeAmount) {
         PlayerInventory playerInventory = player.getInventory();
         int tookAmount = 0;
 

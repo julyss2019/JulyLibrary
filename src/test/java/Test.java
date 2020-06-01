@@ -1,3 +1,4 @@
+import com.github.julyss2019.mcsp.julylibrary.utils.MathUtil;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Material;
 
@@ -5,7 +6,9 @@ import java.lang.reflect.Method;
 
 public class Test {
     public static void main(String[] args) {
-        Validate.inclusiveBetween(Integer.MIN_VALUE, 100, 1000, "T");
+        for (int i = 0; i < 100; i++) {
+            System.out.println(MathUtil.getRandomInteger(1, 5));
+        }
     }
 
     public static int sum(int index, int[] array) {

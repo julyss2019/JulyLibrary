@@ -48,7 +48,18 @@ public class JulyTabHandler implements TabCompleter {
         String endArg = args[args.length - 1]; // 最后一个 arg
 
         if (args.length == 1) {
-            return new ArrayList<>(tabMap.keySet()).stream().filter(s -> s.startsWith(endArg)).collect(Collectors.toList()); // 根据最后一个arg筛选
+            return new ArrayList<>(tabMap.values()).stream()
+                    .filter(tab -> {
+                        if (tab.hasShowPredicate() && !tab.getShowPredicate().test(commandSender)) {
+                            return false;
+                        }
+
+                        String arg = tab.getArg();
+
+                        return arg.toLowerCase().startsWith(endArg.toLowerCase());
+                    })
+                    .map(Tab::getArg)
+                    .collect(Collectors.toList()); // 根据最后一个arg筛选
         }
 
         Tab finalTab = tabMap.get(args[0]);
@@ -56,6 +67,7 @@ public class JulyTabHandler implements TabCompleter {
         if (finalTab == null) {
             return null;
         }
+
 
         // 递归得到最终 Tab
         for (int i = 1; i < args.length - 1; i++) {
@@ -80,7 +92,7 @@ public class JulyTabHandler implements TabCompleter {
             }
         }
 
-        return result.size() == 0 ? null : result.stream().filter(s -> s.startsWith(endArg)).collect(Collectors.toList());
+        return result.size() == 0 ? null : result.stream().filter(s -> s.toLowerCase().startsWith(endArg.toLowerCase())).collect(Collectors.toList());
     }
 
     @Override

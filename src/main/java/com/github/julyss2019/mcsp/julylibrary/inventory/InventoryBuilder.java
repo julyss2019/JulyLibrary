@@ -8,60 +8,49 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InventoryBuilder {
-    private Inventory inventory;
     private int row = -1;
     private String title = "";
     private Map<Integer, ItemStack> itemIndexMap = new HashMap<>(); // 物品索引表
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private InventoryListener inventoryListener;
     private boolean colored = true;
-
-    public InventoryBuilder() {}
-
-    private boolean isValidRowCount(int rowCount) {
-        return rowCount > 0 && rowCount < 7;
-    }
+    private Set<Integer> canInteractIndexes = new HashSet<>();
 
     /**
-     * 填充全部(覆盖)
-     * @param itemStack
+     * 设置允许交互的位置
+     * @param indexes
      * @return
      */
-    @Deprecated
-    public InventoryBuilder fillAll(@NotNull ItemStack itemStack) {
-        fillAll(itemStack, true);
-        return this;
-    }
+    public InventoryBuilder whitelist(int... indexes) {
+        canInteractIndexes.clear();
 
-    /**
-     * 填充全部
-     * @param itemStack
-     * @param replace 覆盖
-     * @return
-     */
-    @Deprecated
-    public InventoryBuilder fillAll(@NotNull ItemStack itemStack, boolean replace) {
-        if (!isValidRowCount(this.row)) {
-            throw new IllegalArgumentException("行数未设置");
-        }
-
-        for (int i = 0; i < this.row * 9; i++) {
-            if (replace || itemIndexMap.containsKey(i)) {
-                item(i, itemStack);
-            }
+        for (int index : indexes) {
+            canInteractIndexes.add(index);
         }
 
         return this;
     }
 
     /**
-     * GUI行数
+     * 设置允许交互的位置
+     * @param integers
+     * @return
+     */
+    public InventoryBuilder whitelist(@NotNull Collection<Integer> integers) {
+        if (integers.contains(null)) {
+            throw new NullPointerException();
+        }
+
+        canInteractIndexes.clear();
+        canInteractIndexes.addAll(integers);
+        return this;
+    }
+
+    /**
+     * 设置GUI行数
      * @param row
      * @return
      */
@@ -84,11 +73,24 @@ public class InventoryBuilder {
         return this;
     }
 
-    public InventoryBuilder item(int index, @NotNull ItemStack item) {
+    /**
+     * 设置物品
+     * @param index
+     * @param item
+     * @return
+     */
+    public InventoryBuilder item(int index, @Nullable ItemStack item) {
         return item(index, item, null);
     }
 
-    public InventoryBuilder item(int index, @NotNull ItemStack item, @Nullable ItemListener itemListener) {
+    /**
+     * 设置物品
+     * @param index
+     * @param item
+     * @param itemListener
+     * @return
+     */
+    public InventoryBuilder item(int index, @Nullable ItemStack item, @Nullable ItemListener itemListener) {
         if (index < 0 || index > 54) {
             throw new RuntimeException("索引不合法: " + index);
         }
@@ -109,7 +111,7 @@ public class InventoryBuilder {
      * @param item
      * @return
      */
-    public InventoryBuilder item(int row, int column, @NotNull ItemStack item) {
+    public InventoryBuilder item(int row, int column, @Nullable ItemStack item) {
         item(row * 9 + column, item);
         return this;
     }
@@ -122,14 +124,14 @@ public class InventoryBuilder {
      * @param itemListener 物品监听器
      * @return
      */
-    public InventoryBuilder item(int row, int column, @NotNull ItemStack item, @Nullable ItemListener itemListener) {
+    public InventoryBuilder item(int row, int column, @Nullable ItemStack item, @Nullable ItemListener itemListener) {
         item(row * 9 + column, item, itemListener);
         return this;
     }
 
 
     /**
-     * 创建一个矩形
+     * 创建一个矩形物品
      * @param row1
      * @param column1
      * @param row2
@@ -137,7 +139,7 @@ public class InventoryBuilder {
      * @param itemStack
      * @return
      */
-    public InventoryBuilder item(int row1, int column1, int row2, int column2, @NotNull ItemStack itemStack) {
+    public InventoryBuilder item(int row1, int column1, int row2, int column2, @Nullable ItemStack itemStack) {
         for (int row = row1; row <= row2; row++) {
             for (int column = column1; column <= column2; column++) {
                 item(row, column, itemStack);
@@ -171,9 +173,13 @@ public class InventoryBuilder {
      * @param inventoryListener
      * @return
      */
-    public InventoryBuilder listener(InventoryListener inventoryListener) {
+    public InventoryBuilder listener(@Nullable InventoryListener inventoryListener) {
         this.inventoryListener = inventoryListener;
         return this;
+    }
+
+    private boolean isValidRowCount(int rowCount) {
+        return rowCount > 0 && rowCount < 7;
     }
 
     public Inventory build() {
@@ -187,35 +193,36 @@ public class InventoryBuilder {
             }
         });
 
-        this.inventory = Bukkit.createInventory(null, this.row * 9, this.colored ? JulyText.getColoredText(this.title) : this.title);
+        Inventory inventory = Bukkit.createInventory(null, this.row * 9, this.colored ? JulyText.getColoredText(this.title) : this.title);
 
         // 设置物品
         for (Map.Entry<Integer, ItemStack> entry : itemIndexMap.entrySet()) {
-            this.inventory.setItem(entry.getKey(), entry.getValue());
+            inventory.setItem(entry.getKey(), entry.getValue());
         }
 
-        // 注册监听的物品
-        if (this.itemListenerMap.size() > 0) {
-/*            if (!this.cancelInteract) {
-                throw new RuntimeException("要使用 ItemListener, 必须使 cancelInteract = true");
-            }*/
+        BuilderInventory builderInventory = new BuilderInventory(inventory);
 
-            List<Item> items = new ArrayList<>();
+        // 监听物品
+        if (itemListenerMap.size() > 0) {
+            Set<BuilderInventory.ListenerItem> listenerItems = new HashSet<>();
 
             for (Map.Entry<Integer, com.github.julyss2019.mcsp.julylibrary.inventory.ItemListener> entry : this.itemListenerMap.entrySet()) {
-                items.add(new Item(entry.getKey(), entry.getValue()));
+                listenerItems.add(new BuilderInventory.ListenerItem(entry.getKey(), entry.getValue()));
             }
 
-            JulyLibrary.getInstance().getInventoryBuilderListener().listenInventoryItems(this.inventory, items);
+            builderInventory.setListenerItems(listenerItems);
         }
 
-        // 注册监听的背包
-        if (this.inventoryListener != null) {
-            JulyLibrary.getInstance().getInventoryBuilderListener().addInventoryListener(this.inventory, this.inventoryListener);
+        // 背包监听器
+        if (inventoryListener != null) {
+            builderInventory.setInventoryListener(inventoryListener);
         }
 
-        JulyLibrary.getInstance().getInventoryBuilderListener().addInventory(this.inventory);
+        if (canInteractIndexes.size() > 0) {
+            builderInventory.setCanInteractIndexes(canInteractIndexes);
+        }
 
-        return this.inventory;
+        JulyLibrary.getInstance().getBuilderInventoryManager().registerBuilderInventory(builderInventory);
+        return inventory;
     }
 }

@@ -46,6 +46,7 @@ public class JulyConfig {
 
     private static void setFields(@NotNull ConfigurationSection section, @NotNull Object obj) {
         Class<?> clazz = obj.getClass();
+        Set<String> errors = new HashSet<>();
 
         // 反射获得所有变量
         for (Field field : clazz.getDeclaredFields()) {
@@ -55,6 +56,7 @@ public class JulyConfig {
             if (field.isAnnotationPresent(Config.class)) {
                 Config configAnnotation = field.getAnnotation(Config.class);
                 String configPath = configAnnotation.path();
+                Set<String> fieldErrors = new HashSet<>();
 
                 // 如果yml有目标项
                 if (section.contains(configPath)) {
@@ -82,12 +84,10 @@ public class JulyConfig {
                         }
                     }
 
-                    Set<String> errors = new HashSet<>();
-
                     // NotNull 校验
                     if (field.isAnnotationPresent(com.github.julyss2019.mcsp.julylibrary.config.validate.NotNull.class)) {
                         if (value == null) {
-                            errors.add("配置 " + configPath + " 不能为 null.");
+                            fieldErrors.add("配置 " + configPath + " 不能为 null.");
                         }
                     }
 
@@ -98,15 +98,15 @@ public class JulyConfig {
                         }
 
                         if (value == null) {
-                            errors.add("配置 " + configPath + " 不能为 null.");
+                            fieldErrors.add("配置 " + configPath + " 不能为 null.");
                         } else {
                             if (!(value instanceof List)) {
-                                errors.add("配置 " + configPath + " 必须为 List.");
+                                fieldErrors.add("配置 " + configPath + " 必须为 List.");
                             } else {
                                 List list = (List) value;
 
                                 if (list.isEmpty()) {
-                                    errors.add("配置 " + configPath + " 必须至少有一个元素.");
+                                    fieldErrors.add("配置 " + configPath + " 必须至少有一个元素.");
                                 }
                             }
                         }
@@ -133,7 +133,7 @@ public class JulyConfig {
                             int intValue = NumberConversions.toInt(value);
 
                             if (intValue < min.value()) {
-                                errors.add("配置 " + configPath + " 允许的最小值为 " + min.value() + ".");
+                                fieldErrors.add("配置 " + configPath + " 允许的最小值为 " + min.value() + ".");
                             }
                         }
 
@@ -143,15 +143,15 @@ public class JulyConfig {
                             int intValue = NumberConversions.toInt(value);
 
                             if (intValue > max.value()) {
-                                errors.add("配置 " + configPath + " 允许的最大值为 " + max.value() + ".");
+                                fieldErrors.add("配置 " + configPath + " 允许的最大值为 " + max.value() + ".");
                             }
                         }
                     }
 
                     // 有错误的情况
-                    if (!errors.isEmpty()) {
-                        errors.forEach(JulyLibraryLogger::error);
-                        throw new RuntimeException();
+                    if (!fieldErrors.isEmpty()) {
+                        errors.addAll(fieldErrors);
+                        continue;
                     }
 
                     field.setAccessible(true);
@@ -164,9 +164,14 @@ public class JulyConfig {
 
                     field.setAccessible(false);
                 } else {
-                    JulyLibraryLogger.warning(clazz.getName() + " 中的变量 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
+                    errors.add(clazz.getName() + " 中的变量 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
                 }
             }
+        }
+
+        if (!errors.isEmpty()) {
+            errors.forEach(JulyLibraryLogger::error);
+            throw new RuntimeException("配置存在异常");
         }
     }
 

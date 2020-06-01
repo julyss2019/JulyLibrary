@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 
 public class FileUtil {
-    public static StringBuilder readLines(@NotNull File file) {
+    public static String readLines(@NotNull File file) {
         StringBuilder sb = new StringBuilder();
 
         try {
@@ -20,7 +20,7 @@ public class FileUtil {
             e.printStackTrace();
         }
 
-        return sb;
+        return sb.toString();
     }
 
     public static String getFileName(@NotNull File file) {

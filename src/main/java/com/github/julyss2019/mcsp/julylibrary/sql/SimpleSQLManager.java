@@ -12,7 +12,6 @@ public class SimpleSQLManager {
     private String url;
     private String user;
     private String password;
-    private boolean connected;
     private Connection connection;
 
     public SimpleSQLManager(@NotNull String driver, @NotNull String url) {
@@ -27,7 +26,7 @@ public class SimpleSQLManager {
     }
 
     public boolean isConnected() {
-        return connected;
+        return connection != null;
     }
 
     public void disconnect() throws RuntimeException {
@@ -40,10 +39,12 @@ public class SimpleSQLManager {
         } catch (SQLException e) {
             throw new RuntimeException("关闭连接失败", e);
         }
+
+        this.connection = null;
     }
 
     public void connect() throws RuntimeException {
-        if (connected) {
+        if (isConnected()) {
             throw new RuntimeException("已连接");
         }
 
@@ -55,7 +56,6 @@ public class SimpleSQLManager {
 
         try {
             this.connection = (password == null || user == null) ? DriverManager.getConnection(url) : DriverManager.getConnection(url, user, password);
-            this.connected = true;
         } catch (SQLException e) {
             throw new RuntimeException("连接失败", e);
         }
@@ -66,8 +66,7 @@ public class SimpleSQLManager {
             throw new RuntimeException("未连接");
         }
 
-        this.connected = false;
-        this.connection = null;
+        disconnect();
         connect();
     }
 

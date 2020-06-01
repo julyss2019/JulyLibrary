@@ -1,5 +1,6 @@
 package com.github.julyss2019.mcsp.julylibrary.commandv2.registered;
 
+import com.github.julyss2019.mcsp.julylibrary.commandv2.InvalidArgumentException;
 import com.github.julyss2019.mcsp.julylibrary.commandv2.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -28,11 +29,7 @@ public class RegisteredSubCommand {
         return subCommand;
     }
 
-    public void execute(@NotNull CommandSender cs, @NotNull String[] args) {
-        try {
-            method.invoke(obj, cs, args);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    public void execute(@NotNull CommandSender cs, @NotNull String[] args) throws InvalidArgumentException, IllegalAccessError, InvocationTargetException, IllegalAccessException {
+        method.invoke(obj, cs, args);
     }
 }

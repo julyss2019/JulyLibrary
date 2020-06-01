@@ -14,4 +14,5 @@ import java.lang.annotation.Target;
 public @interface MainCommand {
     String firstArg();
     String description();
+    String permission() default "";
 }

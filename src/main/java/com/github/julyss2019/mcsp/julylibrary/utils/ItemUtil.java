@@ -92,7 +92,7 @@ public class ItemUtil {
      * @param itemStack 允许无效物品
      * @return 不为null的List
      */
-    public static List<String> getLores(@ValidItem ItemStack itemStack) {
+    public static List<String> getLores(ItemStack itemStack) {
         if (!isValid(itemStack)) {
             return new ArrayList<>();
         }
@@ -135,7 +135,7 @@ public class ItemUtil {
             throw new RuntimeException("物品不合法");
         }
 
-        if (lores.contains(null)) {
+        if (lores != null && lores.contains(null)) {
             throw new NullPointerException("包含空元素");
         }
 
@@ -162,6 +162,19 @@ public class ItemUtil {
 
         lores.add(lore);
         return setLores(itemStack, lores);
+    }
+
+    /**
+     * 得到物品名
+     * @param itemStack
+     * @return
+     */
+    public static @Nullable String getDisplayName(ItemStack itemStack) {
+        if (!isValid(itemStack)) {
+            return null;
+        }
+
+        return itemStack.getItemMeta().getDisplayName();
     }
 
     /**

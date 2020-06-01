@@ -2,7 +2,8 @@ package com.github.julyss2019.mcsp.julylibrary;
 
 import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorListener;
 import com.github.julyss2019.mcsp.julylibrary.chat.ChatInterceptorManager;
-import com.github.julyss2019.mcsp.julylibrary.inventory.InventoryBuilderListener;
+import com.github.julyss2019.mcsp.julylibrary.inventory.BuilderInventoryManager;
+import com.github.julyss2019.mcsp.julylibrary.inventory.BuilderInventoryListener;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -12,14 +13,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class JulyLibrary extends JavaPlugin implements Listener {
     private static JulyLibrary instance;
     private ChatInterceptorManager chatInterceptorManager;
-    private InventoryBuilderListener inventoryBuilderListener;
+    private BuilderInventoryManager builderInventoryManager;
 
     @Override
     public void onEnable() {
         instance = this;
         this.chatInterceptorManager = new ChatInterceptorManager();
+        this.builderInventoryManager = new BuilderInventoryManager();
 
-        Bukkit.getPluginManager().registerEvents(this.inventoryBuilderListener = new InventoryBuilderListener(), this);
+        Bukkit.getPluginManager().registerEvents(new BuilderInventoryListener(), this);
         Bukkit.getPluginManager().registerEvents(new ChatInterceptorListener(), this);
         getCommand("JulyLibrary").setExecutor((cs, command, s, args) -> {
             if (args.length == 1 && args[0].equalsIgnoreCase("version")) {
@@ -47,12 +49,8 @@ public class JulyLibrary extends JavaPlugin implements Listener {
         JulyLibraryLogger.info("插件被卸载.");
     }
 
-    /**
-     * 得到背包事件触发器
-     * @return
-     */
-    public InventoryBuilderListener getInventoryBuilderListener() {
-        return inventoryBuilderListener;
+    public BuilderInventoryManager getBuilderInventoryManager() {
+        return builderInventoryManager;
     }
 
     public static JulyLibrary getInstance() {

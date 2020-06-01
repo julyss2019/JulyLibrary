@@ -70,6 +70,7 @@ public class ChatInterceptorManager {
     public ChatInterceptor getChatInterceptor(@NotNull Player player) {
         return playerChatInterceptorMap.get(player.getUniqueId());
     }
+
     /**
      * 是否已注册聊天拦截器
      * @param player 玩家
@@ -78,7 +79,6 @@ public class ChatInterceptorManager {
     public boolean hasChatInterceptor(@NotNull Player player) {
         return playerChatInterceptorMap.containsKey(player.getUniqueId());
     }
-
 
     /**
      * 注销聊天拦截器
