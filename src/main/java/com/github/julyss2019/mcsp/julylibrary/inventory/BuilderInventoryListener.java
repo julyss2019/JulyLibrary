@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 
+import java.util.Set;
+
 /**
  * 用于唤醒各种定义的事件
  */
@@ -18,7 +20,7 @@ public class BuilderInventoryListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onInventoryClickEvent(InventoryClickEvent event) {
         Inventory topInventory = event.getView().getTopInventory();
-        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventory(topInventory);
+        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventories(topInventory);
 
         if (builderInventory == null) {
             return;
@@ -36,13 +38,10 @@ public class BuilderInventoryListener implements Listener {
         int topInventorySize = topInventory.getSize();
         int rawSlot = event.getRawSlot();
 
-        // 取消点击GUI里的东西
+        // 点击了 GUI 里的东西
         if (rawSlot < topInventorySize) {
-            // 背包监听器
-            if (builderInventory.hasInventoryListener()) {
-                builderInventory.getInventoryListener().onClick(event);
-                builderInventory.getInventoryListener().onClicked(event);
-            }
+            event.setCancelled(true);
+            event.setResult(Event.Result.DENY);
 
             BuilderInventory.ListenerItem listenerItem = builderInventory.getListenerItem(rawSlot);
 
@@ -58,28 +57,44 @@ public class BuilderInventoryListener implements Listener {
                     listenerItem.getItemListener().onClick(event);
                     listenerItem.getItemListener().onClicked(event);
                 }
-                // 白名单位置
-            } else if (!builderInventory.getWhitelistInteractIndexes().contains(rawSlot)) {
-                event.setCancelled(true);
-                event.setResult(Event.Result.DENY);
+            }
+
+            // 背包监听器(最后触发)
+            if (builderInventory.hasInventoryListener()) {
+                builderInventory.getInventoryListener().onClick(event);
+                builderInventory.getInventoryListener().onClicked(event);
             }
         }
     }
 
     @EventHandler
     public void onInventoryDragEvent(InventoryDragEvent event) {
-        Inventory inventory = event.getInventory();
-        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventory(inventory);
+        Inventory topInventory = event.getView().getTopInventory();
+        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventories(topInventory);
 
         if (builderInventory == null) {
             return;
         }
 
         int topInvSize = event.getView().getTopInventory().getSize(); // 顶部GUI的大小
+        Set<Integer> rawSlots = event.getRawSlots();
+
+/*        // 单击时可能触发 Drag ，这里单独判断提升用户体验
+        if (rawSlots.size() == 1) {
+            int v = rawSlots.iterator().next();
+
+            if (v >= 0 && v < topInvSize) {
+                return;
+            } else {
+                event.setCancelled(true);
+                event.setResult(Event.Result.DENY);
+            }
+        }*/
 
         for (int slot : event.getRawSlots()) {
             // 如果在顶部GUI点击 且 是监听器物品 或 不是可单机物品
-            if (slot > 0 && slot < topInvSize && (builderInventory.getListenerItem(slot) != null || !builderInventory.getWhitelistInteractIndexes().contains(slot))) {
+            // && (builderInventory.getListenerItem(slot) != null || !builderInventory.getWhitelistInteractIndexes().contains(slot))
+            if (slot > 0 && slot < topInvSize) {
                 event.setCancelled(true);
                 event.setResult(Event.Result.DENY);
                 return;
@@ -93,8 +108,8 @@ public class BuilderInventoryListener implements Listener {
      */
     @EventHandler
     public void onInventoryOpenEvent(InventoryOpenEvent event) {
-        Inventory inventory = event.getInventory();
-        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventory(inventory);
+        Inventory inventory = event.getView().getTopInventory();
+        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventories(inventory);
 
         if (builderInventory == null) {
             return;
@@ -111,8 +126,8 @@ public class BuilderInventoryListener implements Listener {
      */
     @EventHandler
     public void onInventoryCloseEvent(InventoryCloseEvent event) {
-        Inventory inventory = event.getInventory();
-        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventory(inventory);
+        Inventory inventory = event.getView().getTopInventory();
+        BuilderInventory builderInventory = builderInventoryManager.getBuilderInventories(inventory);
 
         if (builderInventory == null) {
             return;
@@ -121,5 +136,17 @@ public class BuilderInventoryListener implements Listener {
         if (builderInventory.hasInventoryListener()) {
             builderInventory.getInventoryListener().onClose(event);
         }
+
+        builderInventoryManager.unregisterBuilderInventory(inventory);
+
+/*        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // 如果没人看了 注销
+                if (inventory.getViewers().size() == 0) {
+                    builderInventoryManager.unregisterBuilderInventory(inventory);
+                }
+            }
+        }.runTask(JulyLibrary.getInstance());*/
     }
 }

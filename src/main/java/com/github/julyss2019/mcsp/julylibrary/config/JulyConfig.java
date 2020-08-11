@@ -1,9 +1,10 @@
 package com.github.julyss2019.mcsp.julylibrary.config;
 
-import com.github.julyss2019.mcsp.julylibrary.JulyLibraryLogger;
+import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
 import com.github.julyss2019.mcsp.julylibrary.config.validate.Max;
 import com.github.julyss2019.mcsp.julylibrary.config.validate.Min;
 import com.github.julyss2019.mcsp.julylibrary.config.validate.NotEmpty;
+import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
@@ -80,7 +81,15 @@ public class JulyConfig {
                                 }
                             }
                         } else {
-                            value = section.get(configPath);
+                            if (configAnnotation.colored()) {
+                                if (fieldType == String.class ) {
+                                    value = JulyText.getColoredText(section.getString(configPath));
+                                } else if (fieldType == List.class && configAnnotation.colored()) {
+                                    value = JulyText.getColoredTexts(section.getStringList(configPath));
+                                }
+                            } else {
+                                value = section.get(configPath);
+                            }
                         }
                     }
 
@@ -170,7 +179,7 @@ public class JulyConfig {
         }
 
         if (!errors.isEmpty()) {
-            errors.forEach(JulyLibraryLogger::error);
+            errors.forEach(JulyLibrary.getInstance().getPluginLogger()::error);
             throw new RuntimeException("配置存在异常");
         }
     }

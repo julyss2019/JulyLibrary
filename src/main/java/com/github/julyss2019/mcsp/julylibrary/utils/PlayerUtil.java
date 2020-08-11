@@ -21,7 +21,21 @@ public class PlayerUtil {
         packetClass = NMSUtil.getNMSClass("Packet");
     }
 
-    public static void sendPacket(Player player, @NotNull Object packet) {
+/*
+    public static void addItemToInventoryOrDrop(@NotNull Player player, @ItemUtil.ValidItem ItemStack itemStack) {
+        if (!ItemUtil.isValid(itemStack)) {
+            throw new RuntimeException("物品不合法");
+        }
+
+        if (player.getInventory().firstEmpty() == -1) {
+            player.getLocation().getWorld().dropItem(player.getLocation(), itemStack);
+        } else {
+            player.getInventory().addItem(itemStack);
+        }
+    }
+*/
+
+    public static void sendPacket(@NotNull Player player, @NotNull Object packet) {
         try
         {
             Object handle = player.getClass().getMethod("getHandle").invoke(player);

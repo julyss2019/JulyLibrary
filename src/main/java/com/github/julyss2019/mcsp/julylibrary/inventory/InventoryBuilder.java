@@ -17,37 +17,6 @@ public class InventoryBuilder {
     private Map<Integer, ItemListener> itemListenerMap = new HashMap<>(); // 物品点击回调表
     private InventoryListener inventoryListener;
     private boolean colored = true;
-    private Set<Integer> canInteractIndexes = new HashSet<>();
-
-    /**
-     * 设置允许交互的位置
-     * @param indexes
-     * @return
-     */
-    public InventoryBuilder whitelist(int... indexes) {
-        canInteractIndexes.clear();
-
-        for (int index : indexes) {
-            canInteractIndexes.add(index);
-        }
-
-        return this;
-    }
-
-    /**
-     * 设置允许交互的位置
-     * @param integers
-     * @return
-     */
-    public InventoryBuilder whitelist(@NotNull Collection<Integer> integers) {
-        if (integers.contains(null)) {
-            throw new NullPointerException();
-        }
-
-        canInteractIndexes.clear();
-        canInteractIndexes.addAll(integers);
-        return this;
-    }
 
     /**
      * 设置GUI行数
@@ -68,7 +37,7 @@ public class InventoryBuilder {
      * @param title
      * @return
      */
-    public InventoryBuilder title(String title) {
+    public InventoryBuilder title(@NotNull String title) {
         this.title = title;
         return this;
     }
@@ -218,11 +187,7 @@ public class InventoryBuilder {
             builderInventory.setInventoryListener(inventoryListener);
         }
 
-        if (canInteractIndexes.size() > 0) {
-            builderInventory.setCanInteractIndexes(canInteractIndexes);
-        }
-
-        JulyLibrary.getInstance().getBuilderInventoryManager().registerBuilderInventory(builderInventory);
+        JulyLibrary.getInstance().getBuilderInventoryManager().registerBuilderInventory(builderInventory); // 注册到 Inventory 管理器中
         return inventory;
     }
 }

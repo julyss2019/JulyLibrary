@@ -43,15 +43,6 @@ public class YamlUtil {
         return itemBuilder;
     }
 
-    @Deprecated
-    public static void saveYaml(YamlConfiguration yml, File file) {
-        try {
-            yml.save(file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * 补全 Section
      * @param targetSection 目标 Section
@@ -83,39 +74,11 @@ public class YamlUtil {
     }
 
     /**
-     * 补全yaml
-     * @param file 欲补全的文件
-     * @param completedSection 完整的节点
+     * 载入 Yaml
+     * @param file
      * @param charset 编码
+     * @return
      */
-    @Deprecated
-    public static void completeConfig(@NotNull File file, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
-        completeConfig0(file, loadYaml(file, charset), completedSection, charset);
-    }
-
-    @Deprecated
-    private static void completeConfig0(@NotNull File targetFile, @NotNull YamlConfiguration targetYaml, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
-        boolean changed = false;
-
-        for (String key : completedSection.getKeys(false)) {
-            if (completedSection.isConfigurationSection(key)) {
-                completeConfig0(targetFile, targetYaml, completedSection.getConfigurationSection(key), charset);
-            } else {
-                String sectionPath = completedSection.getCurrentPath();
-                String fullPath = sectionPath.equals("") ? key : sectionPath + "." + key;
-
-                if (!targetYaml.contains(fullPath)) {
-                    targetYaml.set(fullPath, completedSection.get(key));
-                    changed = true;
-                }
-            }
-        }
-
-        if (changed) {
-            YamlUtil.saveYaml(targetYaml, targetFile, charset);
-        }
-    }
-
     public static YamlConfiguration loadYaml(@NotNull File file, @NotNull Charset charset) {
         YamlConfiguration yaml = new YamlConfiguration();
 
@@ -224,17 +187,18 @@ public class YamlUtil {
         }
     }
 
-    public static Location getLocationFromSection(ConfigurationSection section) {
-        return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
-    }
-
-    @Deprecated
-    public static Location getLocationBySection(@NotNull ConfigurationSection section) {
+    /**
+     * 从 ConfigurationSection 获取 Location
+     * @param section
+     * @return
+     */
+    public static Location getLocationFromSection(@NotNull ConfigurationSection section) {
         return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
     }
 
     /**
-     * 设置位置信息到 Section
+     * 设置 Location 到 ConfigurationSection
+     * 用这个较为保险，低版本 Config 支持不好
      * @param section
      * @param location
      */
@@ -245,5 +209,57 @@ public class YamlUtil {
         section.set("z", location.getZ());
         section.set("yaw", location.getYaw());
         section.set("pitch", location.getPitch());
+    }
+
+    /**
+     * 以默认编码保存 Yaml
+     * @param yml
+     * @param file
+     */
+    public static void saveYaml(@NotNull YamlConfiguration yml, @NotNull File file) {
+        try {
+            yml.save(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Deprecated
+    public static Location getLocationBySection(@NotNull ConfigurationSection section) {
+        return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
+    }
+
+    /**
+     * 补全yaml
+     * @param file 欲补全的文件
+     * @param completedSection 完整的节点
+     * @param charset 编码
+     */
+    @Deprecated
+    public static void completeConfig(@NotNull File file, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
+        completeConfig0(file, loadYaml(file, charset), completedSection, charset);
+    }
+
+    @Deprecated
+    private static void completeConfig0(@NotNull File targetFile, @NotNull YamlConfiguration targetYaml, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
+        boolean changed = false;
+
+        for (String key : completedSection.getKeys(false)) {
+            if (completedSection.isConfigurationSection(key)) {
+                completeConfig0(targetFile, targetYaml, completedSection.getConfigurationSection(key), charset);
+            } else {
+                String sectionPath = completedSection.getCurrentPath();
+                String fullPath = sectionPath.equals("") ? key : sectionPath + "." + key;
+
+                if (!targetYaml.contains(fullPath)) {
+                    targetYaml.set(fullPath, completedSection.get(key));
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            YamlUtil.saveYaml(targetYaml, targetFile, charset);
+        }
     }
 }

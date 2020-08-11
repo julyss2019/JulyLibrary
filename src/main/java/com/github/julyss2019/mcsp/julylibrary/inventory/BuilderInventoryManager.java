@@ -4,24 +4,30 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class BuilderInventoryManager {
-    private Map<Inventory, BuilderInventory> bukkitInvToBuilderInvMap = new HashMap<>();
+    private Map<Inventory, BuilderInventory> inventoryToBuilderInventoryHashMap = new HashMap<>();
 
     public void registerBuilderInventory(@NotNull BuilderInventory builderInventory) {
-        bukkitInvToBuilderInvMap.put(builderInventory.getBukkitInventory(), builderInventory);
+        inventoryToBuilderInventoryHashMap.put(builderInventory.getBukkitInventory(), builderInventory);
     }
 
     public void unregisterBuilderInventory(@NotNull Inventory inventory) {
-        bukkitInvToBuilderInvMap.remove(inventory);
+        inventoryToBuilderInventoryHashMap.remove(inventory);
     }
 
-    public BuilderInventory getBuilderInventory(@NotNull Inventory inventory) {
-        return bukkitInvToBuilderInvMap.get(inventory);
+    public BuilderInventory getBuilderInventories(@NotNull Inventory inventory) {
+        return inventoryToBuilderInventoryHashMap.get(inventory);
     }
 
     public boolean hasBuilderInventory(@NotNull Inventory inventory) {
-        return bukkitInvToBuilderInvMap.containsKey(inventory);
+        return inventoryToBuilderInventoryHashMap.containsKey(inventory);
+    }
+
+    public Set<BuilderInventory> getBuilderInventories() {
+        return new HashSet<>(inventoryToBuilderInventoryHashMap.values());
     }
 }

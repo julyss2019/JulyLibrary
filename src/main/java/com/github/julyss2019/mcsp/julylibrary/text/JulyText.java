@@ -3,12 +3,20 @@ package com.github.julyss2019.mcsp.julylibrary.text;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JulyText {
+    /**
+     * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}
+     * @param s
+     * @param placeholderContainer 占位符容器
+     * @return
+     */
+    public static String setPlaceholders(@NotNull String s, @NotNull PlaceholderContainer placeholderContainer) {
+        return setPlaceholders(s, placeholderContainer.toMap());
+    }
+
     /**
      * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}
      * @param s
@@ -130,11 +138,22 @@ public class JulyText {
      * @param messages
      * @return
      */
+    @Deprecated
     public static List<String> getColoredTexts(@NotNull Collection<String> messages) {
         List<String> result = new ArrayList<>();
 
         messages.forEach(s -> result.add(getColoredText(s)));
         return result;
+    }
+
+    @Deprecated
+    public static Set<String> getColoredTexts(@NotNull Set<String> texts) {
+        return texts.stream().map(JulyText::getColoredText).collect(Collectors.toSet());
+    }
+
+    @Deprecated
+    public static List<String> getColoredTexts(@NotNull List<String> texts) {
+        return texts.stream().map(JulyText::getColoredText).collect(Collectors.toList());
     }
 
     /**

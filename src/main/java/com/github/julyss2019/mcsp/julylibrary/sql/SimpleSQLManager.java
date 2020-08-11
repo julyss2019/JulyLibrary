@@ -25,11 +25,11 @@ public class SimpleSQLManager {
         this.password = password;
     }
 
-    public boolean isConnected() {
+    public synchronized boolean isConnected() {
         return connection != null;
     }
 
-    public void disconnect() throws RuntimeException {
+    public synchronized void disconnect() throws RuntimeException {
         if (connection == null) {
             throw new RuntimeException("未连接");
         }
@@ -43,7 +43,7 @@ public class SimpleSQLManager {
         this.connection = null;
     }
 
-    public void connect() throws RuntimeException {
+    public synchronized void connect() throws RuntimeException {
         if (isConnected()) {
             throw new RuntimeException("已连接");
         }
@@ -61,7 +61,7 @@ public class SimpleSQLManager {
         }
     }
 
-    public void reconnect() throws RuntimeException {
+    public synchronized void reconnect() throws RuntimeException {
         if (!isConnected()) {
             throw new RuntimeException("未连接");
         }
@@ -70,7 +70,7 @@ public class SimpleSQLManager {
         connect();
     }
 
-    public void executeStatement(@NotNull String s) throws RuntimeException {
+    public synchronized void executeStatement(@NotNull String s) throws RuntimeException {
         try {
             connection.prepareStatement(s).execute();
         } catch (SQLException e) {
@@ -78,7 +78,7 @@ public class SimpleSQLManager {
         }
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         return connection;
     }
 }

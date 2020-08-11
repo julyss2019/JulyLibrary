@@ -48,7 +48,7 @@ public class Title {
      * 发送 Title
      * @param player
      */
-    public void send(Player player) {
+    public void send(@NotNull  Player player) {
         JulyMessage.sendTitle(player, this);
     }
 
@@ -101,14 +101,6 @@ public class Title {
         }
 
         public Title build() {
-            if (titleType == null) {
-                throw new RuntimeException("type 不能为 null");
-            }
-
-            if (text == null) {
-                throw new RuntimeException("text 不能为 null");
-            }
-
             return new Title(Title.Builder.this.titleType, colored ? ChatColor.translateAlternateColorCodes('&', text) : text, fadeIn, stay, fadeOut);
         }
     }

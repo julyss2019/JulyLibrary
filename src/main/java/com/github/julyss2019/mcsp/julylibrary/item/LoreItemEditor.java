@@ -108,7 +108,7 @@ public class LoreItemEditor {
      * @param lores
      * @return
      */
-    public LoreItemEditor addLores(@NotNull Collection<String> lores) {
+    public LoreItemEditor addLores(@NotNull List<String> lores) {
         lores.forEach(this::addLore);
         return this;
     }
@@ -118,7 +118,7 @@ public class LoreItemEditor {
      * @param lores
      * @return
      */
-    public LoreItemEditor setLores(@NotNull Collection<String> lores) {
+    public LoreItemEditor setLores(@NotNull List<String> lores) {
         clearLores();
         addLores(lores);
         return this;

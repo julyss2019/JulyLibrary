@@ -2,6 +2,7 @@ package com.github.julyss2019.mcsp.julylibrary.chat;
 
 import com.github.julyss2019.mcsp.julylibrary.JulyLibrary;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,17 @@ public class ChatInterceptor {
     private long creationTime;
     private boolean onlyFirst;
 
-    private ChatInterceptor(Builder builder) {
+    private ChatInterceptor() {}
+
+    private ChatInterceptor(@NotNull Builder builder) {
+        Validate.notNull(builder.plugin, "plugin 不能为 null");
+        Validate.notNull(builder.chatListener, "chatListener 不能为 null");
+        Validate.notNull(builder.player, "player 不能为 null");
+
+        if (timeout < 0) {
+            throw new RuntimeException("timeout 必须 >= 0");
+        }
+
         this.chatListener = builder.chatListener;
         this.plugin = builder.plugin;
         this.player = builder.player;
@@ -46,6 +57,9 @@ public class ChatInterceptor {
         return plugin;
     }
 
+    /*
+    修改意见：应该由 Manager 统一管理
+     */
     public void register() {
         JulyLibrary.getInstance().getChatInterceptorManager().registerChatInterceptor(this);
     }
@@ -61,7 +75,7 @@ public class ChatInterceptor {
         private Player player;
         private Plugin plugin;
 
-        public Builder plugin(@NotNull Plugin plugin) {
+        public Builder plugin(Plugin plugin) {
             this.plugin = plugin;
             return this;
         }
@@ -87,14 +101,6 @@ public class ChatInterceptor {
         }
 
         public ChatInterceptor build() {
-            Validate.notNull(plugin, "plugin 不能为 null");
-            Validate.notNull(chatListener, "chatListener 不能为 null");
-            Validate.notNull(player, "player 不能为 null");
-
-            if (timeout < 0) {
-                throw new RuntimeException("timeout 必须 >= 0");
-            }
-
             return new ChatInterceptor(this);
         }
     }

@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class CollectionUtil {
+    @Deprecated
     public static <T extends Collection<String>> List<String> toLowercase(T collection) {
         List<String> result = new ArrayList<>();
 
@@ -13,6 +15,7 @@ public class CollectionUtil {
         return result;
     }
 
+    @Deprecated
     public static <T extends Collection<String>> List<String> replaceStrings(T collection, Map<String, String> replaceMap) {
         List<String> result = new ArrayList<>();
 

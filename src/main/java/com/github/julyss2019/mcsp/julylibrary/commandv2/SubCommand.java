@@ -20,4 +20,5 @@ public @interface SubCommand {
     String description();
     String permission() default "";
     SenderType[] senders() default {SenderType.CONSOLE, SenderType.PLAYER};
+    int priority() default 0;
 }

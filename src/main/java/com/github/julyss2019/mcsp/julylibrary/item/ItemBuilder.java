@@ -359,6 +359,10 @@ public class ItemBuilder {
             throw new RuntimeException("material 不能为 null");
         }
 
+        if (this.material == Material.AIR) {
+            throw new RuntimeException("material 不能为 AIR");
+        }
+
         ItemStack itemStack = new ItemStack(this.material);
         ItemMeta itemMeta = itemStack.getItemMeta();
 

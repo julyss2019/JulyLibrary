@@ -1,6 +1,5 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
-import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
 import com.github.julyss2019.mcsp.julylibrary.utils.PlayerUtil;
 import org.bukkit.Bukkit;

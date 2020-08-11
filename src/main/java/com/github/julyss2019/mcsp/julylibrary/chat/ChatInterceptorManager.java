@@ -27,16 +27,16 @@ public class ChatInterceptorManager {
      * @param plugin
      * @return
      */
-    public Collection<ChatInterceptor> getChatInterceptors(@NotNull Plugin plugin) {
-        return getChatInterceptors().stream().filter(chatInterceptor -> plugin.equals(chatInterceptor.getPlugin())).collect(Collectors.toList());
+    public Set<ChatInterceptor> getChatInterceptors(@NotNull Plugin plugin) {
+        return getChatInterceptors().stream().filter(chatInterceptor -> plugin.equals(chatInterceptor.getPlugin())).collect(Collectors.toSet());
     }
 
     /**
      * 得到所有聊天拦截器
      * @return
      */
-    public Collection<ChatInterceptor> getChatInterceptors() {
-        return playerChatInterceptorMap.values();
+    public Set<ChatInterceptor> getChatInterceptors() {
+        return new HashSet<>(playerChatInterceptorMap.values());
     }
 
     /**
