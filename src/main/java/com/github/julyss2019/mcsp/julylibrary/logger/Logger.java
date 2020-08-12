@@ -110,6 +110,7 @@ public class Logger {
 
 
     private Level consoleLevel = Level.INFO;
+    private Level storageLevel = Level.DEBUG;
     private String consoleFormat = "&a[${plugin_name}] &f[${level}] &f${msg}";
     private String storageFormat = "[${date_time}] [${level}] ${msg}";
     private Plugin plugin;
@@ -124,6 +125,14 @@ public class Logger {
     Logger(@NotNull Plugin plugin) {
         this.plugin = plugin;
         this.pluginName = plugin.getName();
+    }
+
+    public Level getStorageLevel() {
+        return storageLevel;
+    }
+
+    public void setStorageLevel(Level storageLevel) {
+        this.storageLevel = storageLevel;
     }
 
     public void setConsoleLevel(Level consoleLevel) {
@@ -178,10 +187,6 @@ public class Logger {
         return plugin;
     }
 
-    public String getPluginName() {
-        return pluginName;
-    }
-
     public Storage getStorage() {
         return storage;
     }
@@ -212,7 +217,7 @@ public class Logger {
                     .add("msg", "§" + level.getColor() + msg)));
         }
 
-        if (storage != null) {
+        if (level.getValue() >= storageLevel.getValue() && storage != null) {
             write(JulyText.setPlaceholders(storageFormat, new PlaceholderContainer()
                     .add("date_time", DATE_TIME_SDF.format(time))
                     .add("plugin_name", pluginName)
