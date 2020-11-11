@@ -32,6 +32,12 @@ public class JulyText {
 
             if (currentChar == '$') {
                 int nextIndex = i + 1;
+
+                if (nextIndex == len) {
+                    result.append(currentChar);
+                    continue;
+                }
+
                 char nextChar = s.charAt(nextIndex);
 
                 switch (nextChar) {
@@ -60,7 +66,7 @@ public class JulyText {
                         i++;
                         break;
                     default:
-                        result.append(nextChar);
+                        result.append("$");
                         break;
                 }
             } else {
@@ -69,6 +75,49 @@ public class JulyText {
         }
 
         return result.toString();
+    }
+
+    public static Set<String> getPlaceholders(@NotNull String s) {
+        Set<String> result = new HashSet<>();
+
+        int len = s.length();
+
+        for (int i = 0; i < len; i++) {
+            char currentChar = s.charAt(i);
+
+            if (currentChar == '$') {
+                int nextIndex = i + 1;
+
+                if (nextIndex == len) {
+                    continue;
+                }
+
+                char nextChar = s.charAt(nextIndex);
+
+                switch (nextChar) {
+                    case '{':
+                        int right = s.indexOf("}", nextIndex);
+
+                        if (right != -1) {
+                            String placeholder = s.substring(nextIndex + 1, right);
+
+                            result.add(placeholder);
+                        } else {
+                            i++;
+                            break;
+                        }
+
+                        break;
+                    case '$':
+                        i++;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -146,12 +195,10 @@ public class JulyText {
         return result;
     }
 
-    @Deprecated
     public static Set<String> getColoredTexts(@NotNull Set<String> texts) {
         return texts.stream().map(JulyText::getColoredText).collect(Collectors.toSet());
     }
 
-    @Deprecated
     public static List<String> getColoredTexts(@NotNull List<String> texts) {
         return texts.stream().map(JulyText::getColoredText).collect(Collectors.toList());
     }

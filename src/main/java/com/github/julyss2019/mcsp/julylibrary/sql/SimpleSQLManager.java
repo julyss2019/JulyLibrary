@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class SimpleSQLManager {
@@ -71,10 +72,22 @@ public class SimpleSQLManager {
     }
 
     public synchronized void executeStatement(@NotNull String s) throws RuntimeException {
+        PreparedStatement preparedStatement = null;
+
         try {
-            connection.prepareStatement(s).execute();
+            preparedStatement = connection.prepareStatement(s);
+
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException("SQL语句执行失败: " + s, e);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
         }
     }
 

@@ -14,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public class JulyLibrary extends JavaPlugin implements Listener {
     private static JulyLibrary instance;
     private ChatInterceptorManager chatInterceptorManager;
@@ -29,7 +31,7 @@ public class JulyLibrary extends JavaPlugin implements Listener {
         this.loggerManager = new LoggerManager();
         this.logger = loggerManager.createLogger(this);
 
-        logger.setStorage(new Logger.Storage(getDataFolder(), "${date}.log", 10));
+        logger.setStorage(new Logger.Storage(new File(getDataFolder(), "logs"), "${date}.log", 10));
 
         new LoggerTask().runTaskTimer(this, 0L, 20L);
         Bukkit.getPluginManager().registerEvents(new BuilderInventoryListener(), this);
@@ -63,7 +65,7 @@ public class JulyLibrary extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         logger.info("插件被卸载.");
-        builderInventoryManager.getBuilderInventories().forEach(builderInventory -> {
+        builderInventoryManager.getBuilderInventories().stream().forEach(builderInventory -> {
             builderInventory.getBukkitInventory().getViewers().forEach(HumanEntity::closeInventory);
         });
         Bukkit.getScheduler().cancelTasks(this);

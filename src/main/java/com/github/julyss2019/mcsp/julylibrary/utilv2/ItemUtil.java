@@ -1,7 +1,5 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
-import com.github.julyss2019.mcsp.julylibrary.item.ItemBuilder;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -9,9 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-@Deprecated
 public class ItemUtil {
     public @interface ValidItem {}
 
@@ -86,6 +84,38 @@ public class ItemUtil {
         List<String> lores = itemStack.getItemMeta().getLore();
 
         return lores != null && lores.contains(lore);
+    }
+
+    /**
+     * 判断物品是否包含集合中的lore（一个即可）
+     * @param itemStack
+     * @param lores
+     * @return
+     */
+    public static boolean containsOneLore(@ValidItem ItemStack itemStack, @NotNull Collection<String> lores) {
+        if (!isValid(itemStack)) {
+            return false;
+        }
+
+        ValidateUtil.notNullElement(lores, new RuntimeException("lores 中含有空元素"));
+
+        if (lores.size() == 0) {
+            return false;
+        }
+
+        List<String> itemLores = itemStack.getItemMeta().getLore();
+
+        if (itemLores == null) {
+            return false;
+        }
+
+        for (String itemLore : itemLores) {
+            if (lores.contains(itemLore)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -196,64 +226,4 @@ public class ItemUtil {
         return itemStack;
     }
 
-    @Deprecated
-    public static boolean isValidItem(@Nullable ItemStack itemStack) {
-        return itemStack != null && itemStack.getItemMeta() != null;
-    }
-
-    /**
-     * 通过配置节点得到物品
-     * @param section
-     * @return
-     */
-    @Deprecated
-    public static ItemBuilder getItemBuilderBySection(@NotNull ConfigurationSection section) {
-        ItemBuilder itemBuilder = new ItemBuilder()
-                .colored()
-                .displayName(section.getString("display_name"))
-                .lores(section.getStringList("lores"));
-
-        if (section.contains("id")) {
-            itemBuilder.material(section.getInt("id"));
-        } else if (section.contains("material")) {
-            itemBuilder.material(section.getString("material"));
-        } else {
-            throw new RuntimeException("ConfigurationSection material或id 未指定");
-        }
-
-        if (section.contains("data")) {
-            itemBuilder.data((short) section.getInt("data")); // 启用
-        } else if (section.contains("durability")) {
-            itemBuilder.durability((short) section.getInt("durability"));
-        }
-
-        return itemBuilder;
-    }
-
-    @Deprecated
-    public static ItemBuilder toItemBuilder(ItemStack itemStack) {
-        ItemBuilder itemBuilder = new ItemBuilder();
-
-        if (!ItemUtil.isValidItem(itemStack)) {
-            return itemBuilder;
-        }
-
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        itemBuilder.material(itemStack.getType());
-        itemBuilder.data(itemStack.getDurability());
-        itemBuilder.displayName(itemMeta.getDisplayName());
-        itemBuilder.lores(itemMeta.getLore());
-        return itemBuilder;
-    }
-
-    /**
-     * 得到物品ID（包含子ID）
-     * @param itemStack
-     * @return
-     */
-    @Deprecated
-    public static @Nullable String getItemId(ItemStack itemStack) {
-        return getId(itemStack);
-    }
 }

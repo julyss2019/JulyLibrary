@@ -265,7 +265,7 @@ public class CommandHandler extends TabHandler implements CommandExecutor {
                     } catch (IllegalAccessError | InvocationTargetException | IllegalAccessException ex) {
                         throw new RuntimeException("执行命令时发生了错误", ex);
                     } catch (InvalidArgumentException invalidArgumentException) {
-                        sendSubCommandUsage(cs, label, registeredSubCommand);
+                        sendSubCommandUsageMessage(cs, label, registeredSubCommand);
                         return true;
                     }
 
@@ -291,7 +291,7 @@ public class CommandHandler extends TabHandler implements CommandExecutor {
                 continue;
             }
 
-            sendSubCommandUsage(cs, label, registeredSubCommand);
+            sendSubCommandUsageMessage(cs, label, registeredSubCommand);
             sentOne = true;
         }
 
@@ -302,7 +302,7 @@ public class CommandHandler extends TabHandler implements CommandExecutor {
         return true;
     }
 
-    private void sendSubCommandUsage(@NotNull CommandSender sender, @NotNull String label, @NotNull RegisteredSubCommand registeredSubCommand) {
+    private void sendSubCommandUsageMessage(@NotNull CommandSender sender, @NotNull String label, @NotNull RegisteredSubCommand registeredSubCommand) {
         SubCommand subCommand = registeredSubCommand.getSubCommand();
         String[] subArgs = subCommand.subArgs();
 

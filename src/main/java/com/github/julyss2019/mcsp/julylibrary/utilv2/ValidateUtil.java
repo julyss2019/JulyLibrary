@@ -1,12 +1,12 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
 
-@Deprecated
 public class ValidateUtil {
     /**
      * 验证集合是否有 null 元素
@@ -87,5 +87,30 @@ public class ValidateUtil {
         }
 
         return obj;
+    }
+
+    /**
+     * 验证物品是否为有效物品
+     * 如果无效则抛出异常
+     * @param itemStack
+     * @return
+     */
+    public static ItemStack validItem(@Nullable ItemStack itemStack) {
+        return validItem(itemStack, new RuntimeException("itemstack 不合法"));
+    }
+
+    /**
+     * 验证物品是否为有效物品
+     * 如果无效则抛出异常
+     * @param itemStack
+     * @param e
+     * @return
+     */
+    public static ItemStack validItem(@Nullable ItemStack itemStack, @NotNull RuntimeException e) {
+        if (!ItemUtil.isValid(itemStack)) {
+            throw e;
+        }
+
+        return itemStack;
     }
 }

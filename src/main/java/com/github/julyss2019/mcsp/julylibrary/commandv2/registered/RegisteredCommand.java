@@ -10,6 +10,7 @@ import java.util.Set;
 public class RegisteredCommand {
     private MainCommand mainCommand;
     private Set<RegisteredSubCommand> registeredSubCommands;
+    private String description;
 
     public RegisteredCommand() {}
 
@@ -41,5 +42,13 @@ public class RegisteredCommand {
 
     public Collection<RegisteredSubCommand> getRegisteredSubCommands() {
         return new HashSet<>(registeredSubCommands);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -1,10 +1,9 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-@Deprecated
 public class ArrayUtil {
     /**
      * 从String数组删除指定索引的元素

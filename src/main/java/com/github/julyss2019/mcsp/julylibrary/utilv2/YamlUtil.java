@@ -1,4 +1,4 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
 import com.github.julyss2019.mcsp.julylibrary.item.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -7,16 +7,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-@Deprecated
 public class YamlUtil {
     /**
      * 从 ConfigurationSection 获得 ItemBuilder，支持：material，durability，display_name，lores，enchantments
@@ -26,10 +23,17 @@ public class YamlUtil {
     public static ItemBuilder getItemBuilder(@NotNull ConfigurationSection section) {
         ItemBuilder itemBuilder = new ItemBuilder()
                 .colored()
-                .material(section.getString("material"))
                 .durability((short) section.getInt("durability"))
                 .displayName(section.getString("display_name"))
                 .lores(section.getStringList("lores"));
+
+        if (section.contains("id")) {
+            itemBuilder.material(section.getInt("id"));
+        } else if (section.contains("material")) {
+            itemBuilder.material(section.getString("material"));
+        } else {
+            throw new RuntimeException("material | id 项不存在");
+        }
 
         if (section.contains("enchantments")) {
             for (String enchantmentName : section.getConfigurationSection("enchantments").getKeys(false)) {
@@ -222,45 +226,6 @@ public class YamlUtil {
             yml.save(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Deprecated
-    public static Location getLocationBySection(@NotNull ConfigurationSection section) {
-        return new Location(Bukkit.getWorld(section.getString("world")), section.getDouble("x"), section.getDouble("y"), section.getDouble("z"), (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
-    }
-
-    /**
-     * 补全yaml
-     * @param file 欲补全的文件
-     * @param completedSection 完整的节点
-     * @param charset 编码
-     */
-    @Deprecated
-    public static void completeConfig(@NotNull File file, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
-        completeConfig0(file, loadYaml(file, charset), completedSection, charset);
-    }
-
-    @Deprecated
-    private static void completeConfig0(@NotNull File targetFile, @NotNull YamlConfiguration targetYaml, @NotNull ConfigurationSection completedSection, @NotNull Charset charset) {
-        boolean changed = false;
-
-        for (String key : completedSection.getKeys(false)) {
-            if (completedSection.isConfigurationSection(key)) {
-                completeConfig0(targetFile, targetYaml, completedSection.getConfigurationSection(key), charset);
-            } else {
-                String sectionPath = completedSection.getCurrentPath();
-                String fullPath = sectionPath.equals("") ? key : sectionPath + "." + key;
-
-                if (!targetYaml.contains(fullPath)) {
-                    targetYaml.set(fullPath, completedSection.get(key));
-                    changed = true;
-                }
-            }
-        }
-
-        if (changed) {
-            YamlUtil.saveYaml(targetYaml, targetFile, charset);
         }
     }
 }

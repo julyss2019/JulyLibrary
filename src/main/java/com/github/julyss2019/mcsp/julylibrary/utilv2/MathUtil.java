@@ -1,6 +1,5 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
-@Deprecated
 public class MathUtil {
     /**
      * 得到随机数

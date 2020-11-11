@@ -1,4 +1,4 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -19,10 +19,7 @@ NMS 版本对应表：
 https://www.spigotmc.org/wiki/spigot-nms-and-minecraft-versions/
  */
 
-@Deprecated
 public class NMSUtil {
-    @Deprecated
-    public static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
     public static final String NMS_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
     /**

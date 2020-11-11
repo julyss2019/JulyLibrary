@@ -5,6 +5,8 @@ import com.github.julyss2019.mcsp.julylibrary.config.validate.Max;
 import com.github.julyss2019.mcsp.julylibrary.config.validate.Min;
 import com.github.julyss2019.mcsp.julylibrary.config.validate.NotEmpty;
 import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.utils.YamlUtil;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.NumberConversions;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,16 +48,24 @@ public class JulyConfig {
         return obj;
     }
 
+    private static Class<?> getListType(@NotNull Field field) {
+        ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+
+        return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+    }
+
     private static void setFields(@NotNull ConfigurationSection section, @NotNull Object obj) {
         Class<?> clazz = obj.getClass();
         Set<String> errors = new HashSet<>();
 
+        if (obj instanceof ConfigParser) {
+            ((ConfigParser) obj).parse(section);
+        }
+
         // 反射获得所有变量
         for (Field field : clazz.getDeclaredFields()) {
-            String fieldName = field.getName();
-
-            // 查看是否有Config注解
             if (field.isAnnotationPresent(Config.class)) {
+                Class<?> fieldType = field.getType();
                 Config configAnnotation = field.getAnnotation(Config.class);
                 String configPath = configAnnotation.path();
                 Set<String> fieldErrors = new HashSet<>();
@@ -62,11 +73,22 @@ public class JulyConfig {
                 // 如果yml有目标项
                 if (section.contains(configPath)) {
                     Object value = null;
-                    Class<?> fieldType = field.getType();
 
-                    if (fieldType == short.class) {
+                    // 对配置对象进行处理
+                    if (fieldType.getAnnotation(ConfigDeserializable.class) != null) {
+                        try {
+                            Object configClassObj = fieldType.newInstance();
+
+                            setFields(section.getConfigurationSection(configPath), configClassObj);
+
+                            value = configClassObj;
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                            fieldErrors.add("配置 " + configPath + " 实例生成失败.");
+                        }
+                    } else if (fieldType == short.class) {
                         value = (short) section.getInt(configAnnotation.path());
-                    } else {
+                    } else if (Enum.class.isAssignableFrom(fieldType)) {
                         // 对 java.lang.Enum 类的支持
                         Object[] enumConstants = fieldType.getEnumConstants();
 
@@ -77,20 +99,27 @@ public class JulyConfig {
                                         value = enumObj;
                                     }
                                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                                    throw new RuntimeException("设置配置 " + configPath + " 时发生了异常", e);
+                                    e.printStackTrace();
+                                    fieldErrors.add("配置 " + configPath + " 枚举不存在.");
                                 }
-                            }
-                        } else {
-                            if (configAnnotation.colored()) {
-                                if (fieldType == String.class ) {
-                                    value = JulyText.getColoredText(section.getString(configPath));
-                                } else if (fieldType == List.class && configAnnotation.colored()) {
-                                    value = JulyText.getColoredTexts(section.getStringList(configPath));
-                                }
-                            } else {
-                                value = section.get(configPath);
                             }
                         }
+                    } else if (fieldType == String.class) {
+                        value = configAnnotation.colored() ? JulyText.getColoredText(section.getString(configPath)) : section.getString(configPath);
+                    } else if (fieldType == List.class && getListType(field) == String.class) {
+                        value = configAnnotation.colored() ? JulyText.getColoredTexts(section.getStringList(configPath)) : section.getStringList(configPath);
+                    } else if (fieldType == Set.class && getListType(field) == String.class) {
+                            value = new HashSet<>(configAnnotation.colored() ? JulyText.getColoredTexts(section.getStringList(configPath)) : section.getStringList(configPath));
+                    } else if (fieldType == Location.class) {
+                        Object tmp = section.get(configPath);
+
+                        if (tmp instanceof ConfigurationSection) {
+                            value = YamlUtil.getLocationFromSection(section.getConfigurationSection(configPath));
+                        }
+                    }
+
+                    if (value == null) {
+                        value = section.get(configPath);
                     }
 
                     // NotNull 校验
@@ -121,6 +150,7 @@ public class JulyConfig {
                         }
                     }
 
+                    //
                     if (field.isAnnotationPresent(Min.class) || field.isAnnotationPresent(Max.class)) {
                         // 变量类型校验
                         if (fieldType != int.class
@@ -173,7 +203,7 @@ public class JulyConfig {
 
                     field.setAccessible(false);
                 } else {
-                    errors.add(clazz.getName() + " 中的变量 " + fieldName + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
+                    errors.add(clazz.getName() + " 中的变量 " + field.getName() + "(" + configPath + ")" + " 未能被成功赋值, 因为路径不存在.");
                 }
             }
         }

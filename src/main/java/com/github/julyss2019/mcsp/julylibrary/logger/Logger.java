@@ -4,7 +4,7 @@ package com.github.julyss2019.mcsp.julylibrary.logger;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
 import com.github.julyss2019.mcsp.julylibrary.text.PlaceholderContainer;
-import com.github.julyss2019.mcsp.julylibrary.utils.ValidateUtil;
+import com.github.julyss2019.mcsp.julylibrary.utilv2.ValidateUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -110,7 +110,7 @@ public class Logger {
 
 
     private Level consoleLevel = Level.INFO;
-    private Level storageLevel = Level.DEBUG;
+    private Level storageLevel = Level.INFO;
     private String consoleFormat = "&a[${plugin_name}] &f[${level}] &f${msg}";
     private String storageFormat = "[${date_time}] [${level}] ${msg}";
     private Plugin plugin;
@@ -131,45 +131,25 @@ public class Logger {
         return storageLevel;
     }
 
-    public void setStorageLevel(Level storageLevel) {
+    public void setStorageLevel(@NotNull Level storageLevel) {
         this.storageLevel = storageLevel;
     }
 
-    public void setConsoleLevel(Level consoleLevel) {
+    public void setConsoleLevel(@NotNull Level consoleLevel) {
         this.consoleLevel = consoleLevel;
     }
 
-    public void setConsoleFormat(String consoleFormat) {
+    public void setConsoleFormat(@NotNull String consoleFormat) {
         this.consoleFormat = consoleFormat;
     }
 
-    public void setStorageFormat(String storageFormat) {
+    public void setStorageFormat(@NotNull String storageFormat) {
         this.storageFormat = storageFormat;
     }
 
-    public void setStorage(Storage storage) {
+    public void setStorage(@NotNull Storage storage) {
         this.storage = storage;
     }
-
-
-    /*    private Logger(@NotNull Builder builder) {
-        ValidateUtil.notNull(builder.plugin, new RuntimeException("plugin 不能为 null"));
-        ValidateUtil.notNull(builder.consoleLevel, new RuntimeException("consoleLevel 不能为 null"));
-        ValidateUtil.notNull(builder.consoleFormat, new RuntimeException("consoleFormat 不能为 null"));
-        ValidateUtil.notNull(builder.storageFormat, new RuntimeException("storageFormat 不能为 null"));
-
-        this.consoleLevel = builder.consoleLevel;
-        this.consoleFormat = builder.consoleFormat;
-        this.storageFormat = builder.storageFormat;
-        this.plugin = builder.plugin;
-        this.pluginName = plugin.getName();
-        this.storage = builder.storage;
-
-        *//*
-        批注：遵循了单一权责原则，Timer Storage 按间隔保存必要的实现
-         *//*
-        JulyLibrary.getInstance().getLoggerManager().registerLogger(this);
-    }*/
 
     public Level getConsoleLevel() {
         return consoleLevel;

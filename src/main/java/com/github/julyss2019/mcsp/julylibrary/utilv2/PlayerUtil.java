@@ -1,10 +1,8 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
-import com.github.julyss2019.mcsp.julylibrary.Matcher;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -14,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
-@Deprecated
 public class PlayerUtil {
     private static Class<?> packetClass;
 
@@ -97,18 +94,6 @@ public class PlayerUtil {
 
         return totalAmount;
     }
-
-    @Deprecated
-    /**
-     * 判断玩家背包中是否有足够的物品
-     * @param player 玩家
-     * @param predicate 匹配器
-     * @param amount 数量
-     * @return
-     */
-    public static boolean hasEnoughItem(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int amount) {
-        return hasEnoughInventoryItems(player, predicate, amount);
-    }
     
     /**
      * 判断玩家背包中是否有足够的物品
@@ -130,18 +115,6 @@ public class PlayerUtil {
         }
 
         return totalAmount >= amount;
-    }
-
-    @Deprecated
-    /**
-     * 拿走玩家背包中的物品
-     * @param player
-     * @param predicate
-     * @param takeAmount 数量
-     * @return 是否拿走足量的物品
-     */
-    public static boolean takeItems(@NotNull Player player, @NotNull Predicate<@NotNull ItemStack> predicate, int takeAmount) {
-        return takeInventoryItems(player, predicate, takeAmount);
     }
     
     /**
@@ -178,34 +151,5 @@ public class PlayerUtil {
         }
 
         return tookAmount >= takeAmount;
-    }
-
-    @Deprecated
-    public static int getItemAmount(Player player, Matcher<@Nullable ItemStack> matcher) {
-        return getItemAmount(player, (Predicate<ItemStack>) matcher::match);
-    }
-
-    /**
-     * 判断玩家背包中是否有足够的物品
-     * @param player 玩家
-     * @param itemStackMatcher 物品匹配器
-     * @param amount 数量
-     * @return
-     */
-    @Deprecated
-    public static boolean hasEnoughItem(Player player, Matcher<@Nullable ItemStack> itemStackMatcher, int amount) {
-        return hasEnoughItem(player, (Predicate<ItemStack>) itemStackMatcher::match, amount);
-    }
-
-    /**
-     * 拿走玩家背包中的物品
-     * @param player
-     * @param matcher
-     * @param takeAmount 数量
-     * @return 是否拿走足量的物品
-     */
-    @Deprecated
-    public static boolean takeItems(Player player, Matcher<@Nullable ItemStack> matcher, int takeAmount) {
-        return takeItems(player, (Predicate<ItemStack>) matcher::match, takeAmount);
     }
 }

@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
 public class LocationUtil {
     /**
      * 从 Section 获得 Location

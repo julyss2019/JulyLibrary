@@ -1,32 +1,15 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated
 public class FileUtil {
-    @Deprecated
-    public static String readLines(@NotNull File file) {
-        StringBuilder sb = new StringBuilder();
-
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line).append(SystemUtil.LINE_SEPARATOR);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return sb.toString();
-    }
-
     /**
      * 读取文件
      * @param file
@@ -58,10 +41,5 @@ public class FileUtil {
         String tmp = file.getName();
 
         return tmp.substring(0, tmp.lastIndexOf("."));
-    }
-
-    @Deprecated
-    public static void saveResourceFile(@NotNull Plugin plugin, @NotNull String fileName, @NotNull File outFile, boolean replace) {
-        PluginUtil.saveResource(plugin, fileName, outFile, replace);
     }
 }

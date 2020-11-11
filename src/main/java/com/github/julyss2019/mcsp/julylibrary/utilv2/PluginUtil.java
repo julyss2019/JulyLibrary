@@ -1,4 +1,4 @@
-package com.github.julyss2019.mcsp.julylibrary.utils;
+package com.github.julyss2019.mcsp.julylibrary.utilv2;
 
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Deprecated
 public class PluginUtil {
     /**
      * 创建jar包内的资源文件（如果不存在）

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class StrUtil {
     public static boolean isInteger(@NotNull String s) {
         return s.matches("[0-9]+");
