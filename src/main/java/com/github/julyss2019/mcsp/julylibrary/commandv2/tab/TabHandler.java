@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TabHandler implements TabCompleter {
-    private Map<String, Tab> tabMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER); // 忽略大小写
+    private final Map<String, Tab> tabMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER); // 忽略大小写
 
     public void addTab(@NotNull Tab tab) {
         if (hasTab(tab)) {

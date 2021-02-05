@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ChatInterceptorManager {
-    private Map<UUID, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
+    private final Map<UUID, ChatInterceptor> playerChatInterceptorMap = new HashMap<>();
 
     /**
      * 注册聊天拦截器

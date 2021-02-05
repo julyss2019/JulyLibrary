@@ -11,8 +11,8 @@ import java.util.Set;
 
 public class BuilderInventory {
     public static class ListenerItem {
-        private int index;
-        private ItemListener itemListener;
+        private final int index;
+        private final ItemListener itemListener;
 
         public ListenerItem(int index, @NotNull ItemListener itemListener) {
             this.index = index;
@@ -28,7 +28,7 @@ public class BuilderInventory {
         }
     }
 
-    private Inventory bukkitInventory;
+    private final Inventory bukkitInventory;
     private InventoryListener inventoryListener;
     private Map<Integer, ListenerItem> indexToListenerItemMap = new HashMap<>();
     private Set<Integer> canInteractIndexes = new HashSet<>();

@@ -8,9 +8,9 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class Tab {
-    private String arg;
-    private @Nullable Predicate<CommandSender> showPredicate; // 显示条件
-    private Map<String, Tab> subTabMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final String arg;
+    private final  @Nullable Predicate<CommandSender> showPredicate; // 显示条件
+    private final Map<String, Tab> subTabMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public Tab(@NotNull String arg) {
         this(arg, null);

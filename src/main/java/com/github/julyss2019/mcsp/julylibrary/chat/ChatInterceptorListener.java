@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 
 public class ChatInterceptorListener implements Listener {
-    private ChatInterceptorManager chatInterceptorManager = JulyLibrary.getInstance().getChatInterceptorManager();
+    private final ChatInterceptorManager chatInterceptorManager = JulyLibrary.getInstance().getChatInterceptorManager();
 
     // 插件卸载注销拦截器
     @EventHandler

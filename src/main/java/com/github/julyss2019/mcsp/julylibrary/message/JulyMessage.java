@@ -1,7 +1,7 @@
 package com.github.julyss2019.mcsp.julylibrary.message;
 
-import com.github.julyss2019.mcsp.julylibrary.utils.NMSUtil;
-import com.github.julyss2019.mcsp.julylibrary.utils.PlayerUtil;
+import com.github.julyss2019.mcsp.julylibrary.utilv2.NMSUtil;
+import com.github.julyss2019.mcsp.julylibrary.utilv2.PlayerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -10,13 +10,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class JulyMessage {
-    private static final boolean TITLE_ENABLED = Arrays.asList("v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1").contains(NMSUtil.NMS_VERSION);
-    private static final boolean RAW_MESSAGE_ENABLED = Arrays.asList("v1_7_R1", "v1_7_R2", "v1_7_R3", "v1_7_R4", "v1_8_R1", "v1_8_R2", "v1_8_R3", "v1_9_R1", "v1_9_R2", "v1_10_R1", "v1_11_R1", "v1_12_R1", "v1_13_R1", "v1_13_R2", "v1_14_R1", "v1_15_R1").contains(NMSUtil.NMS_VERSION);
+    private static final boolean TITLE_ENABLED = NMSUtil.compareVersion("v1_8_R1") >= 0;
+    private static final boolean RAW_MESSAGE_ENABLED = NMSUtil.compareVersion("v1_7_R1") >= 0;
     private static Class<?> ichatBaseComponentClass;
     private static Class<?> packetPlayOutTitleClass;
     private static Class<?> titleActionClass;

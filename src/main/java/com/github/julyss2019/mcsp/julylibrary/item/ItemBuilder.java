@@ -372,6 +372,10 @@ public class ItemBuilder {
         if (itemMeta instanceof SkullMeta) {
             SkullMeta skullMeta = (SkullMeta) itemMeta;
 
+            if (skullOwner != null) {
+                skullMeta.setOwner(skullOwner);
+            }
+
             if (skullTexture != null) {
                 GameProfile profile = new GameProfile(UUID.randomUUID(), UUID.randomUUID().toString());
                 Field profileField;

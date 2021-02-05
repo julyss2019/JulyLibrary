@@ -7,12 +7,14 @@ import com.github.julyss2019.mcsp.julylibrary.commandv2.tab.Tab;
 import com.github.julyss2019.mcsp.julylibrary.map.MapBuilder;
 import com.github.julyss2019.mcsp.julylibrary.message.JulyMessage;
 import com.github.julyss2019.mcsp.julylibrary.text.JulyText;
+import com.github.julyss2019.mcsp.julylibrary.text.PlaceholderContainer;
 import com.github.julyss2019.mcsp.julylibrary.utils.ArrayUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,6 +32,15 @@ public class CommandHandler extends TabHandler implements CommandExecutor {
     private String onlyPlayerCanUseMessage = "&c该命令只能由玩家执行.";
     private String onlyConsoleCanUseMessage = "&c该命令只能由控制台执行.";
     private String noneMessage = "&c没有可供显示的内容.";
+    private PlaceholderContainer placeholderContainer;
+
+    public PlaceholderContainer getPlaceholderContainer() {
+        return placeholderContainer;
+    }
+
+    public void setPlaceholderContainer(@Nullable PlaceholderContainer placeholderContainer) {
+        this.placeholderContainer = placeholderContainer;
+    }
 
     public String getNoneMessage() {
         return noneMessage;
@@ -264,9 +275,6 @@ public class CommandHandler extends TabHandler implements CommandExecutor {
                         registeredSubCommand.execute(cs, ArrayUtil.removeElementFromStrArray(ArrayUtil.removeElementFromStrArray(args, 0), 0));
                     } catch (IllegalAccessError | InvocationTargetException | IllegalAccessException ex) {
                         throw new RuntimeException("执行命令时发生了错误", ex);
-                    } catch (InvalidArgumentException invalidArgumentException) {
-                        sendSubCommandUsageMessage(cs, label, registeredSubCommand);
-                        return true;
                     }
 
                     return true;
