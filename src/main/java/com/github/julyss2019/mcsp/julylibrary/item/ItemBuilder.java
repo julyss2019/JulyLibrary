@@ -423,7 +423,7 @@ public class ItemBuilder {
                 itemStack.removeEnchantment(enchantment);
                 continue;
             }
-
+ 
             itemMeta.addEnchant(enchantment, lv, true);
         }
 

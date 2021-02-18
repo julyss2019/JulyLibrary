@@ -7,6 +7,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JulyText {
+    public static List<String> setPlaceholders(@NotNull List<String> list, @NotNull PlaceholderContainer placeholderContainer) {
+        return list.stream().map(s -> setPlaceholders(s, placeholderContainer)).collect(Collectors.toList());
+    }
+
     /**
      * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}
      * @param s
@@ -17,6 +21,7 @@ public class JulyText {
         return setPlaceholders(s, placeholderContainer.toMap());
     }
 
+    @Deprecated
     /**
      * 替换占位符（支持转义），格式：${placeholder}，转义 $${placeholder}
      * @param s

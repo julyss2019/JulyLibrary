@@ -31,6 +31,14 @@ public class LoreItemEditor {
         this.lores = Optional.ofNullable(itemMeta.getLore()).orElse(new ArrayList<>());
     }
 
+    public LoreItemEditor replaceLore(@NotNull String oldStr, @NotNull String newStr) {
+        this.lores = lores.stream().map(s -> {
+           return s.replace(oldStr, newStr);
+        }).collect(Collectors.toList());
+
+        return this;
+    }
+
     public LoreItemEditor clearLores() {
         lores.clear();
         return this;
